@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/inz1.0/eureka/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/player/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/config_server/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/played_character/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="corretto-11" project-jdk-type="JavaSDK" />
+</project>
