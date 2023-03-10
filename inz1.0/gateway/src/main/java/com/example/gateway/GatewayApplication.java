@@ -34,7 +34,7 @@ public class GatewayApplication {
                 .route("characters", r -> r
                         .host("localhost:8080")
                         .and()
-                        .path("/api/characters/{characterId}", "/api/characters")
+                        .path("/api/playedCharacters/{characterId}", "/api/playedCharacters")
                         .uri("http://localhost:" + microservice_played_character_port))
                 .route("players", r -> r
                         .host("localhost:8080")

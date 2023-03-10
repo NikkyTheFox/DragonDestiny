@@ -2,32 +2,37 @@ package com.example.game.entities.character;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 public class PlayedCharacterService {
 
-    private PlayedCharacterRepository character_repo;
+    private PlayedCharacterRepository playedCharacterRepository;
 
     @Autowired
     public PlayedCharacterService(PlayedCharacterRepository character_repo) {
-        this.character_repo = character_repo;
+        this.playedCharacterRepository = character_repo;
     }
 
     public Optional<PlayedCharacter> findById(Integer id) {
-        return character_repo.findById(id);
+        return playedCharacterRepository.findById(id);
     }
 
     public Iterable<PlayedCharacter> findAll() {
-        return character_repo.findAll();
+        return playedCharacterRepository.findAll();
     }
-
-    public PlayedCharacter save(PlayedCharacter videoCassette) {
-        return character_repo.save(videoCassette);
+    @Transactional
+    public PlayedCharacter save(PlayedCharacter playedCharacter) {
+        return playedCharacterRepository.save(playedCharacter);
     }
-
+    @Transactional
     public void deleteById(Integer id) {
-        character_repo.deleteById(id);
+        playedCharacterRepository.deleteById(id);
     }
+
+    @Transactional
+    public void update(PlayedCharacter playedCharacter){ playedCharacterRepository.save(playedCharacter);}
+
 }
