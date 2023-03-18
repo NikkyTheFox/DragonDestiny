@@ -5,15 +5,15 @@ drop table if exists players;
 
 
 create table characters(
-id int,
+id int identity(1,1),
 name varchar(6969)
 );
 
 create table players(
-id int,
+id int identity(1,1),
 name varchar(6969)
 );
 
-insert into players values (1, 'Adam');
+insert into players values ('Adam');
 
-insert into characters values (1, 'kototot')
+insert into characters values ('kototot')
