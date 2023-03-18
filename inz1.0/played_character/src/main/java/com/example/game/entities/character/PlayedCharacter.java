@@ -4,7 +4,7 @@ package com.example.game.entities.character;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Getter
 @Setter
