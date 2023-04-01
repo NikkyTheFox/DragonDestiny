@@ -29,7 +29,7 @@ public class PlayerController {
 
     @GetMapping
     public ResponseEntity<GetPlayersResponse> GetPlayers(){
-        return ResponseEntity.ok(GetPlayersResponse.entityToDtoMapper().apply((Collection<Player>) playerService.findAll()));
+        return ResponseEntity.ok(GetPlayersResponse.entityToDtoMapper().apply(playerService.findAll()));
     }
 
     @GetMapping("{playerId}")

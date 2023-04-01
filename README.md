@@ -9,3 +9,5 @@ In Player and PlayedCharacter's application.properties -> change database server
 5 gateway   
 
 CONFIG REPO on cool-truskawka/confrepo
+
+remember about changing Database server address and password for each entity class
