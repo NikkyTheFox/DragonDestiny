@@ -1,11 +1,9 @@
 package com.example.gateway;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
@@ -14,15 +12,9 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 import java.util.Arrays;
 import java.util.Collections;
 
-@EnableEurekaClient
 @SpringBootApplication
 public class GatewayApplication {
 
-    @Value("${gateway.microservice-played-character-port}")
-    private Integer microservice_played_character_port;
-
-    @Value("${gateway.microservice-player-port}")
-    private Integer microservice_player_port;
     public static void main(String[] args) {
         SpringApplication.run(GatewayApplication.class, args);
     }
@@ -31,16 +23,12 @@ public class GatewayApplication {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder
                 .routes()
-                .route("characters", r -> r
-                        .host("localhost:8080")
-                        .and()
+                .route("playedCharacters", r -> r
                         .path("/api/playedCharacters/{characterId}", "/api/playedCharacters")
-                        .uri("http://localhost:" + microservice_played_character_port))
+                        .uri("lb://microservice-played-character"))
                 .route("players", r -> r
-                        .host("localhost:8080")
-                        .and()
                         .path("/api/players", "/api/players/{playerId}")
-                        .uri("http://localhost:" + microservice_player_port))
+                        .uri("lb://microservice-player"))
                 .build();
     }
     @Bean
