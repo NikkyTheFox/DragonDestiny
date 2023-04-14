@@ -11,8 +11,8 @@
     <groupId>com.example</groupId>
     <artifactId>played_character</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>game</name>
-    <description>game</description>
+    <name>played_character</name>
+    <description>played_character</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.1</spring-cloud.version>
