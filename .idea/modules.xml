@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/inz1.0/gateway/Gateway.iml" filepath="$PROJECT_DIR$/inz1.0/gateway/Gateway.iml" />
       <module fileurl="file://$PROJECT_DIR$/inz1.0/config_server/config_server.iml" filepath="$PROJECT_DIR$/inz1.0/config_server/config_server.iml" />
       <module fileurl="file://$PROJECT_DIR$/inz1.0/eureka/eureka.iml" filepath="$PROJECT_DIR$/inz1.0/eureka/eureka.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/inz1.0TOADAM.iml" filepath="$PROJECT_DIR$/.idea/inz1.0TOADAM.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/inz1.0.iml" filepath="$PROJECT_DIR$/.idea/inz1.0.iml" />
       <module fileurl="file://$PROJECT_DIR$/inz1.0/played_character/played_character.iml" filepath="$PROJECT_DIR$/inz1.0/played_character/played_character.iml" />
       <module fileurl="file://$PROJECT_DIR$/inz1.0/player/player.iml" filepath="$PROJECT_DIR$/inz1.0/player/player.iml" />
     </modules>
