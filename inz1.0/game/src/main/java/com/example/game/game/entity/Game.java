@@ -1,10 +1,16 @@
 package com.example.game.game.entity;
 
-import com.example.game.board.entity.Board;
+import com.example.game.card.card.entity.Card;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Game class represents a 'box' where all elements of the game are stored.
+ */
 @Entity
 @Getter
 @Setter
@@ -22,5 +28,7 @@ public class Game {
     private Integer id;
 
     private Integer boardId;
+    @OneToMany(mappedBy = "id")
+    private List<Card> cardDeck = new ArrayList<>();
 
 }

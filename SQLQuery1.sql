@@ -15,10 +15,16 @@ GO
 insert into characters values ('kot');
 
 -- CARDS:
+drop table if exists cards;
 drop table if exists item_cards;
 drop table if exists enemy_cards;
 drop table if exists character_cards;
 
+create table cards(
+id int identity(1, 1) primary key,
+name varchar(50),
+description varchar(250)
+)
 create table item_cards(
     id int identity(1, 1) primary key,
     name varchar(50),
@@ -42,6 +48,19 @@ create table character_cards
     initial_strength int,
     initial_health   int
 )
+insert into cards values
+('card1', 'some description');
+
+insert into enemy_cards values
+('enemy card1', 'some description of enemy 1', 12, 10);
+
+insert into item_cards values
+('item card1', 'some description of item 1', 0, 1);
+
+insert into character_cards values
+('character card 1', 'some description of character 1', 'profession 1', 10, 10);
+
+select * from cards;
 
 -- BOARDS + FIELDS:
 drop table if exists fields;
