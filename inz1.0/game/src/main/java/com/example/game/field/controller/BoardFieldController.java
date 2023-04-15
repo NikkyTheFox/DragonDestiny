@@ -19,7 +19,7 @@ import java.util.List;
  * Does not allow any other options - just get as board will not be changed during the game.
  */
 @RestController
-@RequestMapping("api/boards/{id}/fields")
+@RequestMapping(value = {"api/boards/{id}/fields", "api/games/{gameid}/board/{id}/fields"})
 public class BoardFieldController {
 
     private ModelMapper modelMapper;

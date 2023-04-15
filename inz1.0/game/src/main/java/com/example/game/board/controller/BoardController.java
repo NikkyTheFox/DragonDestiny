@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping(value = {"/api/boards"})
 public class BoardController {
 
     private ModelMapper modelMapper;

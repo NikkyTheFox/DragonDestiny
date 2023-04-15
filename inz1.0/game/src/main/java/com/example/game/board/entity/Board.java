@@ -25,7 +25,7 @@ import java.util.Set;
 @ToString
 @EqualsAndHashCode
 @Table(name = "boards")
-public class Board implements Serializable
+public class Board
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +43,6 @@ public class Board implements Serializable
     private Integer ySize;
     /**
      * List of fields in the board - one board => many fields.
-     * Right now each field can be in only one board.
-     * Right now ArrayList - ?
      */
     @OneToMany(mappedBy = "id")
     private List<Field> fieldsInBoard = new ArrayList<Field>();
