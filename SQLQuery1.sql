@@ -20,45 +20,70 @@ drop table if exists item_cards;
 drop table if exists enemy_cards;
 drop table if exists character_cards;
 
-create table cards(
-id int identity(1, 1) primary key,
-name varchar(50),
-description varchar(250)
-)
-create table item_cards(
+create table cards
+(
     id int identity(1, 1) primary key,
     name varchar(50),
     description varchar(250),
+    card_type varchar(50)
+)
+create table item_cards
+(
+--     id int identity(1, 1) primary key,
+--     name varchar(50),
+--     description varchar(250),
+    card_id int primary key,
     additional_strength int,
     additional_health int
 )
-create table enemy_cards(
-    id int identity(1, 1) primary key,
-    name varchar(50),
-    description varchar(250),
+create table enemy_cards
+(
+--     id int identity(1, 1) primary key,
+--     name varchar(50),
+--     description varchar(250),
+    card_id int primary key,
     initial_health int,
     initial_strength int
 )
-create table character_cards
-(
-    id               int identity (1, 1) primary key,
-    name             varchar(50),
-    description      varchar(250),
-    profession       varchar(50),
-    initial_strength int,
-    initial_health   int
-)
+
+
+-- nested insert in JAVA
+-- DO LATER!!!!!!!!!!!!!!!!!!!! ???????????????????????
 insert into cards values
-('card1', 'some description');
-
+('enemy card1', 'some description of enemy 1', 'ENEMY_CARD')
 insert into enemy_cards values
-('enemy card1', 'some description of enemy 1', 12, 10);
+(1, 12, 10);
 
+insert into cards values
+('enemy card2', 'some description of enemy 2', 'ENEMY_CARD')
+insert into enemy_cards values
+(2, 12, 10);
+
+insert into cards values
+('item card 1', 'some description of item 1', 'ITEM_CARD')
 insert into item_cards values
-('item card1', 'some description of item 1', 0, 1);
+(3, 10, 10);
+go
+-- drop view if exists enemy_card_view
+-- go
+-- create view enemy_card_view as
+--     select id, name, description, card_type, initial_health, initial_strength from
+--     (   select * from cards as a
+--         inner join enemy_cards as b on b.card_id = a.id
+--         where a.card_type = 'ENEMY_CARD') x;
+-- go
+-- select * from enemy_card_view;
+--
+-- go
+-- drop view if exists item_card_view
+-- go
+-- create view item_card_view as
+-- select id, name, description, card_type, additional_strength, additional_health from
+--     (   select * from cards as a
+--         inner join item_cards as b on b.card_id = a.id
+--         where a.card_type = 'ITEM_CARD') x;
+-- go
 
-insert into character_cards values
-('character card 1', 'some description of character 1', 'profession 1', 10, 10);
 
 select * from cards;
 

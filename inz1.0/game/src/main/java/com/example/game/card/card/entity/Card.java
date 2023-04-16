@@ -1,6 +1,10 @@
 package com.example.game.card.card.entity;
 
 
+import com.example.game.card.enemycard.entity.EnemyCard;
+import com.example.game.card.itemcard.entity.ItemCard;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -17,15 +21,27 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @EqualsAndHashCode
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "cards")
-public class Card
+@Inheritance(strategy = InheritanceType.JOINED)
+//@DiscriminatorColumn(name = "CardType", discriminatorType = DiscriminatorType.STRING)
+//@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "CardType")
+//@JsonSubTypes({
+//        @JsonSubTypes.Type(value = EnemyCard.class, name = "ENEMY_CARD"),
+//        @JsonSubTypes.Type(value = ItemCard.class, name = "ITEM_CARD")
+//        })
+//@SequenceGenerator(name = "cards_seq", allocationSize = 100)
+// allocation size - max?
+public abstract class Card
 {
     @Id
-   // @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     String name;
     String description;
+    @Enumerated(EnumType.STRING)
+    CardType cardType;
+
+//    public abstract CardType whatType();
 
     // GRAPHICS
     /*

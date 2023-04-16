@@ -1,6 +1,8 @@
-package com.example.game.card.itemcard;
+package com.example.game.card.itemcard.entity;
 
 import com.example.game.card.card.entity.Card;
+import com.example.game.card.card.entity.CardType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -13,9 +15,16 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString
 @Table(name = "item_cards")
+//@DiscriminatorValue("ITEM_CARD")
+@PrimaryKeyJoinColumn(name = "card_id") // ????
 public class ItemCard extends Card
 {
     Integer additionalStrength;
     Integer additionalHealth;
+
+    @JsonIgnore
+    public CardType whatType() {
+        return CardType.ITEM_CARD;
+    }
 
 }
