@@ -31,13 +31,16 @@ import lombok.experimental.SuperBuilder;
 //        })
 //@SequenceGenerator(name = "cards_seq", allocationSize = 100)
 // allocation size - max?
-public abstract class Card
+public class Card
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     String name;
     String description;
+
+
+    @Column(name = "card_type")
     @Enumerated(EnumType.STRING)
     CardType cardType;
 

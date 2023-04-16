@@ -19,8 +19,11 @@ import lombok.experimental.SuperBuilder;
 @PrimaryKeyJoinColumn(name = "card_id") // ????
 public class EnemyCard extends Card
 {
+    @Column(name = "initial_health")
     Integer initialHealth;
+    @Column(name = "initial_strength")
     Integer initialStrength;
+
     @JsonIgnore
     public CardType whatType() {
         return CardType.ENEMY_CARD;

@@ -5,8 +5,11 @@ import com.example.game.board.entity.Board;
 import com.example.game.board.service.BoardService;
 import com.example.game.card.card.dto.CardDTO;
 import com.example.game.card.card.entity.Card;
+import com.example.game.card.card.entity.CardType;
 import com.example.game.card.card.repository.CardRepository;
 import com.example.game.card.card.service.CardService;
+import com.example.game.card.enemycard.dto.EnemyCardDTO;
+import com.example.game.card.itemcard.dto.ItemCardDTO;
 import com.example.game.game.dto.GameDTO;
 import com.example.game.game.entity.Game;
 import com.example.game.game.service.GameService;
@@ -24,9 +27,9 @@ import java.util.stream.Collectors;
 public class CardController {
 
     private ModelMapper modelMapper;
-    private CardRepository cardService;
+    private CardService cardService;
     @Autowired
-    CardController(CardRepository cardService, ModelMapper modelMapper) {
+    CardController(CardService cardService, ModelMapper modelMapper) {
         this.cardService = cardService;
         this.modelMapper = modelMapper;
     }
@@ -39,10 +42,20 @@ public class CardController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<CardDTO> getCardById(@PathVariable(name = "id") Integer id) {
-        Optional<Card> card = cardService.findById(id);
+        Card card = cardService.findById(id);
         // convert board entity to DTO
-        CardDTO cardResponse = modelMapper.map(card, CardDTO.class);
-        return ResponseEntity.ok().body(cardResponse);
+        if(card.getCardType() == CardType.ENEMY_CARD)
+        {
+            EnemyCardDTO cardResponse = modelMapper.map(card, EnemyCardDTO.class);
+            return ResponseEntity.ok().body(cardResponse);
+        } else if (card.getCardType() == CardType.ITEM_CARD)
+        {
+            ItemCardDTO cardResponse = modelMapper.map(card, ItemCardDTO.class);
+            return ResponseEntity.ok().body(cardResponse);
+        }
+        return ResponseEntity.notFound().build();
+        //CardDTO cardResponse = modelMapper.map(card, CardDTO.class);
+
     }
     @PostMapping
     public ResponseEntity<CardDTO> createCard(@RequestBody CardDTO cardDTO){
@@ -53,17 +66,17 @@ public class CardController {
         CardDTO cardResponse = modelMapper.map(card, CardDTO.class);
         return ResponseEntity.ok().body(cardResponse);
     }
-    /*
+
     @PutMapping("/{id}")
     public ResponseEntity<CardDTO> updateCard(@PathVariable(name = "id") Integer id, @RequestBody CardDTO cardDTO) {
         // convert DTO to entity
         Card cardRequest = modelMapper.map(cardDTO, Card.class);
-        //Card card = cardService.findById(id);
+        Card card = cardService.findById(id);
         cardService.deleteById(id);
         // convert entity to DTO
         CardDTO cardResponse = modelMapper.map(card, CardDTO.class);
         return ResponseEntity.ok().body(cardResponse);
-    } */
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCard(@PathVariable(name = "id") Integer id) {
