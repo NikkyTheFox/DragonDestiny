@@ -15,12 +15,12 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="config_server" target="11" />
-      <module name="eureka" target="11" />
+      <module name="config_server" target="17" />
+      <module name="eureka" target="17" />
       <module name="game" target="11" />
-      <module name="Gateway" target="11" />
-      <module name="played_character" target="11" />
-      <module name="player" target="11" />
+      <module name="Gateway" target="17" />
+      <module name="played_character" target="17" />
+      <module name="player" target="17" />
       <module name="player (1)" target="11" />
       <module name="xdclient" target="17" />
     </bytecodeTargetLevel>
