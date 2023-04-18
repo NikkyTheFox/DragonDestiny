@@ -17,15 +17,30 @@ import java.util.function.Function;
 @ToString
 @EqualsAndHashCode
 public class GetPlayedCharactersResponse {
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    @EqualsAndHashCode
+    public static class PlayedCharacter{
+        private Integer id;
+        private String name;
+    }
     @Singular
-    private List<String> playedCharacters;
+    private List<PlayedCharacter> playedCharacters;
 
-    public static Function<Collection<PlayedCharacter>,GetPlayedCharactersResponse> entityToDtoMapper(){
+    public static Function<Collection<com.example.game.entities.character.PlayedCharacter>,GetPlayedCharactersResponse> entityToDtoMapper(){
         return playedCharacters -> {
-            GetPlayedCharactersResponseBuilder responseBuilder = GetPlayedCharactersResponse.builder();
+            GetPlayedCharactersResponseBuilder response = GetPlayedCharactersResponse.builder();
             playedCharacters.stream()
-                    .map(PlayedCharacter::getName).forEach(responseBuilder::playedCharacter);
-            return responseBuilder.build();
+                    .map(playedCharacter -> PlayedCharacter.builder()
+                            .id(playedCharacter.getId())
+                            .name(playedCharacter.getName())
+                            .build())
+                    .forEach(response::playedCharacter);
+            return response.build();
         };
     }
 }

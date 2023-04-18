@@ -16,15 +16,32 @@ import java.util.function.Function;
 @ToString
 @EqualsAndHashCode
 public class GetPlayersResponse {
-    @Singular
-    private List<String> players;
 
-    public static Function<Collection<Player>,GetPlayersResponse> entityToDtoMapper(){
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    @EqualsAndHashCode
+    public static class Player{
+        private Integer id;
+        private String name;
+    }
+
+    @Singular
+    private List<Player> players;
+    
+    public static Function<Collection<com.example.player.entities.Player>,GetPlayersResponse> entityToDtoMapper(){
         return players -> {
-            GetPlayersResponseBuilder responseBuilder = GetPlayersResponse.builder();
+            GetPlayersResponseBuilder response =GetPlayersResponse.builder();
             players.stream()
-                    .map(Player::getName).forEach(responseBuilder::player);
-            return responseBuilder.build();
+                    .map(player -> Player.builder()
+                            .id(player.getId())
+                            .name(player.getName())
+                            .build())
+                    .forEach(response::player);
+            return response.build();
         };
     }
 }

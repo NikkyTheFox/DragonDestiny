@@ -4,7 +4,7 @@ package com.example.game.entities.character;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Getter
 @Setter
@@ -19,6 +19,7 @@ public class PlayedCharacter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "name")
     private String name;
 
 }

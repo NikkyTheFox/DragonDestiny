@@ -28,7 +28,7 @@ public class PlayedCharacterController {
 
     @GetMapping
     public ResponseEntity<GetPlayedCharactersResponse> GetPlayedCharacters(){
-        return ResponseEntity.ok(GetPlayedCharactersResponse.entityToDtoMapper().apply((Collection<PlayedCharacter>) playedCharacterService.findAll()));
+        return ResponseEntity.ok(GetPlayedCharactersResponse.entityToDtoMapper().apply(playedCharacterService.findAll()));
     }
 
     @GetMapping("{characterId}")
