@@ -23,7 +23,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "cards")
 @Inheritance(strategy = InheritanceType.JOINED)
-//@DiscriminatorColumn(name = "CardType", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("CARD")
+@DiscriminatorColumn(name = "card_type", discriminatorType = DiscriminatorType.STRING)
 //@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "CardType")
 //@JsonSubTypes({
 //        @JsonSubTypes.Type(value = EnemyCard.class, name = "ENEMY_CARD"),
@@ -40,9 +41,9 @@ public class Card
     String description;
 
 
-    @Column(name = "card_type")
-    @Enumerated(EnumType.STRING)
-    CardType cardType;
+//    @Column(name = "card_type")
+//    @Enumerated(EnumType.STRING)
+//    CardType cardType;
 
 //    public abstract CardType whatType();
 

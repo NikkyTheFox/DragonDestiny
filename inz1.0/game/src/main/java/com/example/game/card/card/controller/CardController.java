@@ -44,15 +44,15 @@ public class CardController {
     public ResponseEntity<CardDTO> getCardById(@PathVariable(name = "id") Integer id) {
         Card card = cardService.findById(id);
         // convert board entity to DTO
-        if(card.getCardType() == CardType.ENEMY_CARD)
-        {
-            EnemyCardDTO cardResponse = modelMapper.map(card, EnemyCardDTO.class);
-            return ResponseEntity.ok().body(cardResponse);
-        } else if (card.getCardType() == CardType.ITEM_CARD)
-        {
-            ItemCardDTO cardResponse = modelMapper.map(card, ItemCardDTO.class);
-            return ResponseEntity.ok().body(cardResponse);
-        }
+      //  if(card instanceof  .getCardType() == CardType.ENEMY_CARD)
+//        {
+//            EnemyCardDTO cardResponse = modelMapper.map(card, EnemyCardDTO.class);
+//            return ResponseEntity.ok().body(cardResponse);
+//        } else if (card.getCardType() == CardType.ITEM_CARD)
+//        {
+//            ItemCardDTO cardResponse = modelMapper.map(card, ItemCardDTO.class);
+//            return ResponseEntity.ok().body(cardResponse);
+//        }
         return ResponseEntity.notFound().build();
         //CardDTO cardResponse = modelMapper.map(card, CardDTO.class);
 

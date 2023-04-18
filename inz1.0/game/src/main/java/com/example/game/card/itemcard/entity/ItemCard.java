@@ -15,8 +15,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString
 @Table(name = "item_cards")
-//@DiscriminatorValue("ITEM_CARD")
-@PrimaryKeyJoinColumn(name = "card_id") // ????
+@DiscriminatorValue("ITEM_CARD")
+//@PrimaryKeyJoinColumn(name = "card_id") // ????
 public class ItemCard extends Card
 {
     @Column(name = "additional_strength")

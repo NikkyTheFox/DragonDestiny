@@ -32,7 +32,7 @@
     --     id int identity(1, 1) primary key,
     --     name varchar(50),
     --     description varchar(250),
-        card_id int primary key,
+        id int primary key references cards,
         additional_strength int,
         additional_health int
     )
@@ -41,7 +41,7 @@
     --     id int identity(1, 1) primary key,
     --     name varchar(50),
     --     description varchar(250),
-        card_id int primary key,
+        id int primary key references cards,
         initial_health int,
         initial_strength int
     )
