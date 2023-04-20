@@ -1,91 +1,26 @@
     use xd;
     -- Testing:
-    drop table if exists characters;
-    drop table if exists players;
-    create table characters(
-        id int identity(1,1) primary key,
-        name varchar(6969)
-    );
-    create table players(
-        id int identity(1,1) primary key,
-        name varchar(6969)
-    );
-    insert into players values ('Adam');
-    GO
-    insert into characters values ('kot');
+--     drop table if exists characters;
+--     drop table if exists players;
+--     create table characters(
+--         id int identity(1,1) primary key,
+--         name varchar(6969)
+--     );
+--     create table players(
+--         id int identity(1,1) primary key,
+--         name varchar(6969)
+--     );
+--     insert into players values ('Adam');
+--     GO
+--     insert into characters values ('kot');
 
-    -- CARDS:
-    drop table if exists item_cards;
-    drop table if exists enemy_cards;
-    drop table if exists character_cards;
-    drop table if exists cards;
 
-    create table cards
-    (
-        id int identity(1, 1) primary key,
-        name varchar(50),
-        description varchar(250),
-        card_type varchar(50)
+    -- GAME:
+    drop table if exists games;
+    create table games(
+        game_id int identity(1, 1) primary key,
+        board_id int
     )
-    create table item_cards
-    (
-    --     id int identity(1, 1) primary key,
-    --     name varchar(50),
-    --     description varchar(250),
-        id int primary key references cards,
-        additional_strength int,
-        additional_health int
-    )
-    create table enemy_cards
-    (
-    --     id int identity(1, 1) primary key,
-    --     name varchar(50),
-    --     description varchar(250),
-        id int primary key references cards,
-        initial_health int,
-        initial_strength int
-    )
-
-
-    -- nested insert in JAVA
-    -- DO LATER ???????????????????????
-    insert into cards values
-    ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD')
-    insert into enemy_cards values
-    (1, 12, 10);
-
-    insert into cards values
-    ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD')
-    insert into enemy_cards values
-    (2, 12, 10);
-
-    insert into cards values
-    ('item card 1', 'some description of item 1', 'ITEM_CARD')
-    insert into item_cards values
-    (3, 10, 10);
-    go
-    -- drop view if exists enemy_card_view
-    -- go
-    -- create view enemy_card_view as
-    --     select id, name, description, card_type, initial_health, initial_strength from
-    --     (   select * from cards as a
-    --         inner join enemy_cards as b on b.card_id = a.id
-    --         where a.card_type = 'ENEMY_CARD') x;
-    -- go
-    -- select * from enemy_card_view;
-    --
-    -- go
-    -- drop view if exists item_card_view
-    -- go
-    -- create view item_card_view as
-    -- select id, name, description, card_type, additional_strength, additional_health from
-    --     (   select * from cards as a
-    --         inner join item_cards as b on b.card_id = a.id
-    --         where a.card_type = 'ITEM_CARD') x;
-    -- go
-
-
-    select * from cards;
 
     -- BOARDS + FIELDS:
     drop table if exists fields;
@@ -104,6 +39,7 @@
     )
     insert into boards values
     (5, 5);
+
     insert into fields values -- x, y, board
     -- y 0
     ('TAKE_ONE_CARD', 0, 0, 1),
@@ -126,15 +62,67 @@
     ('TAKE_TWO_CARDS', 0, 2, 1),
     ('TAKE_TWO_CARDS', 0, 1, 1);
 
+    insert into fields (field_type, x_position, y_position) values
+    ('LOSE_ONE_ROUND', 0, 1);
 
-    -- GAME:
-    drop table if exists games;
-    create table games(
-        game_id int identity(1, 1) primary key,
-        board_id int
-    )
+
     insert into games values
-    (1)
+    (1) -- board id 1
+
+    -- CARDS:
+    drop table if exists item_cards;
+    drop table if exists enemy_cards;
+    drop table if exists character_cards;
+    drop table if exists cards;
+
+    create table cards
+    (
+        id int identity(1, 1) primary key,
+        name varchar(50),
+        description varchar(250),
+        card_type varchar(50),
+        game_id int
+    )
+    create table item_cards
+    (
+        id int primary key references cards,
+        additional_strength int,
+        additional_health int
+    )
+    create table enemy_cards
+    (
+        id int primary key references cards,
+        initial_health int,
+        initial_strength int
+    )
+
+    -- nested insert in JAVA ??
+
+
+
+    insert into cards values
+    ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD', 1)
+    insert into enemy_cards values
+    (1, 12, 10);
+
+    insert into cards values
+    ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD', 1)
+    insert into enemy_cards values
+    (2, 12, 10);
+
+    insert into cards values
+    ('item card 1', 'some description of item 1', 'ITEM_CARD', 1)
+    insert into item_cards values
+    (3, 10, 10);
+
+    insert into cards (name, description, card_type) values
+        ('eeeee', 'some description of enemy 1', 'ENEMY_CARD')
+    insert into enemy_cards values
+        (4, 12, 10);
+
+    go
+
+    select * from cards;
 
     select * from players;
     GO

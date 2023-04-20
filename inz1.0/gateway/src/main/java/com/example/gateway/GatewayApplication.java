@@ -23,17 +23,22 @@ public class GatewayApplication {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder
                 .routes()
-                .route("playedCharacters", r -> r
-                        .path("/api/playedCharacters/{characterId}", "/api/playedCharacters")
-                        .uri("lb://microservice-played-character"))
-                .route("players", r -> r
-                        .path("/api/players", "/api/players/{playerId}")
-                        .uri("lb://microservice-player"))
+//                .route("playedCharacters", r -> r
+//                        .path("/api/playedCharacters/{characterId}", "/api/playedCharacters")
+//                        .uri("lb://microservice-played-character"))
+//                .route("players", r -> r
+//                        .path("/api/players", "/api/players/{playerId}")
+//                        .uri("lb://microservice-player"))
                 .route("games", r -> r
-                        .path("/api/games", "/api/games/{id}", "/api/games/{id}/board")
+                        .path("/api/games", "/api/games/{id}", "/api/games/{id}/board", "api/games/{id}/cards", "api/games/{id}/cards/{cardid}",
+                                "api/games/{id}/cards/enemycards", "api/games/{id}/cards/itemcards")
                         .uri("lb://microservice-game"))
+//                .route("games/{gameid}/cards", r -> r
+//                        .path("api/games/{gameid}/cards", "api/games/{gameid}/cards/{cardid}",
+//                                "api/games/{gameid}/cards/enemycards", "api/games/{gameid}/cards/itemcards")
+//                        .uri("lb://microservice-game"))
                 .route("cards", r -> r
-                        .path("/api/cards", "/api/cards/{id}")
+                        .path("api/games/{gameid}/cards", "/api/cards", "/api/cards/{id}", "/api/cards/enemycards", "/api/cards/itemcards")
                         .uri("lb://microservice-game"))
                 .route("boards", r -> r
                         .path("/api/boards", "/api/boards/{id}", "/api/boards/{id}/fields", "api/games/{gameid}/board/{id}/fields")

@@ -26,9 +26,11 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "game_id")
     private Integer id;
-
     private Integer boardId;
     @OneToMany(mappedBy = "id")
     private List<Card> cardDeck = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "id")
+//    private List<Card> usedCardDeck = new ArrayList<>();
 
 }

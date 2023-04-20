@@ -39,6 +39,7 @@ public class Card
     Integer id;
     String name;
     String description;
+    Integer gameId;
 
 
 //    @Column(name = "card_type")

@@ -7,36 +7,43 @@ import com.example.game.card.enemycard.dto.EnemyCardDTO;
 import com.example.game.card.enemycard.entity.EnemyCard;
 import com.example.game.card.itemcard.dto.ItemCardDTO;
 import com.example.game.card.itemcard.entity.ItemCard;
+import com.example.game.game.entity.Game;
+import com.example.game.game.service.GameService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = {"/api/cards"})
-public class CardController {
-
+@RequestMapping(value = {"api/games/{gameid}/cards"})
+public class GameCardController
+{
     private ModelMapper modelMapper;
     private CardService cardService;
+    private GameService gameService;
+
     @Autowired
-    CardController(CardService cardService, ModelMapper modelMapper) {
+    public GameCardController(CardService cardService, GameService gameService, ModelMapper modelMapper) {
         this.cardService = cardService;
+        this.gameService = gameService;
         this.modelMapper = modelMapper;
     }
 
-    @GetMapping()
-    public List<CardDTO> getAllCards() {
-        return cardService.findAll().stream()
-                .map(card -> modelMapper.map(card, CardDTO.class))
-                .collect(Collectors.toList());
+    @GetMapping
+    public List<Card> getCards(@PathVariable("gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
+        return cardService.findAllByGameId(game.getId());
     }
     @GetMapping("/{id}")
-    public ResponseEntity<CardDTO> getCardById(@PathVariable(name = "id") Integer id) {
-        Card card = cardService.findById(id);
+    public ResponseEntity<CardDTO> getCardById(@PathVariable(name = "id") Integer id, @PathVariable("gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
+        Card card = cardService.findCardByGameIdAndCardId(gameid, id);
         if (card instanceof EnemyCard) {
             EnemyCardDTO cardResponse = modelMapper.map(card, EnemyCardDTO.class);
             return ResponseEntity.ok().body(cardResponse);
@@ -48,9 +55,11 @@ public class CardController {
         }
         return ResponseEntity.notFound().build();
     }
+
     @GetMapping("/enemycards")
-    public List<EnemyCardDTO> getAllEnemyCards() {
-        List<Card> cards = cardService.findAll();
+    public List<EnemyCardDTO> getAllEnemyCardsByGame(@PathVariable("gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
+        List<Card> cards = cardService.findAllByGameId(gameid);
         List<EnemyCardDTO> enemyCards = new ArrayList<EnemyCardDTO>();
         for (Card card : cards)
         {
@@ -63,7 +72,8 @@ public class CardController {
         return enemyCards;
     }
     @GetMapping("/itemcards")
-    public List<ItemCardDTO> getAllItemCards() {
+    public List<ItemCardDTO> getAllItemCardsByGame(@PathVariable("gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
         List<Card> cards = cardService.findAll();
         List<ItemCardDTO> itemCards = new ArrayList<ItemCardDTO>();
         for (Card card : cards)
@@ -76,9 +86,6 @@ public class CardController {
         }
         return itemCards;
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCard(@PathVariable(name = "id") Integer id) {
-        cardService.deleteById(id);
-        return ResponseEntity.accepted().build();
-    }
+
+
 }

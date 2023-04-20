@@ -9,5 +9,5 @@ public class CardDTO {
     Integer id;
     String name;
     String description;
-    CardType cardType;
+    //CardType cardType;
 }
