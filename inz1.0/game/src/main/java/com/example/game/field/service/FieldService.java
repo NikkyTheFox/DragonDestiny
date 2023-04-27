@@ -1,5 +1,6 @@
 package com.example.game.field.service;
 
+import com.example.game.card.card.entity.Card;
 import com.example.game.field.entity.Field;
 import com.example.game.field.repository.FieldRepository;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,8 @@ public class FieldService {
     public List<Field> findAll() {return fieldRepository.findAll();}
 
     public List<Field> findAllByBoardId(Integer id) {return fieldRepository.findFieldsByBoardId(id);}
+
+    public Field findFieldByBoardIdAndId(Integer boardId, Integer id) {return fieldRepository.findFieldByBoardIdAndId(boardId, id);}
 
     @Transactional
     public Field save(Field field) {return fieldRepository.save(field);}

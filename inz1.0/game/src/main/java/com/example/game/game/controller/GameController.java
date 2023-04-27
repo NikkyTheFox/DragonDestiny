@@ -35,21 +35,33 @@ public class GameController {
                 .map(board -> modelMapper.map(board, GameDTO.class))
                 .collect(Collectors.toList());
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<GameDTO> getGameById(@PathVariable(name = "id") Integer id) {
-        Game game = gameService.findById(id);
+    @GetMapping("/{gameid}")
+    public ResponseEntity<GameDTO> getGameById(@PathVariable(name = "gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
         // convert board entity to DTO
         GameDTO gameResponse = modelMapper.map(game, GameDTO.class);
         return ResponseEntity.ok().body(gameResponse);
     }
-    @GetMapping("/{id}/board")
-    public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "id") Integer id) {
-        Game game = gameService.findById(id);
-
+    @GetMapping("/{gameid}/board")
+    public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "gameid") Integer gameid) {
+        Game game = gameService.findById(gameid);
         Board board = this.boardService.findById(game.getBoardId());
         BoardDTO boardResponse = modelMapper.map(board, BoardDTO.class);
         return ResponseEntity.ok().body(boardResponse);
     }
+
+    @GetMapping( "/{gameid}/board/{id}")
+    public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "gameid") Integer gameid, @PathVariable(name = "id") Integer id) {
+        Game game = gameService.findById(gameid);
+        Board board = this.boardService.findById(game.getBoardId());
+        if (id == board.getId())
+        {
+            BoardDTO boardResponse = modelMapper.map(board, BoardDTO.class);
+            return ResponseEntity.ok().body(boardResponse);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     public ResponseEntity<GameDTO> createGame(@RequestBody GameDTO gameDTO){
         // convert DTO to entity

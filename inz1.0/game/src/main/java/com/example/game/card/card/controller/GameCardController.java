@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = {"api/games/{gameid}/cards"})
+@RequestMapping(value = {"/api/games/{gameid}/cards"})
 public class GameCardController
 {
     private ModelMapper modelMapper;

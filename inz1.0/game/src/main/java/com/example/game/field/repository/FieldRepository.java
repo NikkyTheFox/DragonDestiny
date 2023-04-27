@@ -15,4 +15,6 @@ public interface FieldRepository extends JpaRepository<Field, Integer> {
      */
     public List<Field> findFieldsByBoardId(Integer id);
 
+    public Field findFieldByBoardIdAndId(Integer boardId, Integer id);
+
 }

@@ -1,18 +1,18 @@
     use xd;
     -- Testing:
---     drop table if exists characters;
---     drop table if exists players;
---     create table characters(
---         id int identity(1,1) primary key,
---         name varchar(6969)
---     );
---     create table players(
---         id int identity(1,1) primary key,
---         name varchar(6969)
---     );
---     insert into players values ('Adam');
---     GO
---     insert into characters values ('kot');
+     drop table if exists characters;
+     drop table if exists players;
+     create table characters(
+         id int identity(1,1) primary key,
+         name varchar(6969)
+     );
+     create table players(
+         id int identity(1,1) primary key,
+         name varchar(6969)
+     );
+     insert into players values ('Adam');
+     GO
+     insert into characters values ('kot');
 
 
     -- GAME:
@@ -124,7 +124,6 @@
 
     select * from cards;
 
-    select * from players;
     GO
     select * from boards;
     GO
