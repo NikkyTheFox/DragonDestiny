@@ -17,12 +17,20 @@
 }
 
 .field,
+.field-outer-top-left-corner,
+.field-outer-top-right-corner,
+.field-outer-bottom-left-corner,
+.field-outer-bottom-right-corner,
+.field-outer-top,
+.field-outer-right,
+.field-outer-bottom,
+.field-outer-left,
 .field-inner,
-.field-upper-left-corner,
-.field-upper-right-corner,
-.field-bottom-left-corner,
-.field-bottom-right-corner,
-.field-inner-upper,
+.field-inner-top-left-corner,
+.field-inner-top-right-cornerer-top-left-corner,
+.field-inner-bottom-left-corner,
+.field-inner-bottom-right-corner,
+.field-inner-top,
 .field-inner-right,
 .field-inner-bottom,
 .field-inner-left{
@@ -34,17 +42,65 @@
     align-items: flex-end;
 }
 
-.field{
+.field,
+.field-outer-top-left-corner,
+.field-outer-top-right-corner,
+.field-outer-bottom-left-corner,
+.field-outer-bottom-right-corner,
+.field-outer-top,
+.field-outer-right,
+.field-outer-bottom,
+.field-outer-left{
     background-color: aqua;
     border: 1px solid red;
 }
 
+.field-outer-top-left-corner{
+    border-top: 2px solid red;
+    border-left: 2px solid red;
+    border-radius: 10px 0 0 0;
+}
+
+.field-outer-top-right-corner{
+    border-top: 2px solid red;
+    border-right: 2px solid red;
+    border-radius: 0 10px 0 0;
+}
+
+.field-outer-bottom-right-corner{
+    border-bottom: 2px solid red;
+    border-right: 2px solid red;
+    border-radius: 0 0 10px 0;
+}
+
+.field-outer-bottom-left-corner{
+    border-bottom: 2px solid red;
+    border-left: 2px solid red;
+    border-radius: 0 0 0 10px;
+}
+
+.field-outer-top{
+    border-top: 2px solid red;
+}
+
+.field-outer-right{
+    border-right: 2px solid red;
+}
+
+.field-outer-bottom{
+    border-bottom: 2px solid red;
+}
+
+.field-outer-left{
+    border-left: 2px solid red;
+}
+
 .field-inner,
-.field-upper-left-corner,
-.field-upper-right-corner,
-.field-bottom-left-corner,
-.field-bottom-right-corner,
-.field-inner-upper,
+.field-inner-top-left-corner,
+.field-inner-top-right-cornerer-top-left-corner,
+.field-inner-bottom-left-corner,
+.field-inner-bottom-right-corner,
+.field-inner-top,
 .field-inner-left,
 .field-inner-right,
 .field-inner-bottom{
@@ -52,28 +108,12 @@
     border: 1px solid white;
 }
 
-.field-upper-left-corner{
-    border-top: 1px solid red;
+.field-inner-left{
     border-left: 1px solid red;
 }
 
-.field-upper-right-corner{
-    border-top: 1px solid red;
-    border-right: 1px solid red;
-}
-
-.field-bottom-left-corner{
-    border-bottom: 1px solid red;
-    border-left: 1px solid red;
-}
-
-.field-bottom-right-corner{
-    border-bottom: 1px solid red;
-    border-right: 1px solid red;
-}
-
-.field-inner-upper{
-    border-top: 1px solid red;
+.field-inner-top{
+  border-top: 1px solid red;
 }
 
 .field-inner-right{
@@ -84,7 +124,23 @@
     border-bottom: 1px solid red;
 }
 
-.field-inner-left{
+.field-inner-top-left-corner{
+    border-top: 1px solid red;
+    border-left: 1px solid red;
+}
+
+.field-inner-top-right-cornerer-top-left-corner{
+    border-top: 1px solid red;
+    border-right: 1px solid red;
+}
+
+.field-inner-bottom-right-corner{
+    border-bottom: 1px solid red;
+    border-right: 1px solid red;
+}
+
+.field-inner-bottom-left-corner{
+    border-bottom: 1px solid red;
     border-left: 1px solid red;
 }
 
