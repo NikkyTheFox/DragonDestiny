@@ -27,7 +27,7 @@
 .field-outer-left,
 .field-inner,
 .field-inner-top-left-corner,
-.field-inner-top-right-cornerer-top-left-corner,
+.field-inner-top-right-corner,
 .field-inner-bottom-left-corner,
 .field-inner-bottom-right-corner,
 .field-inner-top,
@@ -97,7 +97,7 @@
 
 .field-inner,
 .field-inner-top-left-corner,
-.field-inner-top-right-cornerer-top-left-corner,
+.field-inner-top-right-corner,
 .field-inner-bottom-left-corner,
 .field-inner-bottom-right-corner,
 .field-inner-top,
@@ -129,7 +129,7 @@
     border-left: 1px solid red;
 }
 
-.field-inner-top-right-cornerer-top-left-corner{
+.field-inner-top-right-corner{
     border-top: 1px solid red;
     border-right: 1px solid red;
 }
