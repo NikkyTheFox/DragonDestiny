@@ -1,0 +1,35 @@
+.header{
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 69px;
+    border-bottom: 1px solid black;
+    z-index: 1000;
+    justify-content: space-between;
+    background-color: lightgray;
+    align-items: center;
+}
+.left-section,
+.middle-section,
+.right-section{
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    height: 70%;
+}
+
+.left-section{
+    margin-left: 10px;
+    justify-content: left;
+    margin-right: 10px;
+}
+
+.right-section{
+    margin-right: 10px;
+    justify-content: center;
+    margin-left: 10px;
+}

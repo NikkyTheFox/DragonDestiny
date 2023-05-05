@@ -1,0 +1,57 @@
+.righthand-sidebar{
+    position: fixed;
+    right: 0;
+    border-left: 1px solid black;
+    background-color: lightgray;
+    top: 69px;
+    bottom: 0;
+    width: 30%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.card-deck-container{
+    border: 1px solid black;
+    flex: 4;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: lightblue;
+}
+
+.played-character-info-container{
+    border: 1px solid black;
+    flex: 5;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: lightpink;
+}
+
+.character-portrait{
+    height: 100%;
+    flex: 3;
+    border: 1px solid red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-stats{
+    flex: 4;
+    border: 1px solid red;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 10px;
+    row-gap: 20px;
+    padding: 10px;
+}
+
+.statistics{
+    border: 1px solid black;
+    border-radius: 5px;
+}

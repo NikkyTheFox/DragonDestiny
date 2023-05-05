@@ -15,14 +15,6 @@
         <module name="player" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="config_server" target="17" />
-      <module name="eureka" target="17" />
-      <module name="game" target="17" />
-      <module name="Gateway" target="17" />
-      <module name="played_character" target="17" />
-      <module name="player" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
