@@ -6,7 +6,8 @@ In Player and PlayedCharacter's application.properties -> change database server
 2 config    
 3 user   
 4 played_character   
-5 gateway   
+5 game
+6 gateway   
 
 CONFIG REPO on cool-truskawka/confrepo
 
