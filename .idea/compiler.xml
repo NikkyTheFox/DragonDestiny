@@ -8,9 +8,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="game" />
-        <module name="eureka" />
-        <module name="Gateway" />
         <module name="config_server" />
+        <module name="Gateway" />
+        <module name="eureka" />
         <module name="played_character" />
         <module name="player" />
       </profile>

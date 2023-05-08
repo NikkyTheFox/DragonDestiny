@@ -4,6 +4,7 @@ import com.example.game.card.card.entity.Card;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,13 @@ public class Game {
     @Column(name = "game_id")
     private Integer id;
     private Integer boardId;
+
     @OneToMany(mappedBy = "id")
     private List<Card> cardDeck = new ArrayList<>();
+
+    @Formula(value = "(SELECT count(*) FROM cards " +
+            "WHERE cards.game_id = game_id)")
+    private Integer numOfCards;
 
 //    @OneToMany(mappedBy = "id")
 //    private List<Card> usedCardDeck = new ArrayList<>();

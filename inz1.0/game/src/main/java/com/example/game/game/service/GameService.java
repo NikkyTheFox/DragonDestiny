@@ -41,6 +41,7 @@ public class GameService {
     public Game update(Integer id, Game gameRequest) {
         Game game = gameRepository.findById(id).orElseThrow(() -> new RuntimeException("No game found"));
         game.setBoardId(gameRequest.getBoardId());
+        game.setNumOfCards(gameRequest.getNumOfCards());
         return gameRepository.save(game);
     }
 

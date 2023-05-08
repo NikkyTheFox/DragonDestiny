@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface CardRepository extends JpaRepository<Card, Integer> {
 
-    public List<Card> findCardsByGameId(Integer id);
+    List<Card> findCardsByGameId(Integer id);
 
-    public Card findCardByGameIdAndId(Integer gameId, Integer id);
+    Card findCardByGameIdAndId(Integer gameId, Integer id);
 }

@@ -45,7 +45,12 @@ public class GatewayApplication {
                                 "/api/games/{gameid}/cards", "/api/games/{gameid}/cards/{id}",
                                 "/api/games/{gameid}/cards/enemycards", "/api/games/{gameid}/cards/itemcards",
                                 // CardController:
-                                "/api/cards", "/api/cards/{id}", "/api/cards/enemycards", "/api/cards/itemcards")
+                                "/api/cards", "/api/cards/{id}", "/api/cards/enemycards", "/api/cards/itemcards",
+                                // CharacterController:
+                                "/api/characters", "/api/characters/{id}",
+                                // GameCharacterController:
+                                "/api/games/{gameid}/characters", "/api/games/{gameid}/characters/{id}"
+                            )
                         .uri("lb://microservice-game"))
                 .build();
     }
