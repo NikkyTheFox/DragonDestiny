@@ -1,13 +1,9 @@
 package com.example.game.character.entity;
 
 
-import com.example.game.field.entity.Field;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents a characters cards that are available to play.

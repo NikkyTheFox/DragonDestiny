@@ -1,6 +1,5 @@
 package com.example.game.character.service;
 
-import com.example.game.card.card.entity.Card;
 import com.example.game.character.entity.Character;
 import com.example.game.character.repository.CharacterRepository;
 import jakarta.transaction.Transactional;

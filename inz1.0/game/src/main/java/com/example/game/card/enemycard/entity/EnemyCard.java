@@ -16,13 +16,12 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @Table(name = "enemy_cards")
 @DiscriminatorValue("ENEMY_CARD")
-//@PrimaryKeyJoinColumn(name = "card_id") // ????
 public class EnemyCard extends Card
 {
     @Column(name = "initial_health")
-    Integer initialHealth;
+    private Integer initialHealth;
     @Column(name = "initial_strength")
-    Integer initialStrength;
+    private Integer initialStrength;
 
     @JsonIgnore
     public CardType whatType() {

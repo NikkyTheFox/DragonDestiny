@@ -93,12 +93,12 @@
     insert into cards values
     ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD', 1)
     insert into enemy_cards values
-    (1, 12, 10);
+    (1, 3, 10);
 
     insert into cards values
     ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD', 1)
     insert into enemy_cards values
-    (2, 12, 10);
+    (2, 12, 6);
 
     insert into cards values
     ('item card 1', 'some description of item 1', 'ITEM_CARD', 1)
