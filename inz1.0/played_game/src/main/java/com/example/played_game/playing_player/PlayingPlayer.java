@@ -4,6 +4,7 @@ package com.example.played_game.playing_player;
 import com.example.played_game.played_card.PlayedCard;
 import com.example.played_game.played_card.PlayedItemCard;
 import com.example.played_game.played_character.PlayedCharacter;
+import com.example.played_game.played_field.PlayedField;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -33,7 +34,7 @@ public class PlayingPlayer
      * Character chosen by the player.
      * Many players can play the same type of character.
      */
-    @ManyToOne
+    @OneToOne
     private PlayedCharacter playedCharacter;
     /**
      * Item cards owned by the player during the game.
@@ -71,11 +72,20 @@ public class PlayingPlayer
         return playedCharacter.getInitialStrength() + playedCharacter.getAdditionalStrength() + addFromCards;
     }
 
-    public void addCardToPlayer(PlayedItemCard card)
+    /**
+     * Method to change player's character's position on board.
+     * @param field
+     */
+    public void changeCharacterPosition(PlayedField field)
     {
-        this.cardsOnHand.add(card);
+        this.playedCharacter.setPositionField(field);
     }
-    public void removeCardFromPlayer(PlayedItemCard card)
+
+    public void addCardToPlayer(PlayedCard card)
+    {
+        this.cardsOnHand.add((PlayedItemCard) card);
+    }
+    public void removeCardFromPlayer(PlayedCard card)
     {
         this.cardsOnHand.remove(card);
     }

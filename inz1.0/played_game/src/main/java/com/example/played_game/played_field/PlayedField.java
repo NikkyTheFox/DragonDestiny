@@ -4,13 +4,14 @@ package com.example.played_game.played_field;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
 /**
  * Corresponds to fields on played board.
  */
-@Entity
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,6 +19,7 @@ import java.io.Serializable;
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
+@Document(collection = "Field")
 public class PlayedField implements Serializable
 {
     /**

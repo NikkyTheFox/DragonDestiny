@@ -5,19 +5,21 @@ import com.example.played_game.played_field.PlayedField;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
 /**
  * Represents characters cards that are used in PLAYED GAME.
  */
-@Entity
+@Data
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
+@Document(collection = "Character")
 public class PlayedCharacter implements Serializable
 {
     /**
@@ -50,13 +52,13 @@ public class PlayedCharacter implements Serializable
      * Many characters can stand on the same field.
      */
     @ManyToOne
-    private PlayedField positionOnField;
+    private PlayedField positionField;
 
     public PlayedCharacter()
     {
         this.additionalHealth = 0;
         this.additionalStrength = 0;
-        this.positionOnField = null;
+        this.positionField = null;
     }
 
 }

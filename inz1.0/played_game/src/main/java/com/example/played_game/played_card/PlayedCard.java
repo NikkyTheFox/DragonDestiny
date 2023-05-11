@@ -3,6 +3,7 @@ package com.example.played_game.played_card;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Corresponds to cards in played game.
@@ -15,7 +16,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
-@Entity
+@Data
+@Document(collection = "Card")
 public class PlayedCard
 {
     /**

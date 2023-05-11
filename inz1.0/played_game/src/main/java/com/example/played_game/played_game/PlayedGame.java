@@ -7,6 +7,7 @@ import com.example.played_game.playing_player.PlayingPlayer;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  * Corresponds to ONE game played by players.
  */
 
-@Entity
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,6 +24,7 @@ import java.util.List;
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
+@Document(collection = "Game")
 public class PlayedGame
 {
     /**
@@ -74,13 +76,19 @@ public class PlayedGame
     }
 
     /**
-     * Method to add card to deck to game during initialization of played game.
+     * Method to add card to deck to game during played game.
      * @param card
      */
     public void addCardToDeck(PlayedCard card)
     {
         this.cardDeck.add(card);
     }
+
+    /**
+     * Method to remove card from card deck
+     * @param card
+     */
+    public void removeCardFromDeck(PlayedCard card) {this.cardDeck.remove(card); }
 
     /**
      * Method to add card to used deck during the game.
@@ -90,4 +98,10 @@ public class PlayedGame
     {
         this.usedCardDeck.add(card);
     }
+
+    /**
+     * Method to remove card from used card deck
+     * @param card
+     */
+    public void removeCardFromUsedDeck(PlayedCard card) {this.usedCardDeck.remove(card); }
 }

@@ -2,7 +2,6 @@ package com.example.played_game.played_game;
 
 import com.example.played_game.played_character.PlayedCharacter;
 import com.example.played_game.played_character.PlayedCharacterRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,28 +20,30 @@ public class PlayedGameService {
     }
 
     public PlayedGame findById(Integer id) {
-        System.out.println("IN SERVICE ID : " + id);
-        Optional<PlayedGame> character = playedGameRepository.findById(id);
-        if (character.isPresent()) { // found
-            return character.get();
+        Optional<PlayedGame> game = playedGameRepository.findById(id);
+        if (game.isPresent()) { // found
+            return game.get();
         } else throw new RuntimeException("No game found");
     }
     public List<PlayedGame> findAll() {return playedGameRepository.findAll();}
 
-    @Transactional
     public PlayedGame save(PlayedGame character) {
         return playedGameRepository.save(character);
     }
 
-    @Transactional
     public void deleteById(Integer id) {
-        playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No character found"));
+        playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No game found"));
         playedGameRepository.deleteById(id);
     }
-    @Transactional
-    public PlayedGame update(Integer id, PlayedGame characterRequest) {
-        PlayedGame character = playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No character found"));
-        return playedGameRepository.save(character);
+    public PlayedGame update(Integer id, PlayedGame playedGameRequest) {
+        PlayedGame game = playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No game found"));
+        game.setId(playedGameRequest.getId());
+        game.setCharactersInGame(playedGameRequest.getCharactersInGame());
+        game.setBoard(playedGameRequest.getBoard());
+        game.setPlayingPlayers(playedGameRequest.getPlayingPlayers());
+        game.setCardDeck(playedGameRequest.getCardDeck());
+        game.setUsedCardDeck(playedGameRequest.getUsedCardDeck());
+        return playedGameRepository.save(game);
     }
 
 }

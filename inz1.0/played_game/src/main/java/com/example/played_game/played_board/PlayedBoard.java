@@ -5,6 +5,7 @@ import com.example.played_game.played_field.PlayedField;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Corresponds to board used in ONE played game.
  */
-@Entity
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,6 +22,7 @@ import java.util.List;
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
+@Document(collection = "Board")
 public class PlayedBoard implements Serializable
 {
     /**
