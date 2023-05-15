@@ -4,3 +4,7 @@ TODO
 - dynamic design for played-character-info-container
 
 - JS for.. well everything xd
+
+- 3 ekrany: login, twoje gry i board
+- asbolite view for board and additional container
+-

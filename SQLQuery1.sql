@@ -1,4 +1,4 @@
-    use xd;
+    use xdd;
     -- Testing:
      drop table if exists characters;
      drop table if exists players;
