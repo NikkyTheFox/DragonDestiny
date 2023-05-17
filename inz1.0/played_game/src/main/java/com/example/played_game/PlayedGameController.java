@@ -60,7 +60,6 @@ public class PlayedGameController
         PlayedGame playedGameRequest = initializer.initialize(gameId, PlayedGameApplication.numOfPlayedGames++);
         PlayedGame game = playedGameService.save(playedGameRequest);
         PlayedGameApplication.playedGames.add(game);
-        System.out.println("INITIALIZED GAME WITH ID : " + game.getId());
         return ResponseEntity.ok().body(game);
     }
 

@@ -22,22 +22,6 @@ public class PlayedGameApplication {
 	public static void main(String[] args)
 	{
 		SpringApplication.run(PlayedGameApplication.class, args);
-		System.out.println("INNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
-
-		// create new played game from GAME BOX 1
-//		InitializePlayedGame game = new InitializePlayedGame();
-//		PlayedGame playedGame = game.initialize(1, numOfPlayedGames);
-//		System.out.println("INITIALIZED ID : " + playedGame.getId());
-//		playedGames.add(playedGame);
-//		numOfPlayedGames++;
-
-		// new game
-		/*
-		InitializePlayedGame game2 = new InitializePlayedGame();
-		PlayedGame playedGame2 = game.initialize(1, numOfPlayedGames);
-		System.out.println("INITIALIZED ID : " + playedGame2.getId());
-		playedGames.add(playedGame2);
-		numOfPlayedGames++; */
 	}
 
 }

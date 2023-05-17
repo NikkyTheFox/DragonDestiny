@@ -7,11 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="game" />
         <module name="played_game" />
         <module name="config_server" />
         <module name="Gateway" />
         <module name="eureka" />
+        <module name="game_engine" />
         <module name="player" />
       </profile>
     </annotationProcessing>
@@ -24,7 +24,7 @@
       <module name="Gateway" options="-parameters" />
       <module name="config_server" options="-parameters" />
       <module name="eureka" options="-parameters" />
-      <module name="game" options="-parameters" />
+      <module name="game_engine" options="-parameters" />
       <module name="played_character" options="-parameters" />
       <module name="played_game" options="-parameters" />
       <module name="player" options="-parameters" />

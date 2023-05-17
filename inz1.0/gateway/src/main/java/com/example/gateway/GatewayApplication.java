@@ -33,23 +33,23 @@ public class GatewayApplication {
                 .route("games", r -> r
                         .path(
                                 // GameController
-                                "/api/games", "/api/games/{id}", "/api/games/{id}/board", "/api/games/{gameid}/board/{id}",
+                                "/api/games", "/api/games/{id}", "/api/games/{id}/boards", "/api/games/{gameId}/boards/{id}",
                                 // BoardController
                                 "/api/boards", "/api/boards/{id}",
                                 // FieldController
                                 "/api/fields", "/api/fields/{id}",
                                 // BoardFieldController
-                                "/api/boards/{boardid}/fields", "/api/boards/{boardid}/fields/{id}",
-                                "/api/games/{gameid}/board/{boardid}/fields", "/api/games/{gameid}/board/{boardid}/fields/{id}",
+                                "/api/boards/{boardId}/fields", "/api/boards/{boardId}/fields/{id}",
+                                "/api/games/{gameId}/boards/{boardId}/fields", "/api/games/{gameId}/boards/{boardId}/fields/{id}",
                                 // GameCardController:
-                                "/api/games/{gameid}/cards", "/api/games/{gameid}/cards/{id}",
-                                "/api/games/{gameid}/cards/enemycards", "/api/games/{gameid}/cards/itemcards",
+                                "/api/games/{gameId}/cards", "/api/games/{gameId}/cards/{id}",
+                                "/api/games/{gameId}/cards/enemyCards", "/api/games/{gameId}/cards/itemCards",
                                 // CardController:
-                                "/api/cards", "/api/cards/{id}", "/api/cards/enemycards", "/api/cards/itemcards",
+                                "/api/cards", "/api/cards/{id}", "/api/cards/enemyCards", "/api/cards/itemCards",
                                 // CharacterController:
                                 "/api/characters", "/api/characters/{id}",
                                 // GameCharacterController:
-                                "/api/games/{gameid}/characters", "/api/games/{gameid}/characters/{id}"
+                                "/api/games/{gameId}/characters", "/api/games/{gameId}/characters/{id}"
                             )
                         .uri("lb://microservice-game"))
                 .build();

@@ -88,8 +88,6 @@
         initial_strength int
     )
 
-    -- nested insert in JAVA ?
-
     insert into cards values
     ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD', 1)
     insert into enemy_cards values
