@@ -8,14 +8,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="played_game" />
+        <module name="game_engine" />
         <module name="config_server" />
         <module name="Gateway" />
         <module name="eureka" />
-        <module name="game_engine" />
         <module name="player" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="game" target="17" />
       <module name="played_character" target="17" />
     </bytecodeTargetLevel>
   </component>

@@ -1,7 +1,5 @@
 package com.example.played_game.played_game;
 
-import com.example.played_game.played_character.PlayedCharacter;
-import com.example.played_game.played_character.PlayedCharacterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -11,13 +11,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/playedgames")
 public class PlayedGameController
 {
     private PlayedGameService playedGameService;
-
     @Autowired
     PlayedGameController(PlayedGameService playedGameService)
     {
@@ -82,14 +82,14 @@ public class PlayedGameController
      * @param cardId
      * @return game with updated cards
      */
-    @PutMapping("{playedGameId}/cardToUsed")
-    public ResponseEntity<PlayedGame> moveCardToUsed(@PathVariable(name = "playedGameId") Integer playedGameId, @RequestParam Integer cardId)
+    @PutMapping("{playedGameId}/cardToUsed/{cardId}")
+    public ResponseEntity<PlayedGame> moveCardToUsed(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "cardId") Integer cardId)
     {
         PlayedGame gameRequest = playedGameService.findById(playedGameId);
         PlayedCard cardToMove = null;
         for (PlayedCard c : gameRequest.getCardDeck())
         {
-            if (c.getId() == cardId)
+            if (Objects.equals(c.getId(), cardId))
                 cardToMove = c;
         }
         if (cardToMove == null)
@@ -109,15 +109,15 @@ public class PlayedGameController
      * @param playerId
      * @return game with updated cards
      */
-    @PutMapping("{playedGameId}/cardToPlayer")
-    public ResponseEntity<PlayedGame> moveCardToPlayer(@PathVariable(name = "playedGameId") Integer playedGameId, @RequestParam Integer cardId, @RequestParam Integer playerId)
+    @PutMapping("{playedGameId}/players/{playerId}/cardToPlayer/{cardId}")
+    public ResponseEntity<PlayedGame> moveCardToPlayer(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerId") Integer playerId)
     {
         PlayedGame gameRequest = playedGameService.findById(playedGameId);
         // find card
         PlayedCard cardToMove = null;
         for (PlayedCard c : gameRequest.getCardDeck())
         {
-            if (c.getId() == cardId)
+            if (Objects.equals(c.getId(), cardId))
                 cardToMove = c;
         }
         if (cardToMove == null)
@@ -126,7 +126,7 @@ public class PlayedGameController
         PlayingPlayer player = null;
         for (PlayingPlayer p : gameRequest.getPlayingPlayers())
         {
-            if (p.getId() == playerId)
+            if (Objects.equals(p.getId(), playerId))
                 player = p;
         }
         if (player == null)
@@ -164,7 +164,7 @@ public class PlayedGameController
         PlayedGame game = playedGameService.findById(playedGameId);
         for (PlayedCharacter p : game.getCharactersInGame())
         {
-            if (p.getId() == characterId)
+            if (Objects.equals(p.getId(), characterId))
                 return ResponseEntity.ok().body(p);
         }
         return ResponseEntity.notFound().build();
@@ -196,15 +196,15 @@ public class PlayedGameController
      * @param characterId
      * @return updated game with character assigned to player
      */
-    @PutMapping("{playedGameId}/players/{playerId}/selectCharacter")
-    public ResponseEntity<PlayedGame> selectCharacter(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "playerId") Integer playerId, @RequestParam Integer characterId)
+    @PutMapping("{playedGameId}/players/{playerId}/character/{characterId}")
+    public ResponseEntity<PlayedGame> selectCharacter(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "playerId") Integer playerId, @PathVariable(name = "characterId") Integer characterId)
     {
         PlayedGame gameRequest = playedGameService.findById(playedGameId);
         // find player
         PlayingPlayer player = null;
         for (PlayingPlayer p : gameRequest.getPlayingPlayers())
         {
-            if (p.getId() == playerId)
+            if (Objects.equals(p.getId(), playerId))
                 player = p;
         }
         if (player == null)
@@ -213,7 +213,7 @@ public class PlayedGameController
         PlayedCharacter character = null;
         for (PlayedCharacter p : gameRequest.getCharactersInGame())
         {
-            if (p.getId() == characterId)
+            if (Objects.equals(p.getId(), characterId))
                 character = p;
         }
         if (character == null)
@@ -232,25 +232,32 @@ public class PlayedGameController
      * @param fieldId
      * @return updated game
      */
-    @PutMapping("{playedGameId}/players/{playerId}/changeField")
-    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "playerId") Integer playerId, @RequestParam Integer fieldId)
+    @PutMapping("{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
+    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") Integer playedGameId, @PathVariable(name = "playerId") Integer playerId, @PathVariable(name = "characterId") Integer characterId,@PathVariable(name = "fieldId") Integer fieldId)
     {
         PlayedGame gameRequest = playedGameService.findById(playedGameId);
         // find player
         PlayingPlayer player = null;
         for (PlayingPlayer p : gameRequest.getPlayingPlayers())
         {
-            if (p.getId() == playerId)
+            if (Objects.equals(p.getId(), playerId))
                 player = p;
         }
         if (player == null)
             return ResponseEntity.notFound().build();
-
+        // find character
+        PlayedCharacter character = null;
+        if (Objects.equals(characterId, player.getPlayedCharacter().getId()))
+        {
+            character = player.getPlayedCharacter();
+        }
+        if (character == null)
+            return ResponseEntity.notFound().build();
         // find field
         PlayedField fieldToMove = null;
         for (PlayedField f : gameRequest.getBoard().getFieldsOnBoard())
         {
-            if (f.getId() == fieldId)
+            if (Objects.equals(f.getId(), fieldId))
                 fieldToMove = f;
         }
         if (fieldToMove == null)
@@ -261,17 +268,3 @@ public class PlayedGameController
         return ResponseEntity.ok().body(game);
     }
 }
-
-//    @GetMapping("{playedGameId}")
-//    public PlayedGame getGame(@PathVariable(name = "playedGameId") Integer playedGameId)
-//    {
-//        PlayedGame temp = null;
-//        for (PlayedGame g : PlayedGameApplication.playedGames)
-//        {
-//            if (g.getId() == playedGameId)
-//                temp = g;
-//        }
-//        if (temp == null)
-//            return null;
-//        return temp;
-//    }
