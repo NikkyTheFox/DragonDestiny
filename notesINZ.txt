@@ -73,7 +73,7 @@ THINGS THAT CHANGE DURING GAME:
 		change position in JAVA
 		
 		CHANGE BY PLAYER OR BY CHARACTER ????? 
-		by player 
+		by user
 			bo obchodzi nas wtedy tylko czyja jest kolejka w grze
 		PUT localhost:8085/api/playedgames/1/players/1/changeField?fieldId=6
 		
@@ -93,10 +93,10 @@ THINGS THAT CHANGE DURING GAME:
 PLAYERZY 
 - database playerów
 - po game initialization 
-- add player to game - OK
+- add user to game - OK
 	PUT localhost:8085/api/playedgames/1/addPlayer
 
 - choose character to play - OK
 	PUT localhost:8085/api/playedgames/1/players/1/selectCharacter?characterId=2
 
-	- block characters for other players? one player = one character ?
+	- block characters for other players? one user = one character ?

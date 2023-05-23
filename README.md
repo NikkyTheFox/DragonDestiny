@@ -4,7 +4,7 @@ In Player and PlayedCharacter's application.properties -> change database server
 
 1 eureka    
 2 config    
-3 player   
+3 user   
 4 played_character   
 5 gateway   
 

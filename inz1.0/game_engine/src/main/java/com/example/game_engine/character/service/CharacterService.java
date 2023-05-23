@@ -32,7 +32,7 @@ public class CharacterService {
     /**
      * Returns character by ID. If no character found, throws exception.
      * @param id
-     * @return card found
+     * @return character found
      */
     public Character findById(Integer id) {
         Optional<Character> character = characterRepository.findById(id);
