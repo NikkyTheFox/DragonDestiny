@@ -10,3 +10,8 @@ COPY .\target\game-0.0.1-SNAPSHOT.jar game.jar
 CMD ["java","-jar","game.jar"]
 
 #docker run -e ACCEPT_EULA=Y -e MSSQL_PID="Developer" -e MSSQL_SA_PASSWORD="<YourStrong!Passw0rd>" -e MSSQL_TCP_PORT=1234 -p 1234:1234 -d mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04
+
+#ENV MYSQL_ROOT_PASSWORD igor
+#ENV MYSQL_DATABASE entry
+#ENV MYSQL_USER igor
+#ENV MYSQL_PASSWORD igor
