@@ -15,11 +15,6 @@ public class GameDTO {
     private Integer id;
 
     /**
-     * Identifier of board belonging to the game.
-     */
-    private Integer boardId;
-
-    /**
      * Number of cards added to game.
      */
     private Integer numOfCards;

@@ -80,7 +80,7 @@ public class CardController {
      * Retrieve all cards of type EnemyCard.
      * @return list of enemy cards
      */
-    @GetMapping("/enemycards")
+    @GetMapping("/enemyCards")
     public List<EnemyCardDTO> getAllEnemyCards() {
         List<Card> cards = cardService.findAll();
         List<EnemyCardDTO> enemyCards = new ArrayList<EnemyCardDTO>();
@@ -99,7 +99,7 @@ public class CardController {
      * Retrieve all cards of type ItemCard.
      * @return list of item cards
      */
-    @GetMapping("/itemcards")
+    @GetMapping("/itemCards")
     public List<ItemCardDTO> getAllItemCards() {
         List<Card> cards = cardService.findAll();
         List<ItemCardDTO> itemCards = new ArrayList<ItemCardDTO>();

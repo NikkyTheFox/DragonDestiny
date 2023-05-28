@@ -64,7 +64,8 @@ public class GameCardController
     @GetMapping
     public List<Card> getCards(@PathVariable("gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        return cardService.findAllByGameId(game.getId());
+       // return cardService.findAllByGameId(game.getId());
+        return cardService.findCardsByGame(game);
     }
 
     /**
@@ -76,7 +77,8 @@ public class GameCardController
     @GetMapping("/{id}")
     public ResponseEntity<CardDTO> getCardById(@PathVariable(name = "id") Integer id, @PathVariable("gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        Card card = cardService.findCardByGameIdAndCardId(gameId, id);
+       // Card card = cardService.findCardByGameIdAndCardId(gameId, id);
+        Card card = cardService.findCardByGameIdAndCardId(game, id);
         if (card instanceof EnemyCard) {
             EnemyCardDTO cardResponse = modelMapper.map(card, EnemyCardDTO.class);
             return ResponseEntity.ok().body(cardResponse);
@@ -97,7 +99,8 @@ public class GameCardController
     @GetMapping("/enemyCards")
     public List<EnemyCardDTO> getAllEnemyCardsByGame(@PathVariable("gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        List<Card> cards = cardService.findAllByGameId(gameId);
+       // List<Card> cards = cardService.findAllByGameId(gameId);
+        List<Card> cards = cardService.findCardsByGame(game);
         List<EnemyCardDTO> enemyCards = new ArrayList<EnemyCardDTO>();
         for (Card card : cards)
         {
@@ -118,7 +121,7 @@ public class GameCardController
     @GetMapping("/itemCards")
     public List<ItemCardDTO> getAllItemCardsByGame(@PathVariable("gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        List<Card> cards = cardService.findAll();
+        List<Card> cards = cardService.findCardsByGame(game);
         List<ItemCardDTO> itemCards = new ArrayList<ItemCardDTO>();
         for (Card card : cards)
         {

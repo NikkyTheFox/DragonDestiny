@@ -57,7 +57,7 @@ public class GameCharacterController {
     @GetMapping()
     public List<CharacterDTO> getAllCharacters(@PathVariable("gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        List<Character> characterList = characterService.findAllByGameId(game.getId());
+        List<Character> characterList = characterService.findAllByGameId(game);
         List<CharacterDTO> characterDTOList = new ArrayList<>();
         for (Character character : characterList)
             characterDTOList.add(modelMapper.map(character, CharacterDTO.class));
@@ -73,7 +73,7 @@ public class GameCharacterController {
     @GetMapping("/{id}")
     public ResponseEntity<CharacterDTO> getCharacterById(@PathVariable(name = "id") Integer id, @PathVariable(name = "gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        Character character = characterService.findCharacterByGameIdAndId(game.getId(), id);
+        Character character = characterService.findCharacterByGameIdAndId(game, id);
         CharacterDTO characterResponse = modelMapper.map(character, CharacterDTO.class);
         return ResponseEntity.ok().body(characterResponse);
     }

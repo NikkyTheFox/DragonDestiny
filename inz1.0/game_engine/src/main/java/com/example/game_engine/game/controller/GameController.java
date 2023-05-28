@@ -58,7 +58,7 @@ public class GameController {
     @GetMapping()
     public List<GameDTO> getAllGames() {
         return gameService.findAll().stream()
-                .map(board -> modelMapper.map(board, GameDTO.class))
+                .map(game -> modelMapper.map(game, GameDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +82,7 @@ public class GameController {
     @GetMapping("/{gameId}/boards")
     public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "gameId") Integer gameId) {
         Game game = gameService.findById(gameId);
-        Board board = this.boardService.findById(game.getBoardId());
+        Board board = this.boardService.findById(game.getBoard().getId());
         BoardDTO boardResponse = modelMapper.map(board, BoardDTO.class);
         return ResponseEntity.ok().body(boardResponse);
     }
@@ -96,7 +96,7 @@ public class GameController {
     @GetMapping( "/{gameId}/boards/{boardId}")
     public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "gameId") Integer gameId, @PathVariable(name = "boardId") Integer boardId) {
         Game game = gameService.findById(gameId);
-        Board board = this.boardService.findById(game.getBoardId());
+        Board board = this.boardService.findById(game.getBoard().getId());
         if (Objects.equals(boardId, board.getId()))
         {
             BoardDTO boardResponse = modelMapper.map(board, BoardDTO.class);

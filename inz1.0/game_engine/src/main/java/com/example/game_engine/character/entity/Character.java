@@ -1,9 +1,14 @@
 package com.example.game_engine.character.entity;
 
 
+import com.example.game_engine.game.entity.Game;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a characters cards that are available to play.
@@ -55,9 +60,12 @@ public class Character
     private Integer initialHealth;
 
     /**
-     * Identifier of game the character is added to.
-     * Right now a character can belong to only one game.
+     * List of games the character belongs to.
+     * One character can belong to many game engines (game boxes).
      */
-    Integer gameId;
+    @JsonBackReference
+    @ManyToMany(mappedBy = "characters")
+    private List<Game> games = new ArrayList<>();
+
 
 }

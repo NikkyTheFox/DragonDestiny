@@ -1,6 +1,8 @@
 package com.example.game_engine.game.entity;
 
+import com.example.game_engine.board.entity.Board;
 import com.example.game_engine.card.card.entity.Card;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -32,25 +34,48 @@ public class Game {
     private Integer id;
 
     /**
-     * Identifier of board belonging to the game.
+     * Board belonging to the game.
      */
-    private Integer boardId;
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    private Board board;
 
-//    @OneToMany(mappedBy = "id")
-//    private List<Card> cardDeck = new ArrayList<>();
+    /**
+     * List of cards added to game engine.
+     * Many-to-many relationship is represented by another table called games_cards.
+     */
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "games_cards",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id"))
+    private List<Card> cardDeck = new ArrayList<>();
+
+    /**
+     * List of characters added to game engine.
+     * Many-to-many relationship is represented by another table called games_characters.
+     */
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "games_characters",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(name = "character_id"))
+    private List<Card> characters = new ArrayList<>();
 
     /**
      * Number of cards added to game.
      */
-    @Formula(value = "(SELECT count(*) FROM cards " +
-            "WHERE cards.game_id = game_id)")
+    @Formula(value = "(SELECT count(*) FROM games_cards " +
+            "WHERE game_id = game_id)")
     private Integer numOfCards;
 
     /**
      * Number of characters added to game.
      */
-    @Formula(value = "(SELECT count(*) FROM characters " +
-            "WHERE characters.game_id = game_id)")
+    @Formula(value = "(SELECT count(*) FROM games_characters " +
+            "WHERE game_id = game_id)")
     private Integer numOfCharacters;
 
 

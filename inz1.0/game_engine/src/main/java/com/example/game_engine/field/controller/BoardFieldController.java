@@ -68,7 +68,7 @@ public class BoardFieldController {
     public List<Field> getFieldsByBoard(@PathVariable("boardId") Integer boardId)
     {
         Board board = boardService.findById(boardId);
-        return fieldService.findAllByBoardId(board.getId());
+        return fieldService.findAllByBoard(board);
     }
 
     /**
@@ -81,7 +81,7 @@ public class BoardFieldController {
     public ResponseEntity<FieldDTO> getFieldById(@PathVariable("boardId") Integer boardId, @PathVariable("id") Integer id)
     {
         Board board = boardService.findById(boardId);
-        Field field = fieldService.findFieldByBoardIdAndId(board.getId(), id);
+        Field field = fieldService.findFieldByBoardAndId(board, id);
         FieldDTO fieldResponse = modelMapper.map(field, FieldDTO.class);
         return ResponseEntity.ok().body(fieldResponse);
     }

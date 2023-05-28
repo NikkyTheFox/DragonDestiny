@@ -2,6 +2,7 @@ package com.example.game_engine.character.service;
 
 import com.example.game_engine.character.entity.Character;
 import com.example.game_engine.character.repository.CharacterRepository;
+import com.example.game_engine.game.entity.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,22 +51,22 @@ public class CharacterService {
     }
 
     /**
-     * Returns all characters in game of ID gameId.
-     * @param gameId - identifier of game
+     * Returns all characters in particular game.
+     * @param game - game to find characters from.
      * @return list of characters in game of ID gameId
      */
-    public List<Character> findAllByGameId(Integer gameId) {
-        return characterRepository.findCharactersByGameId(gameId);
+    public List<Character> findAllByGameId(Game game) {
+        return characterRepository.findAllByGames(game);
     }
 
     /**
-     * Returns character of ID characterId found in game of ID gameId.
-     * @param gameId - identifier of game
+     * Returns character of ID characterId found in particular game.
+     * @param game - game to find character from.
      * @param characterId - identifier of card
-     * @return character of ID characterId if such exists in game of ID gameId
+     * @return character of ID characterId if such exists in game
      */
-    public Character findCharacterByGameIdAndId(Integer gameId, Integer characterId) {
-        return characterRepository.findCharacterByGameIdAndId(gameId, characterId);
+    public Character findCharacterByGameIdAndId(Game game, Integer characterId) {
+        return characterRepository.findCharacterByGamesAndId(game, characterId);
     }
 
 }

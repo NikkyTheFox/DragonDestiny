@@ -1,5 +1,6 @@
 package com.example.game_engine.field.service;
 
+import com.example.game_engine.board.entity.Board;
 import com.example.game_engine.field.entity.Field;
 import com.example.game_engine.field.repository.FieldRepository;
 import jakarta.transaction.Transactional;
@@ -50,22 +51,22 @@ public class FieldService {
     }
 
     /**
-     * Returns all fields on board of boardId.
-     * @param boardId - identifier of board
-     * @return list of fields on board of ID boardId
+     * Returns all fields on particular board.
+     * @param board - board to get all fields from
+     * @return list of fields on board
      */
-    public List<Field> findAllByBoardId(Integer boardId) {
-        return fieldRepository.findFieldsByBoardId(boardId);
+    public List<Field> findAllByBoard(Board board) {
+        return fieldRepository.findAllByBoard(board);
     }
 
     /**
      * Returns field of ID fieldId found on board of boardId.
-     * @param boardId - identifier of game
+     * @param board - board to get field from
      * @param fieldId - identifier of card
      * @return field of ID fieldId if such exists on board of ID boardId
      */
-    public Field findFieldByBoardIdAndId(Integer boardId, Integer fieldId) {
-        return fieldRepository.findFieldByBoardIdAndId(boardId, fieldId);
+    public Field findFieldByBoardAndId(Board board, Integer fieldId) {
+        return fieldRepository.findFieldByBoardAndId(board, fieldId);
     }
 
 }

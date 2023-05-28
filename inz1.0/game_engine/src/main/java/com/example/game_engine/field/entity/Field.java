@@ -1,6 +1,8 @@
 package com.example.game_engine.field.entity;
 
 
+import com.example.game_engine.board.entity.Board;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -46,7 +48,10 @@ public class Field
     private Integer yPosition;
 
     /**
-     * Identifier of board the field belongs to.
+     * Board the field belongs to.
      */
-    private Integer boardId;
+    @ManyToOne
+    @JoinColumn(name = "board_id")
+    @JsonBackReference
+    private Board board;
 }

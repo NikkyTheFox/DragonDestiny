@@ -2,6 +2,7 @@ package com.example.game_engine.card.card.service;
 
 import com.example.game_engine.card.card.entity.Card;
 import com.example.game_engine.card.card.repository.CardRepository;
+import com.example.game_engine.game.entity.Game;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,22 +51,22 @@ public class CardService {
     }
 
     /**
-     * Returns all cards in game of ID gameId.
-     * @param gameId - identifier of game
+     * Returns all cards in particular game.
+     * @param game - game to find cards from
      * @return list of cards in game of ID gameId
      */
-    public List<Card> findAllByGameId(Integer gameId) {
-        return cardRepository.findCardsByGameId(gameId);
+    public List<Card> findCardsByGame(Game game) {
+        return cardRepository.findAllByGames(game);
     }
 
     /**
-     * Returns card of ID cardId found in game of ID gameId.
-     * @param gameId - identifier of game
+     * Returns card of ID cardId found in particular game.
+     * @param game - game to find card from
      * @param cardId - identifier of card
-     * @return card of ID cardId if such exists in game of ID gameId
+     * @return card of ID cardId if such exists in game
      */
-    public Card findCardByGameIdAndCardId(Integer gameId, Integer cardId) {
-        return cardRepository.findCardByGameIdAndId(gameId, cardId);
+    public Card findCardByGameIdAndCardId(Game game, Integer cardId) {
+        return cardRepository.findCardByGamesAndId(game, cardId);
     }
 
 }

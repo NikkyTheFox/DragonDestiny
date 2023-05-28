@@ -28,7 +28,7 @@ public class BoardDTO
     private Integer ySize;
 
     /**
-     * List of fields in the board.
+     * Number of fields in the board.
      */
-    private List<FieldDTO> fieldsInBoard = new ArrayList<FieldDTO>();
+    private Integer numOfFields;
 }
