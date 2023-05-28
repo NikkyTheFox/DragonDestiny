@@ -5,12 +5,14 @@
     <file url="file://$PROJECT_DIR$/inz1.0/config_server/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/eureka/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/eureka/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/inz1.0/game/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/inz1.0/game/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/inz1.0/game_engine/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/inz1.0/game_engine/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/played_character/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/played_character/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/inz1.0/played_game/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/inz1.0/played_game/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/player/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inz1.0/player/src/main/resources" charset="UTF-8" />
   </component>

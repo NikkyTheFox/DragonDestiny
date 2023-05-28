@@ -8,8 +8,9 @@
         <option value="$PROJECT_DIR$/inz1.0/player/pom.xml" />
         <option value="$PROJECT_DIR$/inz1.0/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/inz1.0/config_server/pom.xml" />
-        <option value="$PROJECT_DIR$/inz1.0/played_character/pom.xml" />
         <option value="$PROJECT_DIR$/inz1.0/game/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/played_game/pom.xml" />
+        <option value="$PROJECT_DIR$/inz1.0/game_engine/pom.xml" />
       </list>
     </option>
   </component>

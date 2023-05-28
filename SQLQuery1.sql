@@ -1,18 +1,12 @@
     use xdd;
     -- Testing:
-     drop table if exists characters;
      drop table if exists players;
-     create table characters(
-         id int identity(1,1) primary key,
-         name varchar(6969)
-     );
      create table players(
          id int identity(1,1) primary key,
          name varchar(6969)
      );
      insert into players values ('Adam');
      GO
-     insert into characters values ('kot');
 
 
     -- GAME:
@@ -40,7 +34,7 @@
     insert into boards values
     (5, 5);
 
-    insert into fields values -- x, y, board
+    insert into fields values -- x, y, character
     -- y 0
     ('TAKE_ONE_CARD', 0, 0, 1),
     ('TAKE_ONE_CARD', 1, 0, 1),
@@ -65,14 +59,12 @@
     insert into fields (field_type, x_position, y_position) values
     ('LOSE_ONE_ROUND', 0, 1);
 
-
     insert into games values
     (1) -- board id 1
 
     -- CARDS:
     drop table if exists item_cards;
     drop table if exists enemy_cards;
-    drop table if exists character_cards;
     drop table if exists cards;
 
     create table cards
@@ -96,19 +88,15 @@
         initial_strength int
     )
 
-    -- nested insert in JAVA ??
-
-
-
     insert into cards values
     ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD', 1)
     insert into enemy_cards values
-    (1, 12, 10);
+    (1, 3, 10);
 
     insert into cards values
     ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD', 1)
     insert into enemy_cards values
-    (2, 12, 10);
+    (2, 12, 6);
 
     insert into cards values
     ('item card 1', 'some description of item 1', 'ITEM_CARD', 1)
@@ -120,12 +108,25 @@
     insert into enemy_cards values
         (4, 12, 10);
 
-    go
 
-    select * from cards;
+    -- CHARACTERS:
+    drop table if exists characters;
 
-    GO
-    select * from boards;
-    GO
-    select * from fields;
+    create table characters
+    (
+        character_id int identity(1, 1) primary key,
+        name varchar(200),
+        profession varchar(200),
+        story varchar(1000),
+        initial_strength int,
+        initial_health int,
+        game_id int
+    )
+
+    insert into characters values
+    ('Harry Potter', 'Wizard', 'There was a wizard called Harry Potter. End of story', 10, 4, 1),
+    ('Frodo Baggins', 'Hobbit', 'Very cool hobbit. Saved the Middle Earth. End of story', 10, 9, 1),
+    ('Winnie the Pooh', 'Bear', 'Nice bear. End of story', 10, 1, 1)
+
+
 
