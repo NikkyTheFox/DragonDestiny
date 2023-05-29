@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="eureka" />
+        <module name="config_server" />
+        <module name="Gateway" />
+        <module name="player" />
+        <module name="played_character" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="config_server" target="17" />
+      <module name="eureka" target="17" />
+      <module name="game" target="11" />
+      <module name="Gateway" target="17" />
+      <module name="played_character" target="17" />
+      <module name="player" target="17" />
+      <module name="player (1)" target="11" />
+      <module name="xdclient" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Gateway" options="-parameters" />
+      <module name="config_server" options="-parameters" />
+      <module name="eureka" options="-parameters" />
+      <module name="game" options="-parameters" />
+      <module name="played_character" options="-parameters" />
+      <module name="player" options="-parameters" />
+      <module name="player (1)" options="-parameters" />
+      <module name="xdclient" options="-parameters" />
+    </option>
+  </component>
+</project>

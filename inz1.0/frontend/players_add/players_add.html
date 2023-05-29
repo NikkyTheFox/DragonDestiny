@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="description" content="Esport web application"/>
+    <meta name="keywords" content="esport"/>
+    <title>Game app</title>
+    <script src="../script.js" defer="defer"></script>
+    <script type="module" src="players_add.js" defer="defer"></script>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>Talisman</h1>
+    </header>
+
+    <nav class="navigation-bar">
+        <ul>
+            <li><a href="../index.html">main</a></li>
+            <li><a href="../about/about.html">about</a></li>
+            <li><a href="../played_characters_list/played_characters_list.html">List of played characters</a></li>
+            <li><a href="../players_list/players_list.html">List of players</a></li>
+        </ul>
+    </nav>
+
+    <section class="main-section">
+        <article class="text--justified">
+            <header><h2>Add a user</h2></header>
+            <form class="player__form" id="infoForm">
+                <label for="name">name:</label>
+                <input class="ui-control ui-input" id="name" name="name"/>
+                <input class="ui-control ui-button" type="submit" name="Update"/>
+            </form>
+        </article>
+
+    </section>
+
+    <footer class="footer"></footer>
+</div>
+</body>
+</html>

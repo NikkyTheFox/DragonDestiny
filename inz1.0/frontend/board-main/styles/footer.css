@@ -1,0 +1,7 @@
+.footer{
+    position: absolute;
+    bottom: -30px;
+    right: 0; /* cause of sidebar border*/
+    left: 0;
+    background-color: lightgray;
+}

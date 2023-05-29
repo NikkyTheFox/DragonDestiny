@@ -1,0 +1,6 @@
+TODO
+
+- dynamic design for field height
+- dynamic design for played-character-info-container
+
+- JS for.. well everything xd
