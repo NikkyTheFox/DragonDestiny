@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="description" content="Talisman-based web application"/>
+    <title>Game app</title>
+    <script src="../script.js" defer="defer"></script>
+    <script type="module" src="played_characters_list.js" defer="defer"></script>
+</head>
+<body>
+<div class="container">
+    <header class="header">
+        <h1>Talisman</h1>
+    </header>
+
+    <nav class="navigation-bar">
+        <ul>
+            <li><a href="../index.html">main</a></li>
+            <li><a href="../about/about.html">about</a></li>
+            <li><a href="../played_characters_list/played_characters_list.html">List of played characters</a></li>
+            <li><a href="../players_list/players_list.html">List of players</a></li>
+        </ul>
+    </nav>
+
+    <section class="main-section">
+        <article class="text--justified">
+            <header><h2>Played Characters</h2></header>
+            <a href="../played_characters_add/played_characters_add.html">add a played character</a>
+            <section>
+            <h3>List of Played Characters</h3>
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>edit</th>
+                    <th>delete</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody">
+                <tr>
+                    <td>name</td>
+                    <td><a href="#">edit</a></td>
+                    <td>
+                        <button class="ui-button ui-control">delete</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </section>
+        </article>
+    </section>
+
+    <footer class="footer"></footer>
+</div>
+</body>
+</html>
