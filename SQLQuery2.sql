@@ -1,8 +1,8 @@
     use user_db;
 
-    create table users
+    CREATE TABLE users
     (
-        login varchar(255) primary key,
-        password varchar(255),
-        name varchar(255)
+        login VARCHAR(255) PRIMARY KEY,
+        password VARCHAR(255),
+        name VARCHAR(255)
     )
