@@ -28,12 +28,20 @@ public class GatewayApplication {
     {
         return builder
                 .routes()
-                .route("playedCharacters", r -> r
-                        .path("/api/playedCharacters/{characterId}", "/api/playedCharacters")
-                        .uri("lb://microservice-played-character"))
-                .route("players", r -> r
-                        .path("/api/players", "/api/players/{playerId}")
-                        .uri("lb://microservice-player"))
+                .route("users", r -> r
+                        .path("/api/users/{login}", "/api/users")
+                        .uri("lb://game-user"))
+                .route("playedgames", r -> r
+                        .path("/api/playedgames", "/api/playedgames/{playedGameId}",
+                                "/api/playedgames/{playedGameId}/cards/deck", "/api/playedgames/{playedGameId}/cards/deck/{cardId}",
+                                "/api/playedgames/{playedGameId}/cards/used", "/api/playedgames/{playedGameId}/cards/used/{cardId}",
+                                "/api/playedgames/{playedGameId}/cardToUsed/{cardId}", "/api/playedgames/{playedGameId}/players/{playerId}/cardToPlayer/{cardId}",
+                                "/api/playedgames/{playedGameId}/characters", "/api/playedgames/{playedGameId}/characters/{characterId}",
+                                "/api/playedgames/{playedGameId}/players", "/api/playedgames/{playedGameId}/players/{playerId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/cards", "/api/playedgames/{playedGameId}/players/{playerId}/cards/{cardId}",
+                                "/api/playedgames/{playedGameId}/addPlayer", "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}",
+                                "api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
+                        .uri("lb://played-game"))
                 .route("games", r -> r
                         .path(
                                 // GameController

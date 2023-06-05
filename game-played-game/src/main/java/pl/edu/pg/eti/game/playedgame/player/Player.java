@@ -25,7 +25,7 @@ public class Player {
      * Identifier of the player playing the game.
      */
     @Id
-    private Integer id;
+    private String login;
 
     /**
      * Character chosen by the player.

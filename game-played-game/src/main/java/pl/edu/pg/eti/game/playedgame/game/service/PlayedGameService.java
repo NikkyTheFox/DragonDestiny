@@ -102,12 +102,12 @@ public class PlayedGameService {
         return playedGameRepository.findCardByIdInUsedDeck(gameId, id);
     }
 
-    public Optional<ItemCard> findCardInPlayer(ObjectId gameId, Integer playerId, Integer cardId) {
-        return playedGameRepository.findCardInPlayers(gameId, playerId, cardId);
+    public Optional<ItemCard> findCardInPlayer(ObjectId gameId, String playerLogin, Integer cardId) {
+        return playedGameRepository.findCardInPlayers(gameId, playerLogin, cardId);
     }
 
-    public Optional<Player> findPlayer(ObjectId gameId, Integer id) {
-        return playedGameRepository.findPlayerInPlayers(gameId, id);
+    public Optional<Player> findPlayer(ObjectId gameId, String playerLogin) {
+        return playedGameRepository.findPlayerInPlayers(gameId, playerLogin);
     }
 
     public Optional<Character> findCharacter(ObjectId gameId, Integer id) {
@@ -130,7 +130,7 @@ public class PlayedGameService {
         player.getPlayerManager().moveCardToPlayer(player, card);
         List<Player> players = game.getPlayers();
         OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getId(), player.getId()))
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
                 .findFirst();
         if (index.isEmpty())
             return null;
@@ -150,7 +150,7 @@ public class PlayedGameService {
         player.getPlayerManager().setCharacter(player, character);
         List<Player> players = game.getPlayers();
         OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getId(), player.getId()))
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
                 .findFirst();
         if (index.isEmpty())
             return null;
@@ -163,7 +163,7 @@ public class PlayedGameService {
         player.getPlayerManager().changeCharacterPosition(player, field);
         List<Player> players = game.getPlayers();
         OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getId(), player.getId()))
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
                 .findFirst();
         if (index.isEmpty())
             return null;
