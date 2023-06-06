@@ -1,14 +1,14 @@
-CREATE TABLE games
-(
-    game_id INT IDENTITY(1, 1) PRIMARY KEY,
-    board_id INT
-)
-
 CREATE TABLE boards
 (
     board_id INT IDENTITY (1, 1) PRIMARY KEY,
     x_size INT,
     y_size INT
+)
+
+CREATE TABLE games
+(
+    game_id  INT IDENTITY(1, 1) PRIMARY KEY,
+    board_id INT REFERENCES boards
 )
 
 CREATE TABLE fields
@@ -17,7 +17,7 @@ CREATE TABLE fields
     type VARCHAR(50),
     x_position INT,
     y_position INT,
-    board_id INT
+    board_id INT REFERENCES boards
 )
 
 CREATE TABLE cards
@@ -44,8 +44,8 @@ CREATE TABLE enemy_cards
 
 CREATE TABLE games_cards
 (
-    game_id INT,
-    card_id INT
+    game_id INT REFERENCES games,
+    card_id INT REFERENCES cards
 )
 
 CREATE TABLE characters
@@ -60,6 +60,6 @@ CREATE TABLE characters
 
 CREATE TABLE games_characters
 (
-    game_id INT,
-    character_id INT
+    game_id INT REFERENCES games,
+    character_id INT REFERENCES characters
 )

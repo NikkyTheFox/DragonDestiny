@@ -60,17 +60,14 @@ public class Board {
     /**
      * List of fields in the board - one board => many fields.
      */
-    @OneToMany
-    @JoinColumn(name = "board_id")
-    //@JsonManagedReference
+    @OneToMany(mappedBy = "board")
     private List<Field> fields = new ArrayList<Field>();
 
     /**
      * List of games the board belongs to.
      * One board can belong to many game engines (game boxes).
      */
-    @OneToMany
-    @JoinColumn(name = "board_id")
+    @OneToMany(mappedBy = "board")
     private List<Game> games = new ArrayList<>();
 
 }

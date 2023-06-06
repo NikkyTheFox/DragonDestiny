@@ -53,14 +53,12 @@ public class Game {
      */
     @ManyToOne
     @JoinColumn(name = "board_id")
-    //@JsonBackReference
     private Board board;
 
     /**
      * List of cards added to game engine.
      * Many-to-many relationship is represented by another table called games_cards.
      */
-    //@JsonManagedReference
     @ManyToMany
     @JoinTable(
             name = "games_cards",
@@ -72,7 +70,6 @@ public class Game {
      * List of characters added to game engine.
      * Many-to-many relationship is represented by another table called games_characters.
      */
-    //@JsonManagedReference
     @ManyToMany
     @JoinTable(
             name = "games_characters",
