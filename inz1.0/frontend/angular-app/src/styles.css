@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+body{
+  font-family: Arial;
+  margin: 0 20% 0 0;
+  padding: 80px 10px 0 10px;
+  position: relative;
+  height: 100%;
+}
+
+p{
+  margin: 0;
+  text-align: center;
+}
