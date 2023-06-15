@@ -46,7 +46,7 @@ public class PlayedGameService {
      * @param id
      * @return game found
      */
-    public Optional<PlayedGame> findPlayedGame(ObjectId id) {
+    public Optional<PlayedGame> findPlayedGame(String id) {
         return playedGameRepository.findById(id);
     }
 
@@ -71,7 +71,7 @@ public class PlayedGameService {
     /**
      * Deletes played game from database by id.
      */
-    public void deleteById(ObjectId id) {
+    public void deleteById(String id) {
         playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No game found"));
         playedGameRepository.deleteById(id);
     }
@@ -81,7 +81,7 @@ public class PlayedGameService {
      *
      * @return updated game
      */
-    public PlayedGame update(ObjectId id, PlayedGame playedGameRequest) {
+    public PlayedGame update(String id, PlayedGame playedGameRequest) {
         Optional<PlayedGame> game = playedGameRepository.findById(id);
         if (game.isEmpty())
             return null;
@@ -94,27 +94,27 @@ public class PlayedGameService {
         return playedGameRepository.save(game.get());
     }
 
-    public Optional<Card> findCardInCardDeck(ObjectId gameId, Integer id) {
+    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
         return playedGameRepository.findCardByIdInCardDeck(gameId, id);
     }
 
-    public Optional<Card> findCardInUsedDeck(ObjectId gameId, Integer id) {
+    public Optional<Card> findCardInUsedDeck(String gameId, Integer id) {
         return playedGameRepository.findCardByIdInUsedDeck(gameId, id);
     }
 
-    public Optional<ItemCard> findCardInPlayer(ObjectId gameId, String playerLogin, Integer cardId) {
+    public Optional<ItemCard> findCardInPlayer(String gameId, String playerLogin, Integer cardId) {
         return playedGameRepository.findCardInPlayers(gameId, playerLogin, cardId);
     }
 
-    public Optional<Player> findPlayer(ObjectId gameId, String playerLogin) {
+    public Optional<Player> findPlayer(String gameId, String playerLogin) {
         return playedGameRepository.findPlayerInPlayers(gameId, playerLogin);
     }
 
-    public Optional<Character> findCharacter(ObjectId gameId, Integer id) {
+    public Optional<Character> findCharacter(String gameId, Integer id) {
         return playedGameRepository.findCharacterInCharacters(gameId, id);
     }
 
-    public Optional<Field> findField(ObjectId gameId, Integer id) {
+    public Optional<Field> findField(String gameId, Integer id) {
         return playedGameRepository.findFieldOnBoard(gameId, id);
     }
 

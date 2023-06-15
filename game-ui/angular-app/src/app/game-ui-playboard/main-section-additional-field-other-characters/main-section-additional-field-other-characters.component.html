@@ -1,0 +1,5 @@
+<div class="other-characters-container">
+  <div *ngFor="let character of otherCharacters; let i = index" class="other-characters-list">
+    {{i+1}}) {{character.name}} | S: {{character.initialStrength}} | HP: {{character.initialHealth}}
+  </div>
+</div>

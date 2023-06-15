@@ -32,7 +32,7 @@ public class PlayedGame {
      * Identifier of the played game.
      */
     @Id
-    private ObjectId id;
+    private String id; // changed from ObjectId to String; Parametrized retrieval from database was not possible based on ObjectId
 
     /**
      * Players playing the game.

@@ -50,7 +50,7 @@ public class PlayedGameController {
      * @return PlayedGame
      */
     @GetMapping("/{playedGameId}")
-    public ResponseEntity<PlayedGame> getGame(@PathVariable(name = "playedGameId") ObjectId playedGameId) {
+    public ResponseEntity<PlayedGame> getGame(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
@@ -103,7 +103,7 @@ public class PlayedGameController {
      * @return list of cards
      */
     @GetMapping("{playedGameId}/cards/deck")
-    public ResponseEntity<CardList> getCards(@PathVariable(name = "playedGameId") ObjectId playedGameId) {
+    public ResponseEntity<CardList> getCards(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
@@ -118,7 +118,7 @@ public class PlayedGameController {
      * @return list of cards
      */
     @GetMapping("{playedGameId}/cards/used")
-    public ResponseEntity<CardList> getUsedCards(@PathVariable(name = "playedGameId") ObjectId playedGameId) {
+    public ResponseEntity<CardList> getUsedCards(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
@@ -134,7 +134,7 @@ public class PlayedGameController {
      * @return found card
      */
     @GetMapping("{playedGameId}/cards/deck/{cardId}")
-    public ResponseEntity<Card> getDeckCard(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "cardId") Integer cardId) {
+    public ResponseEntity<Card> getDeckCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -154,7 +154,7 @@ public class PlayedGameController {
      * @return found card
      */
     @GetMapping("{playedGameId}/cards/used/{cardId}")
-    public ResponseEntity<Card> getUsedCard(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "cardId") Integer cardId) {
+    public ResponseEntity<Card> getUsedCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -175,7 +175,7 @@ public class PlayedGameController {
      * @return game with updated cards
      */
     @PutMapping("{playedGameId}/cardToUsed/{cardId}")
-    public ResponseEntity<PlayedGame> moveCardToUsed(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "cardId") Integer cardId) {
+    public ResponseEntity<PlayedGame> moveCardToUsed(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -197,7 +197,7 @@ public class PlayedGameController {
      * @return game with updated cards
      */
     @PutMapping("{playedGameId}/players/{playerId}/cardToPlayer/{cardId}")
-    public ResponseEntity<PlayedGame> moveCardToPlayer(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerId") String playerId) {
+    public ResponseEntity<PlayedGame> moveCardToPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerId") String playerId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -223,7 +223,7 @@ public class PlayedGameController {
      * @return list of all characters
      */
     @GetMapping("{playedGameId}/characters")
-    public ResponseEntity<CharacterList> getAllCharacters(@PathVariable(name = "playedGameId") ObjectId playedGameId) {
+    public ResponseEntity<CharacterList> getAllCharacters(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
@@ -239,7 +239,7 @@ public class PlayedGameController {
      * @return found character
      */
     @GetMapping("{playedGameId}/characters/{characterId}")
-    public ResponseEntity<Character> getCharacter(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "characterId") Integer characterId) {
+    public ResponseEntity<Character> getCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "characterId") Integer characterId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -260,7 +260,7 @@ public class PlayedGameController {
      * @return list of all players
      */
     @GetMapping("{playedGameId}/players")
-    public ResponseEntity<PlayerList> getPlayers(@PathVariable(name = "playedGameId") ObjectId playedGameId) {
+    public ResponseEntity<PlayerList> getPlayers(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
@@ -276,7 +276,7 @@ public class PlayedGameController {
      * @return found player
      */
     @GetMapping("{playedGameId}/players/{playerId}")
-    public ResponseEntity<Player> getPlayer(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerId") String playerId) {
+    public ResponseEntity<Player> getPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -296,7 +296,7 @@ public class PlayedGameController {
      * @return cards in hand of player
      */
     @GetMapping("{playedGameId}/players/{playerId}/cards")
-    public ResponseEntity<ItemCardList> getCards(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerId") String playerId) {
+    public ResponseEntity<ItemCardList> getCards(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -319,7 +319,7 @@ public class PlayedGameController {
      * @return card in hand of player
      */
     @GetMapping("{playedGameId}/players/{playerId}/cards/{cardId}")
-    public ResponseEntity<ItemCard> getCards(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "cardId") Integer cardId) {
+    public ResponseEntity<ItemCard> getCards(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "cardId") Integer cardId) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
@@ -345,7 +345,7 @@ public class PlayedGameController {
      * @return updated game with new players
      */
 //    @PutMapping("{playedGameId}/addPlayer")
-//    public ResponseEntity<PlayedGame> addPlayerToGame(@PathVariable(name = "playedGameId") ObjectId playedGameId, @RequestBody Player playerToAdd) {
+//    public ResponseEntity<PlayedGame> addPlayerToGame(@PathVariable(name = "playedGameId") String playedGameId, @RequestBody Player playerToAdd) {
 //        // get game
 //        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
 //        if (gameRequest.isEmpty())
@@ -358,7 +358,7 @@ public class PlayedGameController {
 //    }
 
     @PutMapping("{playedGameId}/addPlayer/{playerLogin}")
-    public ResponseEntity<PlayedGame> addPlayerToGameByLogin(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
+    public ResponseEntity<PlayedGame> addPlayerToGameByLogin(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         // get game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -384,7 +384,7 @@ public class PlayedGameController {
      * @return updated game with character assigned to player
      */
     @PutMapping("{playedGameId}/players/{playerId}/character/{characterId}")
-    public ResponseEntity<PlayedGame> selectCharacter(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "characterId") Integer characterId) {
+    public ResponseEntity<PlayedGame> selectCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "characterId") Integer characterId) {
         // get game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -410,7 +410,7 @@ public class PlayedGameController {
      * @return updated game
      */
     @PutMapping("{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
-    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") ObjectId playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "characterId") Integer characterId,@PathVariable(name = "fieldId") Integer fieldId) {
+    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "characterId") Integer characterId,@PathVariable(name = "fieldId") Integer fieldId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())

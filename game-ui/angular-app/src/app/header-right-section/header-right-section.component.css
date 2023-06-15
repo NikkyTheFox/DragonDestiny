@@ -1,0 +1,16 @@
+.right-section nav {
+  background-color: #f2f2f2;
+  padding: 10px;
+}
+
+.right-section nav a {
+  text-decoration: none;
+  margin-right: 10px;
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.right-section nav a:hover {
+  background-color: #ccc;
+  color: #fff;
+}

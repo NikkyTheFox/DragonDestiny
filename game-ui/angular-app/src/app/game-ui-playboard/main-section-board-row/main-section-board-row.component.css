@@ -1,0 +1,132 @@
+.board-row{
+  display: flex;
+}
+
+.field,
+.field-outer-top-left-corner,
+.field-outer-top-right-corner,
+.field-outer-bottom-left-corner,
+.field-outer-bottom-right-corner,
+.field-outer-top,
+.field-outer-right,
+.field-outer-bottom,
+.field-outer-left,
+.field-inner,
+.field-inner-top-left-corner,
+.field-inner-top-right-corner,
+.field-inner-bottom-left-corner,
+.field-inner-bottom-right-corner,
+.field-inner-top,
+.field-inner-right,
+.field-inner-bottom,
+.field-inner-left{
+  height: 70px; /* dynamic design needed */
+  width: 200px;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  align-items: flex-end;
+}
+
+.field,
+.field-outer-top-left-corner,
+.field-outer-top-right-corner,
+.field-outer-bottom-left-corner,
+.field-outer-bottom-right-corner,
+.field-outer-top,
+.field-outer-right,
+.field-outer-bottom,
+.field-outer-left{
+  background-color: aqua;
+  border: 1px solid red;
+}
+
+.field-outer-top-left-corner{
+  border-top: 2px solid red;
+  border-left: 2px solid red;
+  border-radius: 10px 0 0 0;
+}
+
+.field-outer-top-right-corner{
+  border-top: 2px solid red;
+  border-right: 2px solid red;
+  border-radius: 0 10px 0 0;
+}
+
+.field-outer-bottom-right-corner{
+  border-bottom: 2px solid red;
+  border-right: 2px solid red;
+  border-radius: 0 0 10px 0;
+}
+
+.field-outer-bottom-left-corner{
+  border-bottom: 2px solid red;
+  border-left: 2px solid red;
+  border-radius: 0 0 0 10px;
+}
+
+.field-outer-top{
+  border-top: 2px solid red;
+}
+
+.field-outer-right{
+  border-right: 2px solid red;
+}
+
+.field-outer-bottom{
+  border-bottom: 2px solid red;
+}
+
+.field-outer-left{
+  border-left: 2px solid red;
+}
+
+.field-inner,
+.field-inner-top-left-corner,
+.field-inner-top-right-corner,
+.field-inner-bottom-left-corner,
+.field-inner-bottom-right-corner,
+.field-inner-top,
+.field-inner-left,
+.field-inner-right,
+.field-inner-bottom{
+  background-color: white;
+  border: 1px solid white;
+}
+
+.field-inner-left{
+  border-left: 1px solid red;
+}
+
+.field-inner-top{
+  border-top: 1px solid red;
+}
+
+.field-inner-right{
+  border-right: 1px solid red;
+}
+
+.field-inner-bottom{
+  border-bottom: 1px solid red;
+}
+
+.field-inner-top-left-corner{
+  border-top: 1px solid red;
+  border-left: 1px solid red;
+}
+
+.field-inner-top-right-corner{
+  border-top: 1px solid red;
+  border-right: 1px solid red;
+}
+
+.field-inner-bottom-right-corner{
+  border-bottom: 1px solid red;
+  border-right: 1px solid red;
+}
+
+.field-inner-bottom-left-corner{
+  border-bottom: 1px solid red;
+  border-left: 1px solid red;
+}

@@ -18,9 +18,9 @@ import java.util.Optional;
  */
 
 @Repository
-public interface PlayedGameRepository extends MongoRepository<PlayedGame, ObjectId> {
+public interface PlayedGameRepository extends MongoRepository<PlayedGame, String> {
 
-    default Optional<Card> findCardByIdInUsedDeck(ObjectId gameId, Integer cardId) {
+    default Optional<Card> findCardByIdInUsedDeck(String gameId, Integer cardId) {
         return findById(gameId)
                 .map(PlayedGame::getUsedCardDeck)
                 .flatMap(cardList -> cardList.stream()
@@ -28,7 +28,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, Object
                         .findFirst());
     }
 
-    default Optional<Card> findCardByIdInCardDeck(ObjectId gameId, Integer cardId) {
+    default Optional<Card> findCardByIdInCardDeck(String gameId, Integer cardId) {
         return findById(gameId)
                 .map(PlayedGame::getCardDeck)
                 .flatMap(cardList -> cardList.stream()
@@ -36,7 +36,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, Object
                         .findFirst());
     }
 
-    default Optional<Player> findPlayerInPlayers(ObjectId gameId, String playerLogin) {
+    default Optional<Player> findPlayerInPlayers(String gameId, String playerLogin) {
         return findById(gameId)
                 .map(PlayedGame::getPlayers)
                 .flatMap(playerList -> playerList.stream()
@@ -44,7 +44,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, Object
                         .findFirst());
     }
 
-    default Optional<ItemCard> findCardInPlayers(ObjectId gameId, String playerLogin, Integer cardId) {
+    default Optional<ItemCard> findCardInPlayers(String gameId, String playerLogin, Integer cardId) {
         return findById(gameId)
                 .map(PlayedGame::getPlayers)
                 .flatMap(playerList -> playerList.stream()
@@ -56,7 +56,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, Object
                         .findFirst());
     }
 
-    default Optional<Character> findCharacterInCharacters(ObjectId gameId, Integer characterId) {
+    default Optional<Character> findCharacterInCharacters(String gameId, Integer characterId) {
         return findById(gameId)
                 .map(PlayedGame::getCharactersInGame)
                 .flatMap(characterList -> characterList.stream()
@@ -64,7 +64,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, Object
                         .findFirst());
     }
 
-    default Optional<Field> findFieldOnBoard(ObjectId gameId, Integer fieldId) {
+    default Optional<Field> findFieldOnBoard(String gameId, Integer fieldId) {
         return findById(gameId)
                 .map(PlayedGame::getBoard)
                 .map(PlayedBoard::getFieldsOnBoard)
