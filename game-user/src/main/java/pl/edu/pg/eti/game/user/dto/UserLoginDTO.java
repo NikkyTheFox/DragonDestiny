@@ -3,7 +3,7 @@ package pl.edu.pg.eti.game.user.dto;
 import lombok.Data;
 
 @Data
-public class LoginUserDTO {
+public class UserLoginDTO {
 
     /**
      * User's login.

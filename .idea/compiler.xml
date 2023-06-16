@@ -7,10 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="game-config-server" />
         <module name="game-played-game" />
         <module name="game-user" />
         <module name="game-discovery" />
-        <module name="game-config-server" />
+        <module name="game-user (1)" />
         <module name="game-gateway" />
         <module name="game-engine" />
       </profile>
@@ -37,6 +38,7 @@
       <module name="game-gateway" options="-parameters" />
       <module name="game-played-game" options="-parameters" />
       <module name="game-user" options="-parameters" />
+      <module name="game-user (1)" options="-parameters" />
       <module name="game_engine" options="-parameters" />
       <module name="played_character" options="-parameters" />
       <module name="played_game" options="-parameters" />
