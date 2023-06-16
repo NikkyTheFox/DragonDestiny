@@ -1,8 +1,7 @@
 
 package pl.edu.pg.eti.game.user.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.edu.pg.eti.game.user.dto.LoginUserDTO;
+import pl.edu.pg.eti.game.user.dto.UserLoginDTO;
 import pl.edu.pg.eti.game.user.entity.User;
 import pl.edu.pg.eti.game.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +22,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     /**
-     * Password encoder.
-     */
-    private PasswordEncoder passwordEncoder;
-
-    /**
      * Autowired constructor - beans are injected automatically.
      *
      * @param userRepository
-     * @param passwordEncoder
      */
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -50,13 +42,13 @@ public class UserService {
     }
 
     /**
-     * Returns user by Login and Password
+     * Returns user by Login + Password combination.
      *
-     * @param loginUserDTO
+     * @param userLoginDTO
      * @return user found
      */
-    public Optional<User> findUser(LoginUserDTO loginUserDTO) {
-        return userRepository.findUserByLoginAndPassword(loginUserDTO.getLogin(), loginUserDTO.getPassword());
+    public Optional<User> findUser(UserLoginDTO userLoginDTO) {
+        return userRepository.findUserByLoginAndPassword(userLoginDTO.getLogin(), userLoginDTO.getPassword());
     }
 
     /**
@@ -75,11 +67,7 @@ public class UserService {
      * @return saved user
      */
     public User save(User user) {
-        User user1 = new User();
-        user1.setLogin(user.getLogin());
-        user1.setName(user.getName());
-        user1.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user1);
+        return userRepository.save(user);
     }
 
     /**
@@ -97,8 +85,27 @@ public class UserService {
      * @param user - user request to update
      * @return updated user
      */
-    public User update(User user){
-        return userRepository.save(user);
+    public User update(User updatedUser, User user) {
+        User newUser = new User();
+        if (updatedUser.getLogin() != null)
+            newUser.setLogin(updatedUser.getLogin());
+        else
+            newUser.setLogin(user.getLogin());
+        if (updatedUser.getName() != null)
+            newUser.setName(updatedUser.getName());
+        else
+            newUser.setName(user.getName());
+        if (updatedUser.getPassword() != null)
+            newUser.setPassword(updatedUser.getPassword());
+        else
+            newUser.setPassword(updatedUser.getPassword());
+        if (!updatedUser.getPlayedGames().isEmpty())
+            newUser.setPlayedGames(updatedUser.getPlayedGames());
+        else
+            newUser.setPlayedGames(updatedUser.getPlayedGames());
+
+        userRepository.delete(user);
+        return userRepository.save(newUser);
     }
 
 }
