@@ -1,13 +1,16 @@
-package pl.edu.pg.eti.game.user.controller;
+package pl.edu.pg.eti.game.user.user.controller;
 
 import jakarta.validation.Valid;
-import pl.edu.pg.eti.game.user.dto.UserDTO;
-import pl.edu.pg.eti.game.user.dto.UserListDTO;
-import pl.edu.pg.eti.game.user.dto.UserLoginDTO;
-import pl.edu.pg.eti.game.user.dto.UserRegisterDTO;
-import pl.edu.pg.eti.game.user.entity.User;
-import pl.edu.pg.eti.game.user.game.GameListDTO;
-import pl.edu.pg.eti.game.user.service.UserService;
+import pl.edu.pg.eti.game.user.user.dto.UserDTO;
+import pl.edu.pg.eti.game.user.user.dto.UserListDTO;
+import pl.edu.pg.eti.game.user.user.dto.UserLoginDTO;
+import pl.edu.pg.eti.game.user.user.dto.UserRegisterDTO;
+import pl.edu.pg.eti.game.user.user.entity.User;
+import pl.edu.pg.eti.game.user.game.entity.Game;
+import pl.edu.pg.eti.game.user.game.dto.GameDTO;
+import pl.edu.pg.eti.game.user.game.dto.GameListDTO;
+import pl.edu.pg.eti.game.user.game.service.GameService;
+import pl.edu.pg.eti.game.user.user.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,14 +41,21 @@ public class UserController {
     private final UserService userService;
 
     /**
+     * GameService used to communicate with service layer that will communicate with database repository.
+     */
+    private final GameService gameService;
+
+    /**
      * Autowired constructor - beans are injected automatically.
      *
      * @param userService
+     * @param gameService
      * @param modelMapper
      */
     @Autowired
-    UserController(UserService userService, ModelMapper modelMapper) {
+    UserController(UserService userService, ModelMapper modelMapper, GameService gameService) {
         this.userService = userService;
+        this.gameService = gameService;
         this.modelMapper = modelMapper;
     }
 
@@ -114,8 +125,10 @@ public class UserController {
         Optional<User> user = userService.findUser(login);
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
-
-        GameListDTO gameListDTO = new GameListDTO(user.get().getPlayedGames());
+        List<GameDTO> cardDTOList = gameService.findGames(user.get()).stream()
+                .map(card -> modelMapper.map(card, GameDTO.class))
+                .collect(Collectors.toList());
+        GameListDTO gameListDTO = new GameListDTO(cardDTOList);
         return ResponseEntity.ok().body(gameListDTO);
     }
 
@@ -129,10 +142,38 @@ public class UserController {
     @PutMapping("/{login}/edit")
     public ResponseEntity<UserDTO> putUser(@PathVariable(name = "login") String login, @RequestBody UserRegisterDTO userRequest) {
         Optional<User> user = userService.findUser(login);
-        if (user.isEmpty()) { // create
+        if (user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         User userUpdated = userService.update(modelMapper.map(userRequest, User.class), user.get()); // update
+        UserDTO userResponse = modelMapper.map(userUpdated, UserDTO.class);
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @PutMapping("/{login}/addGame/{gameId}")
+    public ResponseEntity<UserDTO> putUser(@PathVariable(name = "login") String login, @PathVariable(name = "gameId") String gameId) {
+        System.out.println("ADDING GAME " + gameId);
+        Optional<User> user = userService.findUser(login);
+        if (user.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Optional<Game> game = gameService.findGame(gameId);
+        if (game.isEmpty()) {
+            System.out.println("no game found");
+            Game createdGame = new Game();
+            createdGame.setId(gameId);
+            createdGame.getUserList().add(user.get());
+            gameService.save(createdGame);
+            user.get().getPlayedGames().add(createdGame);
+
+        } else {
+            System.out.println("game found");
+            game.get().getUserList().add(user.get());
+            user.get().getPlayedGames().add(game.get());
+            gameService.save(game.get());
+        }
+
+        User userUpdated = userService.save(user.get());
         UserDTO userResponse = modelMapper.map(userUpdated, UserDTO.class);
         return ResponseEntity.ok().body(userResponse);
     }

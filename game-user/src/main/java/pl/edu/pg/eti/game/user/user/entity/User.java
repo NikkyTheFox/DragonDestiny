@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.game.user.entity;
+package pl.edu.pg.eti.game.user.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.ToString;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
-import pl.edu.pg.eti.game.user.game.GameDTO;
+import pl.edu.pg.eti.game.user.game.entity.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +46,8 @@ public class User {
     /**
      * List of played games of that user.
      */
-    @OneToMany
     @Transient
-    private List<GameDTO> playedGames = new ArrayList<>();
+    @ManyToMany(mappedBy = "userList")
+    private List<Game> playedGames = new ArrayList<>();
 
 }

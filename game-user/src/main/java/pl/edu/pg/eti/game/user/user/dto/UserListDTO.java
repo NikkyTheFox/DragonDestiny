@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.game.user.dto;
+package pl.edu.pg.eti.game.user.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

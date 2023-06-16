@@ -1,9 +1,7 @@
-package pl.edu.pg.eti.game.user.dto;
+package pl.edu.pg.eti.game.user.user.dto;
 
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Transient;
 import lombok.Data;
-import pl.edu.pg.eti.game.user.game.GameDTO;
+import pl.edu.pg.eti.game.user.game.dto.GameDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,6 @@ public class UserDTO {
     /**
      * List of played games of that user.
      */
-    @OneToMany
     private List<GameDTO> playedGames = new ArrayList<>();
 
 }

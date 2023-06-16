@@ -1,21 +1,27 @@
-package pl.edu.pg.eti.game.user.dto;
+package pl.edu.pg.eti.game.user.user.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class UserLoginDTO {
+public class UserRegisterDTO {
 
     /**
      * User's login.
      */
-    @NotEmpty(message = "Login cannot be empty")
+    @NotEmpty
     private String login;
+
+    /**
+     * User's name.
+     */
+    @NotEmpty
+    private String name;
 
     /**
      * User's password.
      */
-    @NotEmpty(message = "Password cannot be empty")
+    @NotEmpty
     private String password;
 
 }

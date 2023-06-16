@@ -341,22 +341,9 @@ public class PlayedGameController {
      * check in database if exists then add
      *
      * @param playedGameId
-     * @param playerToAdd
+     * @param playerLogin
      * @return updated game with new players
      */
-//    @PutMapping("{playedGameId}/addPlayer")
-//    public ResponseEntity<PlayedGame> addPlayerToGame(@PathVariable(name = "playedGameId") String playedGameId, @RequestBody Player playerToAdd) {
-//        // get game
-//        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
-//        if (gameRequest.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        Player player = playerToAdd;
-//        player.setPlayerManager(new PlayerManager());
-//        System.out.println("ADDING PLAYER: " + player.hashCode());
-//        PlayedGame game = playedGameService.addPlayer(gameRequest.get(), player);
-//        return ResponseEntity.ok().body(game);
-//    }
-
     @PutMapping("{playedGameId}/addPlayer/{playerLogin}")
     public ResponseEntity<PlayedGame> addPlayerToGameByLogin(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         // get game
@@ -372,6 +359,7 @@ public class PlayedGameController {
         player.get().setPlayerManager(new PlayerManager());
         System.out.println("ADDING PLAYER: " + player.hashCode());
         PlayedGame game = playedGameService.addPlayer(gameRequest.get(), player.get());
+        playerService.addGame(playerLogin, playedGameId);
         return ResponseEntity.ok().body(game);
     }
 

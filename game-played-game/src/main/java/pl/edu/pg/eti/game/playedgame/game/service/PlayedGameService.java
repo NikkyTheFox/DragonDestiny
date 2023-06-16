@@ -143,6 +143,8 @@ public class PlayedGameService {
     public PlayedGame addPlayer(PlayedGame game, Player player) {
         GameManager gameManager = game.getGameManager();
         gameManager.addPlayerToGame(player, game.getPlayers());
+
+
         return playedGameRepository.save(game);
     }
 

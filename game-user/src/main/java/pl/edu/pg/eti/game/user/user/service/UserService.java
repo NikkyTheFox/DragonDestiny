@@ -1,9 +1,10 @@
 
-package pl.edu.pg.eti.game.user.service;
+package pl.edu.pg.eti.game.user.user.service;
 
-import pl.edu.pg.eti.game.user.dto.UserLoginDTO;
-import pl.edu.pg.eti.game.user.entity.User;
-import pl.edu.pg.eti.game.user.repository.UserRepository;
+import pl.edu.pg.eti.game.user.user.dto.UserLoginDTO;
+import pl.edu.pg.eti.game.user.user.entity.User;
+import pl.edu.pg.eti.game.user.game.entity.Game;
+import pl.edu.pg.eti.game.user.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -99,13 +100,36 @@ public class UserService {
             newUser.setPassword(updatedUser.getPassword());
         else
             newUser.setPassword(updatedUser.getPassword());
-        if (!updatedUser.getPlayedGames().isEmpty())
-            newUser.setPlayedGames(updatedUser.getPlayedGames());
-        else
-            newUser.setPlayedGames(updatedUser.getPlayedGames());
+        System.out.println("GAMES BEFORE ");
+        updatedUser.getPlayedGames().forEach(System.out::println);
+        if (!updatedUser.getPlayedGames().isEmpty()) {
+            newUser.getPlayedGames().addAll(updatedUser.getPlayedGames());
+            System.out.println("GAMES 12 ");
+            newUser.getPlayedGames().forEach(System.out::println);
+        }
+        else {
+            newUser.getPlayedGames().addAll(updatedUser.getPlayedGames());
+            System.out.println("GAMES 22 ");
+            newUser.getPlayedGames().forEach(System.out::println);
+        }
+        System.out.println("GAMES AFTER ");
+        newUser.getPlayedGames().forEach(System.out::println);
 
         userRepository.delete(user);
         return userRepository.save(newUser);
+    }
+
+    public User updateGamesList(User user, String gameId) {
+
+        Game game = new Game();
+        game.setId(gameId);
+        game.getUserList().add(user);
+        user.getPlayedGames().add(game);
+
+        for (Game g : user.getPlayedGames())
+            System.out.println(g.getId());
+
+        return userRepository.save(user);
     }
 
 }
