@@ -1,8 +1,6 @@
 package pl.edu.pg.eti.game.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +9,10 @@ import lombok.ToString;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
+import pl.edu.pg.eti.game.user.game.GameDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -40,5 +42,12 @@ public class User {
      * User's name.
      */
     private String name;
+
+    /**
+     * List of played games of that user.
+     */
+    @OneToMany
+    @Transient
+    private List<GameDTO> playedGames = new ArrayList<>();
 
 }

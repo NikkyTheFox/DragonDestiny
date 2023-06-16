@@ -1,6 +1,8 @@
 
 package pl.edu.pg.eti.game.user.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import pl.edu.pg.eti.game.user.dto.LoginUserDTO;
 import pl.edu.pg.eti.game.user.entity.User;
 import pl.edu.pg.eti.game.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,23 +23,40 @@ public class UserService {
     private final UserRepository userRepository;
 
     /**
+     * Password encoder.
+     */
+    private PasswordEncoder passwordEncoder;
+
+    /**
      * Autowired constructor - beans are injected automatically.
      *
      * @param userRepository
+     * @param passwordEncoder
      */
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * Returns user by Login. If no user found, throws exception.
+     * Returns user by Login
      *
      * @param login
      * @return user found
      */
     public Optional<User> findUser(String login) {
         return userRepository.findById(login);
+    }
+
+    /**
+     * Returns user by Login and Password
+     *
+     * @param loginUserDTO
+     * @return user found
+     */
+    public Optional<User> findUser(LoginUserDTO loginUserDTO) {
+        return userRepository.findUserByLoginAndPassword(loginUserDTO.getLogin(), loginUserDTO.getPassword());
     }
 
     /**
@@ -56,7 +75,11 @@ public class UserService {
      * @return saved user
      */
     public User save(User user) {
-        return userRepository.save(user);
+        User user1 = new User();
+        user1.setLogin(user.getLogin());
+        user1.setName(user.getName());
+        user1.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user1);
     }
 
     /**

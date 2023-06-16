@@ -29,7 +29,7 @@ public class GatewayApplication {
         return builder
                 .routes()
                 .route("users", r -> r
-                        .path("/api/users/{login}", "/api/users")
+                        .path("/api/users/{login}", "/api/users", "/api/users/login", "/api/users/registration")
                         .uri("lb://game-user"))
                 .route("playedgames", r -> r
                         .path("/api/playedgames",
@@ -48,7 +48,7 @@ public class GatewayApplication {
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cards/{cardId}",
                                 "/api/playedgames/{playedGameId}/addPlayer",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}",
-                                "api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
+                                "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
                         .uri("lb://played-game"))
                 .route("games", r -> r
                         .path(
