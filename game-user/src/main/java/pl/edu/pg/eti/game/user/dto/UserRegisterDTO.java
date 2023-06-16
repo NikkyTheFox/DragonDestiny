@@ -1,6 +1,7 @@
 package pl.edu.pg.eti.game.user.dto;
 
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import pl.edu.pg.eti.game.user.game.GameDTO;
 
@@ -12,16 +13,19 @@ public class UserRegisterDTO {
     /**
      * User's login.
      */
+    @NotEmpty
     private String login;
 
     /**
      * User's name.
      */
+    @NotEmpty
     private String name;
 
     /**
      * User's password.
      */
+    @NotEmpty
     private String password;
 
     /**

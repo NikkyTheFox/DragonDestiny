@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.user.controller;
 
+import jakarta.validation.Valid;
 import pl.edu.pg.eti.game.user.dto.UserDTO;
 import pl.edu.pg.eti.game.user.dto.UserListDTO;
 import pl.edu.pg.eti.game.user.dto.UserLoginDTO;
@@ -81,7 +82,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/login")
-    public ResponseEntity<UserDTO> findUser(@RequestBody UserLoginDTO loginUserRequest) {
+    public ResponseEntity<UserDTO> findUser(@Valid @RequestBody UserLoginDTO loginUserRequest) {
         Optional<User> user = userService.findUser(loginUserRequest);
         if (user.isEmpty())
             return ResponseEntity.notFound().build();
@@ -96,7 +97,7 @@ public class UserController {
      * @return
      */
     @PutMapping("/register")
-    public ResponseEntity<UserRegisterDTO> createUser(@RequestBody UserRegisterDTO userRequest) {
+    public ResponseEntity<UserRegisterDTO> createUser(@Valid @RequestBody UserRegisterDTO userRequest) {
         User userCreated = userService.save(modelMapper.map(userRequest, User.class));
         UserRegisterDTO userResponse = modelMapper.map(userCreated, UserRegisterDTO.class);
         return ResponseEntity.ok().body(userResponse);
