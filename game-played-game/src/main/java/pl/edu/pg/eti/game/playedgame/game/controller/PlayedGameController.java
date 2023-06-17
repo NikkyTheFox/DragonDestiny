@@ -1,5 +1,7 @@
 package pl.edu.pg.eti.game.playedgame.game.controller;
 
+import org.springframework.web.ErrorResponse;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.response.EnemyCardList;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.card.entity.CardList;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
@@ -39,6 +41,21 @@ public class PlayedGameController {
         this.playedGameService = playedGameService;
         this.playerService = playerService;
         this.initializePlayedGame = initializePlayedGame;
+    }
+
+    // TEST - ignore it
+    @GetMapping("/{playedGameId}/players/{playerId}/test")
+    public ResponseEntity<Player> testGame(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId) {
+        // find game
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerId);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+       // Player updatedPlayer = player.get().getPlayerManager().checkTrophies(player.get());
+        return ResponseEntity.ok().body(player.get());
     }
 
     // GAME ------------------------------------------------------
@@ -188,7 +205,7 @@ public class PlayedGameController {
     }
 
     /**
-     * Call to move card for cardDeck to cardsOnHand of player
+     * Call to move card from cardDeck to cardsOnHand of player.
      *
      * @param playedGameId
      * @param cardId
@@ -210,6 +227,40 @@ public class PlayedGameController {
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         PlayedGame game = playedGameService.moveCardToPlayer(gameRequest.get(), card.get(), player.get());
+        return ResponseEntity.ok().body(game);
+    }
+
+    /**
+     * Call to move card from cardDeck to trophies of player.
+     *
+     * @param playedGameId
+     * @param playerId
+     * @param cardId
+     * @return
+     */
+    @PutMapping("/{playedGameId}/players/{playerId}/cardToTrophies/{cardId}")
+    public ResponseEntity<PlayedGame> moveCardToTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "cardId") Integer cardId) {
+        // find game
+        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
+        if (gameRequest.isEmpty()) {
+            System.out.println("no game found");
+            return ResponseEntity.notFound().build();
+        }
+        // find card
+        Optional<Card> card = playedGameService.findCardInCardDeck(playedGameId, cardId);
+        if (card.isEmpty()) {
+            System.out.println("no card found");
+            return ResponseEntity.notFound().build();
+        }
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerId);
+        if (player.isEmpty()) {
+            System.out.println("no player found");
+            return ResponseEntity.notFound().build();
+        }
+        PlayedGame game = playedGameService.moveCardToTrophies(gameRequest.get(), card.get(), player.get());
+        // check trophies
+        game = playedGameService.checkTrophies(game, player.get());
         return ResponseEntity.ok().body(game);
     }
 
@@ -349,6 +400,28 @@ public class PlayedGameController {
         if (card.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(card.get());
+    }
+
+    /**
+     * Call to get trophies of player in played game.
+     *
+     * @param playedGameId
+     * @param playerId
+     * @return trophies in hand of player
+     */
+    @GetMapping("{playedGameId}/players/{playerId}/trophies")
+    public ResponseEntity<EnemyCardList> getTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId) {
+        // find game
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerId);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find trophies
+        EnemyCardList cardList = new EnemyCardList(player.get().getTrophies());
+        return ResponseEntity.ok().body(cardList);
     }
 
     /**

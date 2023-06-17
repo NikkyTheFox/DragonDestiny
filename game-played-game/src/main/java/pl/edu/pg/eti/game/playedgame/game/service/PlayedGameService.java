@@ -11,6 +11,7 @@ import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -93,8 +94,22 @@ public class PlayedGameService {
         return playedGameRepository.save(game.get());
     }
 
-    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
+    public Optional<Card> findCardInCardDeck2(String gameId, Integer id) {
         return playedGameRepository.findCardByIdInCardDeck(gameId, id);
+    }
+
+    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
+        Optional<PlayedGame> game = findPlayedGame(gameId);
+        System.out.println("Found cards: ");
+        for (Card c : game.get().getCardDeck()) {
+            System.out.println(c.getId());
+        }
+        for (Card c : game.get().getCardDeck()) {
+            if (c.getId().equals(id)) {
+                return Optional.of(c);
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<Card> findCardInUsedDeck(String gameId, Integer id) {
@@ -120,7 +135,7 @@ public class PlayedGameService {
     public PlayedGame moveCardToUsed(PlayedGame game, Card card) {
         GameManager gameManager = game.getGameManager();
         gameManager.addCardToUsedDeck(card, game.getUsedCardDeck());
-        gameManager.removeCardFromDeck(card, game.getCardDeck());
+        gameManager.removeCardFromDeck(game, card);
         return playedGameRepository.save(game);
     }
 
@@ -135,15 +150,43 @@ public class PlayedGameService {
             return null;
         players.set(index.getAsInt(), player);
         game.setPlayers(players);
-        gameManager.removeCardFromDeck(card, game.getCardDeck());
+        gameManager.removeCardFromDeck(game, card);
+        return playedGameRepository.save(game);
+    }
+
+    public PlayedGame moveCardToTrophies(PlayedGame game, Card card, Player player) {
+        GameManager gameManager = game.getGameManager();
+        player.getPlayerManager().moveCardToTrophies(player, card);
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .findFirst();
+        if (index.isEmpty())
+            return null;
+        players.set(index.getAsInt(), player);
+        game.setPlayers(players);
+        gameManager.removeCardFromDeck(game, card);
+        return playedGameRepository.save(game);
+    }
+
+    public PlayedGame checkTrophies(PlayedGame game, Player player) {
+        if(player.getPlayerManager().checkTrophies(player)) {
+            Player updatedPlayer = player.getPlayerManager().moveTrophies(player);
+            List<Player> players = game.getPlayers();
+            OptionalInt index = IntStream.range(0, players.size())
+                    .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
+                    .findFirst();
+            if (index.isEmpty())
+                return null;
+            players.set(index.getAsInt(), updatedPlayer);
+            game.setPlayers(players);
+        }
         return playedGameRepository.save(game);
     }
 
     public PlayedGame addPlayer(PlayedGame game, Player player) {
         GameManager gameManager = game.getGameManager();
         gameManager.addPlayerToGame(player, game.getPlayers());
-
-
         return playedGameRepository.save(game);
     }
 

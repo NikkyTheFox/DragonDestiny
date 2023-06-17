@@ -1,11 +1,19 @@
 package pl.edu.pg.eti.game.playedgame.player.entity;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import pl.edu.pg.eti.game.playedgame.PlayedGameApplication;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
+import java.util.Objects;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 public class PlayerManager {
 
@@ -40,6 +48,56 @@ public class PlayerManager {
     }
 
     /**
+     * Method to check additional strength points received from trophies collected by the player.
+     *
+     * @param player
+     */
+    public boolean checkTrophies(Player player) {
+        int numOfTrophies = player.getTrophies().size();
+        return numOfTrophies >= PlayedGameApplication.numOfTrophiesToGetPoint;
+    }
+
+    /**
+     * Method to increase strenth points from trophies and remove trophies from player.
+     *
+     * @param player
+     * @return
+     */
+
+    public Player moveTrophies(Player player) {
+        int numOfTrophies = player.getTrophies().size();
+        if (numOfTrophies >= PlayedGameApplication.numOfTrophiesToGetPoint) {
+            player.getPlayerManager().increaseStrength(player, PlayedGameApplication.trophiesPointIncrease);
+            player = removeCardsFromTrophies(player, PlayedGameApplication.numOfTrophiesToGetPoint);
+        }
+        return player;
+    }
+
+    /**
+     * Method to increase strength points of player's character by val.
+     *
+     * @param player
+     * @param val
+     * @return
+     */
+    public Player increaseStrength(Player player, Integer val) {
+        player.getCharacter().increaseStrength(val);
+        return player;
+    }
+
+    /**
+     * Method to increase health points of player's character by val.
+     *
+     * @param player
+     * @param val
+     * @return
+     */
+    public Player increaseHealth(Player player, Integer val) {
+        player.getCharacter().increaseHealth(val);
+        return player;
+    }
+
+    /**
      * Method to change player's character's position on board.
      *
      * @param player
@@ -66,7 +124,38 @@ public class PlayerManager {
      * @param card
      */
     public void removeCardFromPlayer(Player player, Card card) {
-        player.getCardsOnHand().remove(card);
+        OptionalInt index = IntStream.range(0, player.getCardsOnHand().size())
+                .filter(i -> Objects.equals(player.getCardsOnHand().get(i).getId(), card.getId()))
+                .findFirst();
+        if (index.isEmpty()) {
+            return;
+        }
+        player.getCardsOnHand().remove(index.getAsInt());
+    }
+
+    /**
+     * Method to add card to player's trophies.
+     *
+     * @param card
+     */
+    public Player moveCardToTrophies(Player player, Card card) {
+        player.getTrophies().add((EnemyCard) card);
+        return player;
+    }
+
+    /**
+     * Method to remove N cards from trophies.
+     *
+     * @param player
+     * @param N
+     * @return
+     */
+    public Player removeCardsFromTrophies(Player player, Integer N) {
+        for (int d = N - 1; d >= 0; d--) {
+            System.out.println("removing " + d);
+            player.getTrophies().remove(d);
+        }
+        return player;
     }
 
     /**

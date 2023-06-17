@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -45,9 +50,14 @@ public class GameManager {
      *
      * @param card
      */
-    public void removeCardFromDeck(Card card, List<Card> cardList) {
-        cardList.remove(card);
-        cardList.remove(card);
+    public void removeCardFromDeck(PlayedGame game, Card card) {
+        OptionalInt index = IntStream.range(0, game.getCardDeck().size())
+                .filter(i -> Objects.equals(game.getCardDeck().get(i).getId(), card.getId()))
+                .findFirst();
+        if (index.isEmpty()) {
+            return;
+        }
+        game.getCardDeck().remove(index.getAsInt());
     }
 
     /**
@@ -62,10 +72,17 @@ public class GameManager {
     /**
      * Method to remove card from used card deck
      *
+     * @param game
      * @param card
      */
-    public void removeCardFromUsedDeck(Card card, List<Card> cardList) {
-        cardList.remove(card);
+    public void removeCardFromUsedDeck(PlayedGame game, Card card) {
+        OptionalInt index = IntStream.range(0, game.getUsedCardDeck().size())
+                .filter(i -> Objects.equals(game.getUsedCardDeck().get(i).getId(), card.getId()))
+                .findFirst();
+        if (index.isEmpty()) {
+            return;
+        }
+        game.getUsedCardDeck().remove(index.getAsInt());
     }
 
 }

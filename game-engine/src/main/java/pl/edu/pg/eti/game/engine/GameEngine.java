@@ -2,6 +2,7 @@ package pl.edu.pg.eti.game.engine;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Import;
  */
 
 @Import(GameEngineConfig.class)
+@ConfigurationProperties("played-game")
 @SpringBootApplication
 public class GameEngine {
 

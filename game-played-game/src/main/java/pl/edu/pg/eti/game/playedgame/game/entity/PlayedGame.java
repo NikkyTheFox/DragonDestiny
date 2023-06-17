@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.game.entity;
 
+import org.springframework.data.annotation.Transient;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
