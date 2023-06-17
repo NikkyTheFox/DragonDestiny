@@ -87,6 +87,44 @@ public class UserService {
      * @return updated user
      */
     public User update(User updatedUser, User user) {
+        //User newUser = new User();
+        if (updatedUser.getLogin() != null)
+            user.setLogin(updatedUser.getLogin());
+        else
+            user.setLogin(user.getLogin());
+        if (updatedUser.getName() != null)
+            user.setName(updatedUser.getName());
+        else
+            user.setName(user.getName());
+        if (updatedUser.getPassword() != null)
+            user.setPassword(updatedUser.getPassword());
+        else
+            user.setPassword(updatedUser.getPassword());
+        System.out.println("GAMES BEFORE ");
+        updatedUser.getPlayedGames().forEach(System.out::println);
+        if (!updatedUser.getPlayedGames().isEmpty()) {
+            user.getPlayedGames().addAll(updatedUser.getPlayedGames());
+            System.out.println("GAMES 12 ");
+            user.getPlayedGames().forEach(System.out::println);
+        }
+        else {
+            user.getPlayedGames().addAll(updatedUser.getPlayedGames());
+            System.out.println("GAMES 22 ");
+            user.getPlayedGames().forEach(System.out::println);
+        }
+        System.out.println("GAMES AFTER ");
+        user.getPlayedGames().forEach(System.out::println);
+
+//        for (Game g : user.getPlayedGames()) {
+//            g.getUserList().remove(user);
+//            g.getUserList().add(newUser);
+//        }
+
+       // userRepository.delete(user);
+        return userRepository.save(user);
+    }
+    /*
+    public User update(User updatedUser, User user) {
         User newUser = new User();
         if (updatedUser.getLogin() != null)
             newUser.setLogin(updatedUser.getLogin());
@@ -115,9 +153,14 @@ public class UserService {
         System.out.println("GAMES AFTER ");
         newUser.getPlayedGames().forEach(System.out::println);
 
+        for (Game g : user.getPlayedGames()) {
+            g.getUserList().remove(user);
+            g.getUserList().add(newUser);
+        }
+
         userRepository.delete(user);
         return userRepository.save(newUser);
-    }
+    } */
 
     public User updateGamesList(User user, String gameId) {
 

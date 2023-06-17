@@ -15,7 +15,7 @@ public class UserRegisterDTO {
     /**
      * User's name.
      */
-    @NotEmpty
+   @NotEmpty
     private String name;
 
     /**
