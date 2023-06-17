@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.game.playedgame.player;
+package pl.edu.pg.eti.game.playedgame.player.entity;
 
 
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;

@@ -1,10 +1,10 @@
-package pl.edu.pg.eti.game.playedgame.player;
+package pl.edu.pg.eti.game.playedgame.player.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
 import java.util.Optional;
 

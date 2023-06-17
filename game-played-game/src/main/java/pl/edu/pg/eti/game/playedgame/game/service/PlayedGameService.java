@@ -7,8 +7,7 @@ import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.game.entity.GameManager;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
 import pl.edu.pg.eti.game.playedgame.game.repository.PlayedGameRepository;
-import pl.edu.pg.eti.game.playedgame.player.Player;
-import org.bson.types.ObjectId;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

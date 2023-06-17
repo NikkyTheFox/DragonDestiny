@@ -1,9 +1,10 @@
-package pl.edu.pg.eti.game.playedgame.player;
+package pl.edu.pg.eti.game.playedgame.player.entity;
 
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
 
 public class PlayerManager {

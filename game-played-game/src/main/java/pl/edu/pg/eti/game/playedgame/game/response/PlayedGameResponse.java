@@ -2,7 +2,7 @@ package pl.edu.pg.eti.game.playedgame.game.response;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
-import pl.edu.pg.eti.game.playedgame.player.Player;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

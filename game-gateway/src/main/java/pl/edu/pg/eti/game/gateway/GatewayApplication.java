@@ -47,9 +47,11 @@ public class GatewayApplication {
                                 "/api/playedgames/{playedGameId}/players/{playerId}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cards",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cards/{cardId}",
-                                "/api/playedgames/{playedGameId}/addPlayer", "/api/playedgames/{playedGameId}/addPlayer/{playerLogin}",
+                                "/api/playedgames/{playedGameId}/addPlayer",
+                                "/api/playedgames/{playedGameId}/addPlayer/{playerLogin}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}",
-                                "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
+                                "/api/playedgames/{playedGameId}/players/{playerId}/character",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/character/field/{fieldId}")
                         .uri("lb://played-game"))
                 .route("games", r -> r
                         .path(

@@ -11,14 +11,13 @@ import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGameList;
 import pl.edu.pg.eti.game.playedgame.game.service.PlayedGameService;
 import pl.edu.pg.eti.game.playedgame.game.service.initialize.InitializePlayedGame;
-import pl.edu.pg.eti.game.playedgame.player.PlayerList;
-import pl.edu.pg.eti.game.playedgame.player.PlayerManager;
-import pl.edu.pg.eti.game.playedgame.player.Player;
-import org.bson.types.ObjectId;
+import pl.edu.pg.eti.game.playedgame.player.response.PlayerList;
+import pl.edu.pg.eti.game.playedgame.player.entity.PlayerManager;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.edu.pg.eti.game.playedgame.player.PlayerService;
+import pl.edu.pg.eti.game.playedgame.player.service.PlayerService;
 
 import java.util.Optional;
 
@@ -288,6 +287,23 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(player.get());
     }
 
+    @GetMapping("{playedGameId}/players/{playerId}/character")
+    public ResponseEntity<Character> getCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId) {
+        // find game
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerId);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        Character character = player.get().getCharacter();
+        if (character == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(character);
+    }
+
+
     /**
      * Call to get cards in hand of player in played game.
      *
@@ -397,8 +413,8 @@ public class PlayedGameController {
      * @param fieldId
      * @return updated game
      */
-    @PutMapping("{playedGameId}/players/{playerId}/character/{characterId}/field/{fieldId}")
-    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "characterId") Integer characterId,@PathVariable(name = "fieldId") Integer fieldId) {
+    @PutMapping("{playedGameId}/players/{playerId}/character/field/{fieldId}")
+    public ResponseEntity<PlayedGame> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "fieldId") Integer fieldId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -408,14 +424,18 @@ public class PlayedGameController {
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         // find character
-        Optional<Character> character = playedGameService.findCharacter(playedGameId, characterId);
-        if (character.isEmpty())
+        Character character = player.get().getCharacter();
+        if (character == null) {
             return ResponseEntity.notFound().build();
+        }
+        //Optional<Character> character = playedGameService.findCharacter(playedGameId, characterId);
+        //if (character.isEmpty())
+         //   return ResponseEntity.notFound().build();
         // find field
         Optional<Field> field = playedGameService.findField(playedGameId, fieldId);
         if (field.isEmpty())
             return ResponseEntity.notFound().build();
-        PlayedGame game = playedGameService.changePosition(gameRequest.get(), player.get(), character.get(), field.get());
+        PlayedGame game = playedGameService.changePosition(gameRequest.get(), player.get(), character, field.get());
         return ResponseEntity.ok().body(game);
     }
 

@@ -5,9 +5,8 @@ import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
-import pl.edu.pg.eti.game.playedgame.player.Player;
+import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
