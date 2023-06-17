@@ -1,18 +1,37 @@
 package pl.edu.pg.eti.game.playedgame;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * FOR GRAPHICS - create a method in PlayedField/Card etc to call a GET request - ??
- * should it be like this - is it not waste of space ??
- */
-
-@SpringBootApplication()
+@SpringBootApplication
+@RestController
 public class PlayedGameApplication {
 
-	public static void main(String[] args)
-	{
+	/**
+	 * Number of trophies needed to get strength points increase.
+	 */
+	public static Integer numOfTrophiesToGetPoint;
+
+	@Value("${played-game.num-of-trophies-to-get-point}")
+	public void setNumOfTrophiesToGetPoint(Integer numOfTrophies) {
+		numOfTrophiesToGetPoint = numOfTrophies;
+	}
+
+	/**
+	 * Value by what the trophies increase the strength.
+	 */
+	public static Integer trophiesPointIncrease;
+
+	@Value("${played-game.trophies-point-increase}")
+	public void setTrophiesPointIncrease(Integer numOfTrophies) {
+		trophiesPointIncrease = numOfTrophies;
+	}
+
+	public static void main(String[] args) {
 		SpringApplication.run(PlayedGameApplication.class, args);
 	}
 

@@ -1,6 +1,8 @@
 package pl.edu.pg.eti.game.playedgame.player.entity;
 
 
+import org.springframework.data.annotation.Transient;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @EqualsAndHashCode
 public class Player {
 
@@ -40,71 +42,15 @@ public class Player {
     private List<ItemCard> cardsOnHand = new ArrayList<>();
 
     /**
-     * Player Manager
+     * List of enemy cards killed by the player.
+     * 5 trophies correspond to 1 additional strength point of player's character.
+     */
+    private List<EnemyCard> trophies = new ArrayList<>();
+
+    /**
+     * Player Manager.
      */
     @JsonIgnore
     private PlayerManager playerManager;
-
-    /**
-     * Method to calculate total Health points of player.
-     * Sum of initial health + additional health points (can be negative) + health points from cards.
-     *
-     * @return totalHealth
-     */
-//    public Integer calculateTotalHealth()
-//    {
-//        Integer addFromCards = 0;
-//        for (ItemCard c : cardsOnHand)
-//        {
-//            addFromCards += c.getAdditionalHealth();
-//        }
-//        return character.getInitialHealth() + character.getAdditionalHealth() + addFromCards;
-//    }
-//
-//    /**
-//     * Method to calculate total Strength points of player.
-//     * Sum of initial strength + additional strength points + strength points from cards.
-//     *
-//     * @return totalStrength
-//     */
-//    public Integer calculateTotalStrength()
-//    {
-//        Integer addFromCards = 0;
-//        for (ItemCard c : cardsOnHand)
-//        {
-//            addFromCards += c.getAdditionalStrength();
-//        }
-//        return character.getInitialStrength() + character.getAdditionalStrength() + addFromCards;
-//    }
-//
-//    /**
-//     * Method to change player's character's position on board.
-//     *
-//     * @param field
-//     */
-//    public void changeCharacterPosition(Field field)
-//    {
-//        this.character.setPositionField(field);
-//    }
-//
-//    /**
-//     * Method to add card to player's cards on hand.
-//     *
-//     * @param card
-//     */
-//    public void addCardToPlayer(Card card)
-//    {
-//        this.cardsOnHand.add((ItemCard) card);
-//    }
-//
-//    /**
-//     * Method to remove card from player's cards on hand.
-//     *
-//     * @param card
-//     */
-//    public void removeCardFromPlayer(Card card)
-//    {
-//        this.cardsOnHand.remove(card);
-//    }
 
 }
