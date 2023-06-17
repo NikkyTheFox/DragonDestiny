@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import {Board} from "../../board";
-import {GameServiceService} from "../../game-service.service";
+import {Board} from "../../interfaces/game-engine/board";
 
 
 @Component({
@@ -13,11 +12,10 @@ export class MainSectionBoardRowComponent {
   @Input() board: Board;
   // @ts-ignore
   @Input() rowIndex: number;
-  //@Input() fieldsList: Field[];
 
   fieldInRowArray: number[];
 
-  constructor(private gameService: GameServiceService) {
+  constructor() {
     this.fieldInRowArray = [];
   }
 
@@ -25,9 +23,7 @@ export class MainSectionBoardRowComponent {
     this.prepareFieldArray();
   }
   prepareFieldArray(){
-    this.fieldInRowArray = this.getRange(this.board.xsize);
-    //console.log("fieldArray of row " + this.rowIndex);
-    //console.log(this.fieldInRowArray);
+    this.fieldInRowArray = this.getRange(this.board.xSize);
   }
   getRange(size: number): number[] {
     return Array(size).fill(0).map((_, index) => index);

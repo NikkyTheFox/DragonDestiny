@@ -1,5 +1,4 @@
 import {Component, Input} from '@angular/core';
-import {GameCharacter} from "../../game-character";
 
 @Component({
   selector: 'app-righthand-sidebar-character-info-statistics-stat',

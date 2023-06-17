@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import {Board} from "../../board";
-import {Field} from "../../field";
-import {GameServiceService} from "../../game-service.service";
+import {Board} from "../../interfaces/game-engine/board";
+import {Field} from "../../interfaces/game-engine/field";
+import {GameEngineService} from "../../services/game-engine.service";
 
 
 @Component({
@@ -20,7 +20,7 @@ export class MainSectionBoardFieldComponent {
   fieldsList: Field[];
   fieldName!: string;
 
-  constructor(private gameService: GameServiceService) {
+  constructor(private gameService: GameEngineService) {
     this.fieldsList = [];
   }
   ngOnInit() {
@@ -33,7 +33,7 @@ export class MainSectionBoardFieldComponent {
 
   retrieveBoardInfo() {
     for(let i of this.fieldsList){
-      if(i.yposition == this.rowIndex && i.xposition == this.fieldIndex){
+      if(i.yPosition == this.rowIndex && i.xPosition == this.fieldIndex){
         this.fieldName = i.type;
       }
     }

@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {GameCharacter} from "../../game-character";
-import {GameServiceService} from "../../game-service.service";
+import {Character} from "../../interfaces/game-engine/game-character";
+import {GameEngineService} from "../../services/game-engine.service";
 @Component({
   selector: 'app-main-section-additional-field-other-characters',
   templateUrl: './main-section-additional-field-other-characters.component.html',
@@ -9,9 +9,9 @@ import {GameServiceService} from "../../game-service.service";
 export class MainSectionAdditionalFieldOtherCharactersComponent {
   @Input() gameId!: number;
   @Input() playerId!: number;
-  otherCharacters: GameCharacter[];
-  allCharacters: GameCharacter[];
-  constructor(private gameService: GameServiceService) {
+  otherCharacters: Character[];
+  allCharacters: Character[];
+  constructor(private gameService: GameEngineService) {
     this.otherCharacters = [];
     this.allCharacters = [];
   }

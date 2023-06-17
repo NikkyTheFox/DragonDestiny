@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {GameCharacter} from "../../game-character";
+import {Character} from "../../interfaces/game-engine/game-character";
 
 @Component({
   selector: 'app-righthand-sidebar-character-info-portrait',
@@ -7,5 +7,5 @@ import {GameCharacter} from "../../game-character";
   styleUrls: ['./righthand-sidebar-character-info-portrait.component.css']
 })
 export class RighthandSidebarCharacterInfoPortraitComponent {
-  @Input() character!: GameCharacter;
+  @Input() character!: Character;
 }

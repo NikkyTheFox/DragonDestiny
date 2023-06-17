@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {GameCharacter} from "../../game-character";
-import {GameServiceService} from "../../game-service.service";
+import {Character} from "../../interfaces/game-engine/game-character";
+import {GameEngineService} from "../../services/game-engine.service";
 
 @Component({
   selector: 'app-righthand-sidebar-character-info',
@@ -10,7 +10,7 @@ import {GameServiceService} from "../../game-service.service";
 export class RighthandSidebarCharacterInfoComponent {
   @Input() gameId!: number;
   @Input() playerId!: number;
-  character: GameCharacter = {
+  character: Character = {
     id: 0,
     name: "",
     profession: "",
@@ -19,11 +19,11 @@ export class RighthandSidebarCharacterInfoComponent {
     initialHealth: 0,
   }
 
-  constructor(private gameService: GameServiceService) {
+  constructor(private gameService: GameEngineService) {
   }
 
   ngOnInit(){
-    this.gameService.getGameCharacter(this.gameId, this.playerId).subscribe( (data: GameCharacter) =>{
+    this.gameService.getGameCharacter(this.gameId, this.playerId).subscribe( (data: Character) =>{
       this.character = data;
     })
   }

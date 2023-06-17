@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {AbstractCard} from "../../abstract-card";
-import {GameServiceService} from "../../game-service.service";
+import {PlayedGameAbstractCard} from "../../interfaces/game-played-game/played-game-abstract-card";
+import {GameEngineService} from "../../services/game-engine.service";
 
 @Component({
   selector: 'app-righthand-sidebar-cards-deck',
@@ -9,16 +9,16 @@ import {GameServiceService} from "../../game-service.service";
 })
 export class RighthandSidebarCardsDeckComponent {
   @Input() gameId!: number;
-  deck: AbstractCard[];
+  deck: PlayedGameAbstractCard[];
   numberOfCardsInDeck: number;
 
-  constructor(private gameService: GameServiceService) {
+  constructor(private gameService: GameEngineService) {
     this.deck = [];
     this.numberOfCardsInDeck = 0;
   }
 
   ngOnInit(){
-    this.gameService.getCards(this.gameId).subscribe( (data: any) => {
+    this.gameService.getGameCards(this.gameId).subscribe( (data: any) => {
       this.deck = data.cardList;
       this.numberOfCardsInDeck = this.deck.length;
     })

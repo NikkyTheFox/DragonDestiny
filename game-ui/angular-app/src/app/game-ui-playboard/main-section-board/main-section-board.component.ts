@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {GameServiceService} from "../../game-service.service";
-import {Board} from "../../board";
-import {Field} from "../../field";
+import {GameEngineService} from "../../services/game-engine.service";
+import {Board} from "../../interfaces/game-engine/board";
 
 @Component({
   selector: 'app-main-section-board',
@@ -13,28 +12,30 @@ export class MainSectionBoardComponent {
   // @ts-ignore
   board: Board = {
     id: 0,
-    ysize: 0,
-    xsize: 0
+    ySize: 0,
+    xSize: 0
   };
   rowArray: number[];
   //fieldsList: Field[];
-  constructor(private gameService: GameServiceService) {
+  constructor(private gameService: GameEngineService) {
     this.rowArray = [];
     //this.fieldsList = [];
  }
 
   ngOnInit() {
-    this.gameService.getGamesBoard(this.gameId).subscribe((data: Board) => {
+    this.gameService.getGameBoard(this.gameId).subscribe((data: Board) => {
       this.board = data;
-      //console.log(this.board.id);
-      //console.log(this.board.ysize);
-      //console.log(this.board.xsize);
+      console.log(data);
+      console.log(this.board);
+      /*console.log(this.board.id);
+      console.log(this.board.ySize);
+      console.log(this.board.xSize);*/
       this.prepareRowArray();
     });
   }
 
   prepareRowArray(){
-    this.rowArray = this.getRange(this.board.ysize);
+    this.rowArray = this.getRange(this.board.ySize);
     //console.log("rowArray of board: " + this.board.id);
     //console.log(this.rowArray);
   }

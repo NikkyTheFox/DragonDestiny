@@ -1,7 +1,15 @@
 app-component
   login-component
+    login-in-component
+     register-component
 
   your-games-component
+    played-games-container-component
+      played-games-list-container
+        join-button
+      create-button
+      invite-button
+      start-button
 
   main-component
     header-component
