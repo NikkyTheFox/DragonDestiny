@@ -41,6 +41,7 @@ public class GatewayApplication {
                                 "/api/playedgames/{playedGameId}/cards/used/{cardId}",
                                 "/api/playedgames/{playedGameId}/cardToUsed/{cardId}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cardToPlayer/{cardId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/cardToTrophies/{cardId}",
                                 "/api/playedgames/{playedGameId}/characters",
                                 "/api/playedgames/{playedGameId}/characters/{characterId}",
                                 "/api/playedgames/{playedGameId}/players",
