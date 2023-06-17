@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import {Board} from "../../interfaces/game-engine/board";
 import {Field} from "../../interfaces/game-engine/field";
 import {GameEngineService} from "../../services/game-engine.service";
+import {GameDataService} from "../../services/game-data.service";
 
 
 @Component({
@@ -20,7 +21,7 @@ export class MainSectionBoardFieldComponent {
   fieldsList: Field[];
   fieldName!: string;
 
-  constructor(private gameService: GameEngineService) {
+  constructor(private gameService: GameEngineService, private dataService: GameDataService) {
     this.fieldsList = [];
   }
 
@@ -31,8 +32,8 @@ export class MainSectionBoardFieldComponent {
     });
   }
 
+
   retrieveBoardInfo() {
-    console.log("here");
     for(let i of this.fieldsList){
       if(i.yposition == this.rowIndex && i.xposition == this.fieldIndex){
         this.fieldName = i.type;

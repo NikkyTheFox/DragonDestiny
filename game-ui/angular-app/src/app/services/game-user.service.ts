@@ -22,7 +22,7 @@ export class GameUserService {
   }
 
   getUserByLoginPasswordObject(user: GameUserLoginPassOnly):Observable<GameUserShort>{
-    return this.http.get<GameUserShort>(`${environment.apiUrl}/users/${user}`);
+    return this.http.put<GameUserShort>(`${environment.apiUrl}/users/login`, user);
   }
 
   registerUser(user: GameUserRegistration){

@@ -92,7 +92,7 @@ public class UserController {
      * @param loginUserRequest
      * @return
      */
-    @GetMapping("/login")
+    @PutMapping("/login")
     public ResponseEntity<UserDTO> findUser(@Valid @RequestBody UserLoginDTO loginUserRequest) {
         Optional<User> user = userService.findUser(loginUserRequest);
         if (user.isEmpty())

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import {GameDataService} from "../services/game-data.service";
 
 @Component({
   selector: 'app-header-right-section',
@@ -7,4 +8,6 @@ import { Component } from '@angular/core';
 })
 export class HeaderRightSectionComponent {
 
+  constructor(protected dataService: GameDataService) {
+  }
 }

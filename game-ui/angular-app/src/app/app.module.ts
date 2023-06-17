@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 
-
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -30,10 +30,10 @@ import { MainSectionBoardRowBotComponent } from './game-ui-playboard/main-sectio
 import { MainSectionBoardFieldComponent } from './game-ui-playboard/main-section-board-field/main-section-board-field.component';
 import { MainSectionBoardFieldInnerComponent } from './game-ui-playboard/main-section-board-field-inner/main-section-board-field-inner.component';
 import { PlayedGamesListComponent } from './game-ui-dashboard/played-games-list/played-games-list.component';
-import { LoginComponent } from './game-ui-login/login/login.component';
 import { SignupComponent } from './game-ui-login/signup/signup.component';
 import { GameUiDashboardComponent } from './game-ui-dashboard/game-ui-dashboard/game-ui-dashboard.component';
 import { GameUiDashboardSidebarComponent } from './game-ui-dashboard/game-ui-dashboard-sidebar/game-ui-dashboard-sidebar.component';
+import { LoginInComponent } from './game-ui-login/login-in/login-in.component';
 
 @NgModule({
   declarations: [
@@ -61,16 +61,17 @@ import { GameUiDashboardSidebarComponent } from './game-ui-dashboard/game-ui-das
     MainSectionBoardFieldComponent,
     MainSectionBoardFieldInnerComponent,
     PlayedGamesListComponent,
-    LoginComponent,
     SignupComponent,
     GameUiDashboardComponent,
-    GameUiDashboardSidebarComponent
+    GameUiDashboardSidebarComponent,
+    LoginInComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
