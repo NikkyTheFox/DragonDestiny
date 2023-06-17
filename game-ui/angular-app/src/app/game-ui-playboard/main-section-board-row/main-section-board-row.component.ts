@@ -23,7 +23,7 @@ export class MainSectionBoardRowComponent {
     this.prepareFieldArray();
   }
   prepareFieldArray(){
-    this.fieldInRowArray = this.getRange(this.board.xSize);
+    this.fieldInRowArray = this.getRange(this.board.xsize);
   }
   getRange(size: number): number[] {
     return Array(size).fill(0).map((_, index) => index);

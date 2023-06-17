@@ -12,8 +12,8 @@ export class MainSectionBoardComponent {
   // @ts-ignore
   board: Board = {
     id: 0,
-    ySize: 0,
-    xSize: 0
+    ysize: 0,
+    xsize: 0
   };
   rowArray: number[];
   //fieldsList: Field[];
@@ -25,19 +25,12 @@ export class MainSectionBoardComponent {
   ngOnInit() {
     this.gameService.getGameBoard(this.gameId).subscribe((data: Board) => {
       this.board = data;
-      console.log(data);
-      console.log(this.board);
-      /*console.log(this.board.id);
-      console.log(this.board.ySize);
-      console.log(this.board.xSize);*/
       this.prepareRowArray();
     });
   }
 
   prepareRowArray(){
-    this.rowArray = this.getRange(this.board.ySize);
-    //console.log("rowArray of board: " + this.board.id);
-    //console.log(this.rowArray);
+    this.rowArray = this.getRange(this.board.ysize);
   }
   getRange(size: number): number[] {
     return Array(size).fill(0).map((_, index) => index);

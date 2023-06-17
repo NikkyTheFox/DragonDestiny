@@ -1,6 +1,6 @@
 export interface Field{
   id: number;
   type: string;
-  xPosition: number;
-  yPosition: number;
+  xposition: number;
+  yposition: number;
 }

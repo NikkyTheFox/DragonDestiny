@@ -23,6 +23,7 @@ export class MainSectionBoardFieldComponent {
   constructor(private gameService: GameEngineService) {
     this.fieldsList = [];
   }
+
   ngOnInit() {
     this.gameService.getBoardFields(this.board.id).subscribe((data: any) => {
       this.fieldsList = data.fieldList;
@@ -30,10 +31,10 @@ export class MainSectionBoardFieldComponent {
     });
   }
 
-
   retrieveBoardInfo() {
+    console.log("here");
     for(let i of this.fieldsList){
-      if(i.yPosition == this.rowIndex && i.xPosition == this.fieldIndex){
+      if(i.yposition == this.rowIndex && i.xposition == this.fieldIndex){
         this.fieldName = i.type;
       }
     }
