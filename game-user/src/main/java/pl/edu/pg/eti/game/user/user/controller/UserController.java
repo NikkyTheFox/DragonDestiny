@@ -1,6 +1,7 @@
 package pl.edu.pg.eti.game.user.user.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.web.ErrorResponse;
 import pl.edu.pg.eti.game.user.user.dto.UserDTO;
 import pl.edu.pg.eti.game.user.user.dto.UserListDTO;
 import pl.edu.pg.eti.game.user.user.dto.UserLoginDTO;
@@ -109,6 +110,11 @@ public class UserController {
      */
     @PutMapping("/register")
     public ResponseEntity<UserRegisterDTO> createUser(@Valid @RequestBody UserRegisterDTO userRequest) {
+
+        Optional<User> userFound = userService.findUser(userRequest.getLogin());
+        if (userFound.isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
         User userCreated = userService.save(modelMapper.map(userRequest, User.class));
         UserRegisterDTO userResponse = modelMapper.map(userCreated, UserRegisterDTO.class);
         return ResponseEntity.ok().body(userResponse);
