@@ -7,6 +7,7 @@ import {PlayedGamePlayer} from "../interfaces/game-played-game/played-game-playe
 import {PlayedGameItemCard} from "../interfaces/game-played-game/played-game-item-card";
 import {PlayedGameCharacter} from "../interfaces/game-played-game/played-game-character";
 import {PlayedGameCard} from "../interfaces/game-played-game/played-game-card";
+import {PlayedGameEnemyCard} from "../interfaces/game-played-game/played-game-enemy-card";
 
 
 @Injectable({
@@ -18,16 +19,16 @@ export class GamePlayedGameService {
 
   // GAME----------------------------------------------------------
 
-  getGames(){
-    return this.http.get(`${environment.apiUrl}/playedgames`);
+  getGames(): Observable<PlayedGame[]>{
+    return this.http.get<PlayedGame[]>(`${environment.apiUrl}/playedgames`);
   }
 
   getGame(playedGameId: string): Observable<PlayedGame>{
     return this.http.get<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}`);
   }
 
-  initializeGame(baseGameId: number){
-    return this.http.post(`${environment.apiUrl}/playedgames/${baseGameId}`, null);
+  initializeGame(baseGameId: number):Observable<PlayedGame>{
+    return this.http.post<PlayedGame>(`${environment.apiUrl}/playedgames/${baseGameId}`, null);
   }
 
   createGame(){
@@ -80,6 +81,10 @@ export class GamePlayedGameService {
     return this.http.get<PlayedGamePlayer>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}`);
   }
 
+  getPlayerCharacter(playedGameId: string, playerId: string):Observable<PlayedGameCharacter>{
+    return this.http.get<PlayedGameCharacter>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character`);
+  }
+
   getPlayersCards(playedGameId: string, playerId: string):Observable<PlayedGameItemCard[]>{
     return this.http.get<PlayedGameItemCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards`);
   }
@@ -88,8 +93,12 @@ export class GamePlayedGameService {
     return this.http.get<PlayedGameItemCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards/${cardId}`);
   }
 
-  addPlayerToGameByLogin(playedGameId: string, playerId: string){
-    return this.http.put(`${environment.apiUrl}/playergames/${playedGameId}/addPlayer/${playerId}`, null);
+  getPlayerTrophies(playedGameId: string, playerId: string):Observable<PlayedGameEnemyCard[]>{
+    return this.http.get<PlayedGameEnemyCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/trophies`);
+  }
+
+  addPlayerToGameByLogin(playedGameId: string, playerId: string):Observable<PlayedGame>{
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/addPlayer/${playerId}`, null);
   }
 
   selectCharacter(playedGameId: string, playerId: string, characterId: number){

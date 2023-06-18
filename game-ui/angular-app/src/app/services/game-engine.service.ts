@@ -69,9 +69,9 @@ export class GameEngineService {
     return this.http.get<Character[]>(`${environment.apiUrl}/characters`)
   }
 
-  getCharacter(characterId: number):Observable<Character>{
-    return this.http.get<Character>(`${environment.apiUrl}/characters/${characterId}`);
-  }
+    getCharacter(characterId: number):Observable<Character>{
+      return this.http.get<Character>(`${environment.apiUrl}/characters/${characterId}`);
+    }
 
   // GAME-CHARACTER CONTROLLER
 

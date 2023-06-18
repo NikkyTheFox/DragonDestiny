@@ -1,2 +1,5 @@
-<p>game-ui-dashboard works!</p>
-<app-game-ui-dashboard-sidebar></app-game-ui-dashboard-sidebar>
+<div class="dashboard-container">
+  <app-create-game [playerLogin]="playerLogin"></app-create-game>
+  <app-played-games-list [playerLogin]="playerLogin"></app-played-games-list>
+</div>
+

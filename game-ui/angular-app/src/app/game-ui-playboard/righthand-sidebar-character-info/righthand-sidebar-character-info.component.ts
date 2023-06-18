@@ -1,6 +1,6 @@
-import {Component, Input} from '@angular/core';
-import {Character} from "../../interfaces/game-engine/game-character";
-import {GameEngineService} from "../../services/game-engine.service";
+import {Component, Input, SimpleChanges} from '@angular/core';
+import {GamePlayedGameService} from "../../services/game-played-game-service";
+import {PlayedGameCharacter} from "../../interfaces/game-played-game/played-game-character";
 
 @Component({
   selector: 'app-righthand-sidebar-character-info',
@@ -8,23 +8,23 @@ import {GameEngineService} from "../../services/game-engine.service";
   styleUrls: ['./righthand-sidebar-character-info.component.css']
 })
 export class RighthandSidebarCharacterInfoComponent {
-  @Input() gameId!: number;
-  @Input() playerId!: number;
-  character: Character = {
+  @Input() gameId!: string;
+  @Input() playerId!: string;
+  character: PlayedGameCharacter = {
     id: 0,
-    name: "",
-    profession: "",
-    story: "",
     initialStrength: 0,
     initialHealth: 0,
+    additionalHealth: 0,
+    additionalStrength: 0,
+    positionField: null
   }
 
-  constructor(private gameService: GameEngineService) {
+  constructor(private playedGameService: GamePlayedGameService) {
   }
 
-  ngOnInit(){
-    this.gameService.getGameCharacter(this.gameId, this.playerId).subscribe( (data: Character) =>{
+  ngOnChanges(changes: SimpleChanges){
+    this.playedGameService.getPlayerCharacter(this.gameId, this.playerId).subscribe( (data: PlayedGameCharacter) => {
       this.character = data;
-    })
+    });
   }
 }

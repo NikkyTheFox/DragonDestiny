@@ -1,6 +1,6 @@
-import {Component, Input} from '@angular/core';
-import {PlayedGameAbstractCard} from "../../interfaces/game-played-game/played-game-abstract-card";
-import {GameEngineService} from "../../services/game-engine.service";
+import {Component, Input, SimpleChanges} from '@angular/core';
+import {GamePlayedGameService} from "../../services/game-played-game-service";
+import {PlayedGameCard} from "../../interfaces/game-played-game/played-game-card";
 
 @Component({
   selector: 'app-righthand-sidebar-cards-deck',
@@ -8,19 +8,19 @@ import {GameEngineService} from "../../services/game-engine.service";
   styleUrls: ['./righthand-sidebar-cards-deck.component.css']
 })
 export class RighthandSidebarCardsDeckComponent {
-  @Input() gameId!: number;
-  deck: PlayedGameAbstractCard[];
+  @Input() gameId!: string;
+  deck: PlayedGameCard[];
   numberOfCardsInDeck: number;
 
-  constructor(private gameService: GameEngineService) {
+  constructor(private playedGameService: GamePlayedGameService) {
     this.deck = [];
     this.numberOfCardsInDeck = 0;
   }
 
-  ngOnInit(){
-    this.gameService.getGameCards(this.gameId).subscribe( (data: any) => {
+  ngOnChanges(changes: SimpleChanges){
+    this.playedGameService.getCardsDeck(this.gameId).subscribe( (data: any) => {
       this.deck = data.cardList;
       this.numberOfCardsInDeck = this.deck.length;
-    })
+    });
   }
 }

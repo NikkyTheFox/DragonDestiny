@@ -6,7 +6,7 @@ import {Component, Input} from '@angular/core';
   styleUrls: ['./righthand-sidebar.component.css']
 })
 export class RighthandSidebarComponent {
-  @Input() gameId!: number;
-  @Input() playerId!: number;
+  @Input() gameId!: string;
+  @Input() playerId!: string;
 
 }

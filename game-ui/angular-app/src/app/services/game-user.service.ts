@@ -5,7 +5,7 @@ import {Observable} from "rxjs";
 import {GameUserShort} from "../interfaces/game-user/game-user-short";
 import {GameUserRegistration} from "../interfaces/game-user/game-user-registration";
 import {GameUserLoginPassOnly} from "../interfaces/game-user/game-user-login-pass-only";
-import {PlayedGame} from "../interfaces/game-played-game/played-game";
+import {GameUserPlayedGame} from "../interfaces/game-user/game-user-played-game";
 @Injectable({
   providedIn: 'root'
 })
@@ -29,8 +29,8 @@ export class GameUserService {
     return this.http.put<any>(`${environment.apiUrl}/users/register`, user);
   }
 
-  getUserPlayedGames(login: string):Observable<PlayedGame[]>{
-    return this.http.get<PlayedGame[]>(`${environment.apiUrl}/users/${login}/games`);
+  getUserPlayedGames(login: string):Observable<GameUserPlayedGame[]>{
+    return this.http.get<GameUserPlayedGame[]>(`${environment.apiUrl}/users/${login}/games`);
   }
 
   editUser(update: GameUserRegistration){

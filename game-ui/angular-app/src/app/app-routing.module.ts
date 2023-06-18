@@ -6,6 +6,7 @@ import {MainComponent} from "./game-ui-playboard/main/main.component";
 import {GameUiDashboardComponent} from "./game-ui-dashboard/game-ui-dashboard/game-ui-dashboard.component";
 
 const routes: Routes = [
+  { path: '', redirectTo: '/login', pathMatch: 'full'},
   { path: 'login', component: LoginInComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'main', component: MainComponent },

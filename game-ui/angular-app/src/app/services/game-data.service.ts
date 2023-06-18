@@ -13,5 +13,7 @@ export class GameDataService {
   }
 
   loginFlag: boolean = false;
+
+  chosenGame: string = "";
   constructor() { }
 }

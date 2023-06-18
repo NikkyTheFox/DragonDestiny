@@ -34,6 +34,7 @@ import { SignupComponent } from './game-ui-login/signup/signup.component';
 import { GameUiDashboardComponent } from './game-ui-dashboard/game-ui-dashboard/game-ui-dashboard.component';
 import { GameUiDashboardSidebarComponent } from './game-ui-dashboard/game-ui-dashboard-sidebar/game-ui-dashboard-sidebar.component';
 import { LoginInComponent } from './game-ui-login/login-in/login-in.component';
+import { CreateGameComponent } from './game-ui-dashboard/create-game/create-game.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { LoginInComponent } from './game-ui-login/login-in/login-in.component';
     SignupComponent,
     GameUiDashboardComponent,
     GameUiDashboardSidebarComponent,
-    LoginInComponent
+    LoginInComponent,
+    CreateGameComponent
   ],
   imports: [
     BrowserModule,

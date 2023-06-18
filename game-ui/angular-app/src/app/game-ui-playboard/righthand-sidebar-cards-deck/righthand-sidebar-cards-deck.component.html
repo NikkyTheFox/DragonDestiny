@@ -2,6 +2,6 @@
   <p>Number of cards in deck: {{numberOfCardsInDeck}}</p>
   <p>Cards in deck:</p>
   <div *ngFor="let i of deck | slice:0:2"> <!-- show only first 2 cards from deck -->
-    <p>{{i.name}}</p>
+    <p>{{i.cardType}}</p>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input, SimpleChanges} from '@angular/core';
 import {Board} from "../../interfaces/game-engine/board";
 import {Field} from "../../interfaces/game-engine/field";
 import {GameEngineService} from "../../services/game-engine.service";
@@ -21,17 +21,16 @@ export class MainSectionBoardFieldComponent {
   fieldsList: Field[];
   fieldName!: string;
 
-  constructor(private gameService: GameEngineService, private dataService: GameDataService) {
+  constructor(private gameService: GameEngineService) {
     this.fieldsList = [];
   }
 
-  ngOnInit() {
+  ngOnChanges(changes: SimpleChanges) {
     this.gameService.getBoardFields(this.board.id).subscribe((data: any) => {
       this.fieldsList = data.fieldList;
       this.retrieveBoardInfo();
     });
   }
-
 
   retrieveBoardInfo() {
     for(let i of this.fieldsList){

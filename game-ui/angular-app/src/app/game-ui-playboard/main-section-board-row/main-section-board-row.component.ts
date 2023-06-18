@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input, SimpleChanges} from '@angular/core';
 import {Board} from "../../interfaces/game-engine/board";
 
 
@@ -19,7 +19,7 @@ export class MainSectionBoardRowComponent {
     this.fieldInRowArray = [];
   }
 
-  ngOnInit(){
+  ngOnChanges(changes: SimpleChanges){
     this.prepareFieldArray();
   }
   prepareFieldArray(){

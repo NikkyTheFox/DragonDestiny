@@ -6,6 +6,6 @@ import {Component, Input} from '@angular/core';
   styleUrls: ['./main-section-additional-field.component.css']
 })
 export class MainSectionAdditionalFieldComponent {
-  @Input() gameId!: number;
-  @Input() playerId!: number;
+  @Input() gameId!: string;
+  @Input() playerId!: string;
 }

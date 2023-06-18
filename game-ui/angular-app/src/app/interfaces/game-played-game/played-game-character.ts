@@ -6,5 +6,5 @@ export interface PlayedGameCharacter {
   initialHealth: number;
   additionalStrength?: number | null;
   additionalHealth?: number | null;
-  positionField: Field;
+  positionField: Field | null;
 }
