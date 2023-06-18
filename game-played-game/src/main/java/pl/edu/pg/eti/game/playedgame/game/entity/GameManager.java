@@ -21,33 +21,37 @@ public class GameManager {
     /**
      * Method to add player to play in the game.
      *
+     * @param game
      * @param player
      */
-    public void addPlayerToGame(Player player, List<Player> playerList) {
-        playerList.add(player);
+    public void addPlayerToGame(PlayedGame game, Player player) {
+        game.getPlayers().add(player);
     }
 
     /**
      * Method to add character to game during initialization of played game.
      *
+     * @param game
      * @param character
      */
-    public void addCharacterToGame(Character character, List<Character> characterList) {
-        characterList.add(character);
+    public void addCharacterToGame(PlayedGame game, Character character) {
+        game.getCharactersInGame().add(character);
     }
 
     /**
      * Method to add card to deck to game during played game.
      *
+     * @param game
      * @param card
      */
-    public void addCardToDeck(Card card, List<Card> cardList) {
-        cardList.add(card);
+    public void addCardToDeck(PlayedGame game, Card card) {
+        game.getCardDeck().add(card);
     }
 
     /**
      * Method to remove card from card deck
      *
+     * @param game
      * @param card
      */
     public void removeCardFromDeck(PlayedGame game, Card card) {
@@ -63,10 +67,11 @@ public class GameManager {
     /**
      * Method to add card to used deck during the game.
      *
+     * @param game
      * @param card
      */
-    public void addCardToUsedDeck(Card card, List<Card> cardList) {
-        cardList.add(card);
+    public void addCardToUsedDeck(PlayedGame game, Card card) {
+        game.getUsedCardDeck().add(card);
     }
 
     /**

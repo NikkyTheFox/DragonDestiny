@@ -61,7 +61,7 @@ public class InitializePlayedGame {
         for (EnemyCard c : enemyCardResponseEntity.getBody().getEnemyCardList()) {
             EnemyCard card = c;
             card.setCardType(CardType.ENEMY_CARD);
-            gameManager.addCardToDeck(card, playedGame.getCardDeck());
+            gameManager.addCardToDeck(playedGame, card);
         }
 
         ResponseEntity<ItemCardList> itemCardResponseEntity = client.get()
@@ -73,7 +73,7 @@ public class InitializePlayedGame {
         for (ItemCard c : itemCardResponseEntity.getBody().getItemCardList()) {
             ItemCard card = c;
             card.setCardType(CardType.ITEM_CARD);
-            gameManager.addCardToDeck(card, playedGame.getCardDeck());
+            gameManager.addCardToDeck(playedGame, card);
         }
 
         // GET CHARACTERS:
@@ -85,7 +85,7 @@ public class InitializePlayedGame {
 
         for (Character c : characterResponseEntity.getBody().getCharacterList()) {
             Character character = c;
-            gameManager.addCharacterToGame(character, playedGame.getCharactersInGame());
+            gameManager.addCharacterToGame(playedGame, character);
         }
 
         // GET BOARD:

@@ -37,9 +37,16 @@ public class EnemyCard extends Card {
      *
      * @return totalHealth
      */
-    public Integer calculateTotalHealth()
-    {
+    public Integer calculateTotalHealth() {
         return initialHealth + additionalHealth;
     }
 
+    /**
+     * Method to calculate total strength points of enemy
+     *
+     * @return totalStrength
+     */
+    public Integer calculateTotalStrength() {
+        return initialStrength;
+    }
 }

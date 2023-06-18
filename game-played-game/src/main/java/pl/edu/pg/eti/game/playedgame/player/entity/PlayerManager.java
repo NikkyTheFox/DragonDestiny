@@ -40,11 +40,19 @@ public class PlayerManager {
      */
     public Integer calculateTotalStrength(Player player) {
         Integer addFromCards = 0;
-        for (ItemCard c : player.getCardsOnHand())
-        {
+        for (ItemCard c : player.getCardsOnHand()) {
             addFromCards += c.getAdditionalStrength();
         }
+        System.out.println("add from cards: " + addFromCards);
+        System.out.println("initial: " + player.getCharacter().getInitialStrength());
+        System.out.println("additional: " + player.getCharacter().getAdditionalStrength());
         return player.getCharacter().getInitialStrength() + player.getCharacter().getAdditionalStrength() + addFromCards;
+    }
+
+    public boolean checkCardsOnHand(Player player) {
+        if (player.getCardsOnHand().size() >= PlayedGameApplication.numOfCardsOnHand)
+            return false;
+        return true;
     }
 
     /**
@@ -123,14 +131,15 @@ public class PlayerManager {
      *
      * @param card
      */
-    public void removeCardFromPlayer(Player player, Card card) {
+    public Player removeCardFromPlayer(Player player, Card card) {
         OptionalInt index = IntStream.range(0, player.getCardsOnHand().size())
                 .filter(i -> Objects.equals(player.getCardsOnHand().get(i).getId(), card.getId()))
                 .findFirst();
         if (index.isEmpty()) {
-            return;
+            return player;
         }
         player.getCardsOnHand().remove(index.getAsInt());
+        return player;
     }
 
     /**

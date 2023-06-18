@@ -1,6 +1,9 @@
 package pl.edu.pg.eti.game.playedgame.game.service;
 
+import pl.edu.pg.eti.game.playedgame.PlayedGameApplication;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
+import pl.edu.pg.eti.game.playedgame.card.entity.CardType;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
@@ -12,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -100,10 +100,6 @@ public class PlayedGameService {
 
     public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
         Optional<PlayedGame> game = findPlayedGame(gameId);
-        System.out.println("Found cards: ");
-        for (Card c : game.get().getCardDeck()) {
-            System.out.println(c.getId());
-        }
         for (Card c : game.get().getCardDeck()) {
             if (c.getId().equals(id)) {
                 return Optional.of(c);
@@ -134,7 +130,7 @@ public class PlayedGameService {
 
     public PlayedGame moveCardToUsed(PlayedGame game, Card card) {
         GameManager gameManager = game.getGameManager();
-        gameManager.addCardToUsedDeck(card, game.getUsedCardDeck());
+        gameManager.addCardToUsedDeck(game, card);
         gameManager.removeCardFromDeck(game, card);
         return playedGameRepository.save(game);
     }
@@ -156,16 +152,31 @@ public class PlayedGameService {
 
     public PlayedGame moveCardToTrophies(PlayedGame game, Card card, Player player) {
         GameManager gameManager = game.getGameManager();
-        player.getPlayerManager().moveCardToTrophies(player, card);
+        Player updatedPlayer = player.getPlayerManager().moveCardToTrophies(player, card);
         List<Player> players = game.getPlayers();
         OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
                 .findFirst();
         if (index.isEmpty())
             return null;
-        players.set(index.getAsInt(), player);
+        players.set(index.getAsInt(), updatedPlayer);
         game.setPlayers(players);
         gameManager.removeCardFromDeck(game, card);
+        return playedGameRepository.save(game);
+    }
+
+
+    public PlayedGame moveCardFromPlayer(PlayedGame game, Player player, Card card) {
+        Player updatedPlayer = player.getPlayerManager().removeCardFromPlayer(player, card);
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
+                .findFirst();
+        if (index.isEmpty())
+            return null;
+        players.set(index.getAsInt(), updatedPlayer);
+        game.setPlayers(players);
+        game.getGameManager().addCardToUsedDeck(game, card);
         return playedGameRepository.save(game);
     }
 
@@ -186,7 +197,7 @@ public class PlayedGameService {
 
     public PlayedGame addPlayer(PlayedGame game, Player player) {
         GameManager gameManager = game.getGameManager();
-        gameManager.addPlayerToGame(player, game.getPlayers());
+        gameManager.addPlayerToGame(game, player);
         return playedGameRepository.save(game);
     }
 
@@ -216,4 +227,38 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
+    /**
+     * Returns a random card from card deck.
+     *
+     * @param game
+     * @return
+     */
+    public Optional<Card> drawCard(PlayedGame game) {
+        Random randomId = new Random();
+        Card card = game.getCardDeck().get(randomId.nextInt(game.getCardDeck().size()));
+        if (card == null)
+            return Optional.empty();
+        return Optional.of(card);
+    }
+
+    /**
+     * Method to calculate fight result between Player and Enemy from card.
+     *
+     * @param game
+     * @param player
+     * @param enemy
+     * @param playerRoll
+     * @param enemyRoll
+     * @return
+     */
+    public boolean calculateFight(PlayedGame game, Player player, EnemyCard enemy, Integer playerRoll, Integer enemyRoll) {
+        Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
+        System.out.println("PLAYER " + playerResult);
+        Integer enemyResult = enemy.calculateTotalStrength() + enemyRoll;
+        System.out.println("ENEMY " + enemyResult);
+        if (playerResult >= enemyResult) {
+            return true;
+        }
+        return false;
+    }
 }

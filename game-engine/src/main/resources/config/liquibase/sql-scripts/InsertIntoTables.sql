@@ -84,10 +84,45 @@ INSERT INTO item_cards VALUES
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
+INSERT INTO cards VALUES
+    ('item card 2', 'some description of item 2', 'ITEM_CARD')
+INSERT INTO item_cards VALUES
+    (8, 10, 10);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards VALUES
+    ('item card 3', 'some description of item 3', 'ITEM_CARD')
+INSERT INTO item_cards VALUES
+    (9, 10, 10);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards VALUES
+    ('item card 4', 'some description of item 4', 'ITEM_CARD')
+INSERT INTO item_cards VALUES
+    (10, 10, 10);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards VALUES
+    ('item card 5', 'some description of item 5', 'ITEM_CARD')
+INSERT INTO item_cards VALUES
+    (11, 10, 10);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards VALUES
+    ('item card 6', 'some description of item 6', 'ITEM_CARD')
+INSERT INTO item_cards VALUES
+    (12, 10, 10);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
     INSERT INTO cards (name, description, card_type) VALUES
     ('eeeee', 'some description of enemy 1', 'ENEMY_CARD')
 INSERT INTO enemy_cards VALUES
-    (8, 12, 10);
+    (13, 12, 10);
 
 -- CHARACTERS
 INSERT INTO characters VALUES
