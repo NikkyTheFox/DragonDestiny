@@ -12,6 +12,7 @@ import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
@@ -49,6 +50,12 @@ public class PlayerManager {
         return player.getCharacter().getInitialStrength() + player.getCharacter().getAdditionalStrength() + addFromCards;
     }
 
+    /**
+     * Checks if player has place on hand for new cards.
+     *
+     * @param player
+     * @return
+     */
     public boolean checkCardsOnHand(Player player) {
         if (player.getCardsOnHand().size() >= PlayedGameApplication.numOfCardsOnHand)
             return false;
@@ -102,6 +109,30 @@ public class PlayerManager {
      */
     public Player increaseHealth(Player player, Integer val) {
         player.getCharacter().increaseHealth(val);
+        return player;
+    }
+
+    /**
+     * Method to decrease health of the Player.
+     * Checks if Player has health item cards that act as a shield, if so removes health point from them.
+     * If not, removes health point directly from Character.
+     *
+     * @param player
+     * @param val
+     * @return
+     */
+    public Player decreaseHealth(Player player, Integer val) {
+        Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).findFirst();
+        if (card.isEmpty()) {
+            // no health cards
+            player.getCharacter().decreaseHealth(val);
+        } else {
+            // decrease health card
+            card.get().decreaseHealth(val);
+            if (card.get().getHealth() <= 0) { // remove used up card
+                player.getPlayerManager().removeCardFromPlayer(player, card.get());
+            }
+        }
         return player;
     }
 
@@ -172,8 +203,19 @@ public class PlayerManager {
      *
      * @param character
      */
-    public void setCharacter(Player player, Character character) {
+    public Player setCharacter(Player player, Character character) {
         player.setCharacter(character);
+        return player;
+    }
+
+    /**
+     * Method to set character to the player.
+     *
+     * @param val
+     */
+    public Player setFightRoll(Player player, Integer val) {
+        player.setFightRoll(val);
+        return player;
     }
 
 }

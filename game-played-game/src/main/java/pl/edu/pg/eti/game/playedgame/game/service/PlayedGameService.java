@@ -150,6 +150,25 @@ public class PlayedGameService {
     }
 
     /**
+     * Helping method to update list of players in PlayedGame with updated player.
+     *
+     * @param game
+     * @param player
+     * @return
+     */
+    private PlayedGame updatePlayer(PlayedGame game, Player player) {
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .findFirst();
+        if (index.isEmpty())
+            return game;
+        players.set(index.getAsInt(), player);
+        game.setPlayers(players);
+        return game;
+    }
+
+    /**
      * Add Character to Player's played character.
      *
      * @param game
@@ -158,16 +177,9 @@ public class PlayedGameService {
      * @return
      */
     public PlayedGame setCharacterToPlayer(PlayedGame game, Player player, Character character) {
-        player.getPlayerManager().setCharacter(player, character);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), player);
-        game.setPlayers(players);
-        return playedGameRepository.save(game);
+        Player updatedPlayer = player.getPlayerManager().setCharacter(player, character);
+        PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
+        return playedGameRepository.save(updatedGame);
     }
 
     /**
@@ -179,16 +191,9 @@ public class PlayedGameService {
      * @return
      */
     public PlayedGame setPlayerFightRoll(PlayedGame game, Player player, Integer roll) {
-        player.setFightRoll(roll);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), player);
-        game.setPlayers(players);
-        return playedGameRepository.save(game);
+        Player updatedPlayer = player.getPlayerManager().setFightRoll(player, roll);
+        PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
+        return playedGameRepository.save(updatedGame);
     }
 
     /**
@@ -216,17 +221,10 @@ public class PlayedGameService {
      */
     public PlayedGame moveCardToPlayer(PlayedGame game, Card card, Player player) {
         GameManager gameManager = game.getGameManager();
-        player.getPlayerManager().moveCardToPlayer(player, card);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), player);
-        game.setPlayers(players);
+        Player updatedPlayer = player.getPlayerManager().moveCardToPlayer(player, card);
         gameManager.removeCardFromDeck(game, card);
-        return playedGameRepository.save(game);
+        PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
+        return playedGameRepository.save(updatedGame);
     }
 
     /**
@@ -240,16 +238,9 @@ public class PlayedGameService {
     public PlayedGame moveCardToTrophies(PlayedGame game, Card card, Player player) {
         GameManager gameManager = game.getGameManager();
         Player updatedPlayer = player.getPlayerManager().moveCardToTrophies(player, card);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), updatedPlayer);
-        game.setPlayers(players);
         gameManager.removeCardFromDeck(game, card);
-        return playedGameRepository.save(game);
+        PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
+        return playedGameRepository.save(updatedGame);
     }
 
     /**
@@ -262,15 +253,8 @@ public class PlayedGameService {
      */
     public PlayedGame moveCardFromPlayer(PlayedGame game, Player player, Card card) {
         Player updatedPlayer = player.getPlayerManager().removeCardFromPlayer(player, card);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), updatedPlayer);
-        game.setPlayers(players);
         game.getGameManager().addCardToUsedDeck(game, card);
+        PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
         return playedGameRepository.save(game);
     }
 
@@ -285,14 +269,8 @@ public class PlayedGameService {
     public PlayedGame checkTrophies(PlayedGame game, Player player) {
         if(player.getPlayerManager().checkTrophies(player)) {
             Player updatedPlayer = player.getPlayerManager().moveAndIncreaseTrophies(player);
-            List<Player> players = game.getPlayers();
-            OptionalInt index = IntStream.range(0, players.size())
-                    .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
-                    .findFirst();
-            if (index.isEmpty())
-                return null;
-            players.set(index.getAsInt(), updatedPlayer);
-            game.setPlayers(players);
+            PlayedGame updatedGame = updatePlayer(game, updatedPlayer);
+            return playedGameRepository.save(updatedGame);
         }
         return playedGameRepository.save(game);
     }
@@ -308,15 +286,8 @@ public class PlayedGameService {
      */
     public PlayedGame changePosition(PlayedGame game, Player player, Character character, Field field) {
         player.getPlayerManager().changeCharacterPosition(player, field);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), player);
-        game.setPlayers(players);
-        return playedGameRepository.save(game);
+        PlayedGame updatedGame = updatePlayer(game, player);
+        return playedGameRepository.save(updatedGame);
     }
 
     /**
@@ -373,5 +344,29 @@ public class PlayedGameService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Method to decrease health points of player by value (1).
+     *
+     * @param game
+     * @param player
+     * @param val
+     * @return
+     */
+    public PlayedGame decreaseHealth(PlayedGame game, Player player, Integer val) {
+        Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).findFirst();
+        if (card.isEmpty()) {
+            // no health cards
+            player.getCharacter().decreaseHealth(val);
+        } else {
+            // decrease health card
+            card.get().decreaseHealth(val);
+            if (card.get().getHealth() <= 0) { // remove used up card
+                moveCardFromPlayer(game, player, card.get());
+            }
+        }
+        PlayedGame updatedGame = updatePlayer(game, player);
+        return playedGameRepository.save(updatedGame);
     }
 }

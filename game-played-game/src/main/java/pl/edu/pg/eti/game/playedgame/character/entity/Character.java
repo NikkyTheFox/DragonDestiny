@@ -67,12 +67,30 @@ public class Character implements Serializable {
     }
 
     /**
+     * Method to decrease additional (received) strength points by val.
+     *
+     * @param val
+     */
+    public void decreaseStrength(Integer val) {
+        this.additionalStrength -= val;
+    }
+
+    /**
      * Method to increase additional (received) health points by val.
      *
      * @param val
      */
     public void increaseHealth(Integer val) {
         this.additionalHealth += val;
+    }
+
+    /**
+     * Method to decrease additional (received) health points by val.
+     *
+     * @param val
+     */
+    public void decreaseHealth(Integer val) {
+        this.additionalHealth -= val;
     }
 
 }

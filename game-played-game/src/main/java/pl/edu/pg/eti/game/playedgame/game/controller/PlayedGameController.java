@@ -620,6 +620,8 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(Boolean.FALSE);
     }
 
+    // FIGHT -----------------------------------------------------------------------------------------------------------
+
     /**
      * Call to get result of fight between Player and Enemy from card.
      *
@@ -648,6 +650,7 @@ public class PlayedGameController {
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), (EnemyCard) card.get(), playerRoll, enemyRoll);
         if (fightResult) // player won
             return ResponseEntity.ok().body(Boolean.TRUE);
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
 
@@ -680,6 +683,7 @@ public class PlayedGameController {
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemy, playerRoll, enemyRoll);
         if (fightResult) // player won
             return ResponseEntity.ok().body(Boolean.TRUE);
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
 
@@ -715,9 +719,12 @@ public class PlayedGameController {
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemyPlayer.get(), playerRoll, enemyPlayer.get().getFightRoll());
         playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), 0);
         playedGameService.setPlayerFightRoll(gameRequest.get(), enemyPlayer.get(), 0);
-        if (fightResult) // attacked won
+        if (fightResult) { // attacked (player) won
+            playedGameService.decreaseHealth(gameRequest.get(), enemyPlayer.get(), 1);
             return ResponseEntity.ok(Boolean.TRUE);
-        return ResponseEntity.ok(Boolean.FALSE); // attacking won
+        }
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
+        return ResponseEntity.ok(Boolean.FALSE); // attacking (enemy) won
     }
 
 
