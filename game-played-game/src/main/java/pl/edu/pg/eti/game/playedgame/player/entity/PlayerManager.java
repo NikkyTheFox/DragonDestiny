@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public class PlayerManager {
+public class PlayerManager extends Player{
 
     /**
      * Method to calculate total Health points of player.

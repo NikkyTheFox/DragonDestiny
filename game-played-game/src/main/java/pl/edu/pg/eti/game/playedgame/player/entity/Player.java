@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -57,5 +57,10 @@ public class Player {
      */
     @JsonIgnore
     private PlayerManager playerManager;
+
+
+    public void setPlayerManager(PlayerManager playerManager) {
+        this.playerManager = playerManager;
+    }
 
 }

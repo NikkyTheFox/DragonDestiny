@@ -642,7 +642,7 @@ public class PlayedGameController {
         Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
-        player.get().setFightRoll(playerRoll);
+        player.get().getPlayerManager().setFightRoll(player.get(), playerRoll);
         // find card
         Optional<Card> card = playedGameService.findCardInCardDeck(playedGameId, cardId);
         if (card.isEmpty() || card.get().getCardType() != CardType.ENEMY_CARD)
@@ -705,7 +705,6 @@ public class PlayedGameController {
         Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
-        playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), playerRoll);
         // find player enemy from field
         Field field = player.get().getCharacter().getPositionField();
         if (field == null)
@@ -713,6 +712,7 @@ public class PlayedGameController {
         Optional<Player> enemyPlayer = playedGameService.findDifferentPlayerByField(playedGameId, playerLogin, field.getId());
         if (enemyPlayer.isEmpty())
             return ResponseEntity.notFound().build();
+        playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), playerRoll);
         if (enemyPlayer.get().getFightRoll() == 0) { // call from attacker, wait for attacked roll
             return ResponseEntity.notFound().build();
         }
