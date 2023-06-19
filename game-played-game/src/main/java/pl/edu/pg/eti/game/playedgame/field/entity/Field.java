@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 
 import java.io.Serializable;
 
@@ -42,5 +43,10 @@ public class Field implements Serializable {
      * yPosition is equal to 0 (first column) or Board.xSize (last column).
      */
     private Integer yPosition;
+
+    /**
+     * Enemy Card corresponding to enemy on that field.
+     */
+    private EnemyCard enemy;
 
 }

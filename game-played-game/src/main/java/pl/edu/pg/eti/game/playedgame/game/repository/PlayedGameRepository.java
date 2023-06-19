@@ -43,6 +43,23 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                         .findFirst());
     }
 
+    default Optional<Player> findPlayerByField(String gameId, Integer fieldID) {
+        return findById(gameId)
+                .map(PlayedGame::getPlayers)
+                .flatMap(players -> players.stream()
+                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .findFirst());
+    }
+
+    default Optional<Player> findDifferentPlayerByField(String gameId, String playerId, Integer fieldID) {
+        return findById(gameId)
+                .map(PlayedGame::getPlayers)
+                .flatMap(players -> players.stream()
+                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .filter(player -> !player.getLogin().equals(playerId))
+                        .findFirst());
+    }
+
     default Optional<ItemCard> findCardInPlayers(String gameId, String playerLogin, Integer cardId) {
         return findById(gameId)
                 .map(PlayedGame::getPlayers)

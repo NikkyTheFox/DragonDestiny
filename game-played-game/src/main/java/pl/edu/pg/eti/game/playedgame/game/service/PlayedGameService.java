@@ -128,6 +128,77 @@ public class PlayedGameService {
         return playedGameRepository.findFieldOnBoard(gameId, id);
     }
 
+    public Optional<Player> findPlayerByField(String gameId, Integer fieldId) {
+        return playedGameRepository.findPlayerByField(gameId, fieldId);
+    }
+
+    public Optional<Player> findDifferentPlayerByField(String gameId, String playerId, Integer fieldId) {
+        return playedGameRepository.findDifferentPlayerByField(gameId, playerId, fieldId);
+    }
+
+    /**
+     * Add new Player to PlayedGame's players list.
+     *
+     * @param game
+     * @param player
+     * @return
+     */
+    public PlayedGame addPlayer(PlayedGame game, Player player) {
+        GameManager gameManager = game.getGameManager();
+        gameManager.addPlayerToGame(game, player);
+        return playedGameRepository.save(game);
+    }
+
+    /**
+     * Add Character to Player's played character.
+     *
+     * @param game
+     * @param player
+     * @param character
+     * @return
+     */
+    public PlayedGame setCharacterToPlayer(PlayedGame game, Player player, Character character) {
+        player.getPlayerManager().setCharacter(player, character);
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .findFirst();
+        if (index.isEmpty())
+            return null;
+        players.set(index.getAsInt(), player);
+        game.setPlayers(players);
+        return playedGameRepository.save(game);
+    }
+
+    /**
+     * Set roll value to Player's fight roll value.
+     *
+     * @param game
+     * @param player
+     * @param roll
+     * @return
+     */
+    public PlayedGame setPlayerFightRoll(PlayedGame game, Player player, Integer roll) {
+        player.setFightRoll(roll);
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .findFirst();
+        if (index.isEmpty())
+            return null;
+        players.set(index.getAsInt(), player);
+        game.setPlayers(players);
+        return playedGameRepository.save(game);
+    }
+
+    /**
+     * Removes card from Card Deck and adds to Used Card Deck.
+     *
+     * @param game
+     * @param card
+     * @return
+     */
+
     public PlayedGame moveCardToUsed(PlayedGame game, Card card) {
         GameManager gameManager = game.getGameManager();
         gameManager.addCardToUsedDeck(game, card);
@@ -135,6 +206,14 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
+    /**
+     * Removes card from Card Deck and adds to Player's cards on hand.
+     *
+     * @param game
+     * @param card
+     * @param player
+     * @return
+     */
     public PlayedGame moveCardToPlayer(PlayedGame game, Card card, Player player) {
         GameManager gameManager = game.getGameManager();
         player.getPlayerManager().moveCardToPlayer(player, card);
@@ -150,6 +229,14 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
+    /**
+     * Removes card from Card Deck and adds to Player's trophies.
+     *
+     * @param game
+     * @param card
+     * @param player
+     * @return
+     */
     public PlayedGame moveCardToTrophies(PlayedGame game, Card card, Player player) {
         GameManager gameManager = game.getGameManager();
         Player updatedPlayer = player.getPlayerManager().moveCardToTrophies(player, card);
@@ -165,7 +252,14 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
-
+    /**
+     * Removes card from Players' hand and adds to Used Card Deck.
+     *
+     * @param game
+     * @param player
+     * @param card
+     * @return
+     */
     public PlayedGame moveCardFromPlayer(PlayedGame game, Player player, Card card) {
         Player updatedPlayer = player.getPlayerManager().removeCardFromPlayer(player, card);
         List<Player> players = game.getPlayers();
@@ -180,9 +274,17 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
+    /**
+     * Check if Player has enough trophies to get Strength point.
+     * If so, increases Strength points and removes trophies from Player.
+     *
+     * @param game
+     * @param player
+     * @return
+     */
     public PlayedGame checkTrophies(PlayedGame game, Player player) {
         if(player.getPlayerManager().checkTrophies(player)) {
-            Player updatedPlayer = player.getPlayerManager().moveTrophies(player);
+            Player updatedPlayer = player.getPlayerManager().moveAndIncreaseTrophies(player);
             List<Player> players = game.getPlayers();
             OptionalInt index = IntStream.range(0, players.size())
                     .filter(i -> Objects.equals(players.get(i).getLogin(), updatedPlayer.getLogin()))
@@ -195,25 +297,15 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
-    public PlayedGame addPlayer(PlayedGame game, Player player) {
-        GameManager gameManager = game.getGameManager();
-        gameManager.addPlayerToGame(game, player);
-        return playedGameRepository.save(game);
-    }
-
-    public PlayedGame setCharacterToPlayer(PlayedGame game, Player player, Character character) {
-        player.getPlayerManager().setCharacter(player, character);
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isEmpty())
-            return null;
-        players.set(index.getAsInt(), player);
-        game.setPlayers(players);
-        return playedGameRepository.save(game);
-    }
-
+    /**
+     * Change Player's character position Field.
+     *
+     * @param game
+     * @param player
+     * @param character
+     * @param field
+     * @return
+     */
     public PlayedGame changePosition(PlayedGame game, Player player, Character character, Field field) {
         player.getPlayerManager().changeCharacterPosition(player, field);
         List<Player> players = game.getPlayers();
@@ -242,7 +334,7 @@ public class PlayedGameService {
     }
 
     /**
-     * Method to calculate fight result between Player and Enemy from card.
+     * Method to calculate fight result between Player and Enemy from card or from field.
      *
      * @param game
      * @param player
@@ -256,6 +348,27 @@ public class PlayedGameService {
         System.out.println("PLAYER " + playerResult);
         Integer enemyResult = enemy.calculateTotalStrength() + enemyRoll;
         System.out.println("ENEMY " + enemyResult);
+        if (playerResult >= enemyResult) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Method to calculate fight result between Player and Player.
+     *
+     * @param game
+     * @param player
+     * @param enemy
+     * @param playerRoll
+     * @param enemyRoll
+     * @return
+     */
+    public boolean calculateFight(PlayedGame game, Player player, Player enemy, Integer playerRoll, Integer enemyRoll) {
+        Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
+        System.out.println("PLAYER " + playerResult);
+        Integer enemyResult = enemy.getPlayerManager().calculateTotalStrength(enemy) + enemyRoll;
+        System.out.println("ENEMY PLAYER " + enemyResult);
         if (playerResult >= enemyResult) {
             return true;
         }

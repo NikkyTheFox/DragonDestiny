@@ -30,6 +30,11 @@ public class Player {
     private String login;
 
     /**
+     * Most recent result for Player's fight roll.
+     */
+    private Integer fightRoll = 0;
+
+    /**
      * Character chosen by the player.
      * Many players can play the same type of character.
      */

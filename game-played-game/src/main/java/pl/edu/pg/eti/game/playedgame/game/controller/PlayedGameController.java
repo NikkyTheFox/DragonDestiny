@@ -1,6 +1,7 @@
 package pl.edu.pg.eti.game.playedgame.game.controller;
 
 import org.springframework.web.ErrorResponse;
+import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.response.EnemyCardList;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
@@ -119,6 +120,12 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(game);
     }
 
+    /**
+     * Call to delete game by ID.
+     *
+     * @param gameId
+     * @return
+     */
     @DeleteMapping("{gameId}")
     public ResponseEntity<String> deleteGame(@PathVariable(name = "gameId") String gameId) {
         Optional<PlayedGame> game = playedGameService.findPlayedGame(gameId);
@@ -582,12 +589,12 @@ public class PlayedGameController {
     }
 
     /**
-     * Call to handle item card. Checks if player has place on hand, returns true/false.
+     * Call to handle item card. Checks if player has place on hand, if so moves the card from deck to player's hand.
      *
      * @param playedGameId
      * @param playerLogin
      * @param cardId
-     * @return
+     * @return true if player can take the card, false if not
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/handleItemCard/{cardId}")
     public ResponseEntity<Boolean> handleItemCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
@@ -613,6 +620,16 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(Boolean.FALSE);
     }
 
+    /**
+     * Call to get result of fight between Player and Enemy from card.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @param cardId
+     * @param playerRoll
+     * @param enemyRoll
+     * @return true if player won, false if lost
+     */
     @PutMapping("{playedGameId}/players/{playerLogin}/roll/{playerRoll}/enemy/{cardId}/roll/{enemyRoll}")
     public ResponseEntity<Boolean> handleFight(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
         // find game
@@ -623,6 +640,7 @@ public class PlayedGameController {
         Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
+        player.get().setFightRoll(playerRoll);
         // find card
         Optional<Card> card = playedGameService.findCardInCardDeck(playedGameId, cardId);
         if (card.isEmpty() || card.get().getCardType() != CardType.ENEMY_CARD)
@@ -630,7 +648,78 @@ public class PlayedGameController {
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), (EnemyCard) card.get(), playerRoll, enemyRoll);
         if (fightResult) // player won
             return ResponseEntity.ok().body(Boolean.TRUE);
-        return ResponseEntity.ok().body(Boolean.FALSE);
+        return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
+
+    /**
+     * Call to get result of fight between Player and Enemy from field where the player's character stays.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @param playerRoll
+     * @param enemyRoll
+     * @return true if player won, false if lost
+     */
+    @PutMapping("{playedGameId}/players/{playerLogin}/roll/{playerRoll}/enemy/roll/{enemyRoll}")
+    public ResponseEntity<Boolean> handleFight(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
+        // find game
+        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
+        if (gameRequest.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find enemy from field
+        Field field = player.get().getCharacter().getPositionField();
+        if (field == null)
+            return ResponseEntity.notFound().build();
+        EnemyCard enemy = field.getEnemy();
+        if (enemy == null)
+            return ResponseEntity.notFound().build();
+        boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemy, playerRoll, enemyRoll);
+        if (fightResult) // player won
+            return ResponseEntity.ok().body(Boolean.TRUE);
+        return ResponseEntity.ok().body(Boolean.FALSE); // player lost
+    }
+
+    /**
+     * Call to get result of fight between Player and Player. Returns a result only when both players rolled.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @param playerRoll
+     * @return
+     */
+    @PutMapping("{playedGameId}/players/{playerLogin}/roll/{playerRoll}")
+    public ResponseEntity<Boolean> handleFight(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll) {
+        // find game
+        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
+        if (gameRequest.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), playerRoll);
+        // find player enemy from field
+        Field field = player.get().getCharacter().getPositionField();
+        if (field == null)
+            return ResponseEntity.notFound().build();
+        Optional<Player> enemyPlayer = playedGameService.findDifferentPlayerByField(playedGameId, playerLogin, field.getId());
+        if (enemyPlayer.isEmpty())
+            return ResponseEntity.notFound().build();
+        if (enemyPlayer.get().getFightRoll() == 0) { // call from attacker, wait for attacked roll
+            return ResponseEntity.notFound().build();
+        }
+        boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemyPlayer.get(), playerRoll, enemyPlayer.get().getFightRoll());
+        playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), 0);
+        playedGameService.setPlayerFightRoll(gameRequest.get(), enemyPlayer.get(), 0);
+        if (fightResult) // attacked won
+            return ResponseEntity.ok(Boolean.TRUE);
+        return ResponseEntity.ok(Boolean.FALSE); // attacking won
+    }
+
+
 
 }

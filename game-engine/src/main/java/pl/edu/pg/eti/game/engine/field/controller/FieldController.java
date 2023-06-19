@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.engine.field.controller;
 
+import pl.edu.pg.eti.game.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.game.engine.field.dto.FieldDTO;
 import pl.edu.pg.eti.game.engine.field.dto.FieldListDTO;
 import pl.edu.pg.eti.game.engine.field.entity.Field;
@@ -73,4 +74,20 @@ public class FieldController {
         return ResponseEntity.ok().body(fieldResponse);
     }
 
+    /**
+     * Retrieve enemy on the field.
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}/enemy")
+    public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable(name = "id") Integer id) {
+        Optional<Field> field = fieldService.findField(id);
+        if (field.isEmpty())
+            return ResponseEntity.notFound().build();
+        FieldDTO fieldResponse = modelMapper.map(field.get(), FieldDTO.class);
+        if (fieldResponse.getEnemy() == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(fieldResponse.getEnemy());
+    }
 }

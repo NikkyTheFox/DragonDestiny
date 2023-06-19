@@ -72,7 +72,7 @@ public class PlayerManager {
      * @return
      */
 
-    public Player moveTrophies(Player player) {
+    public Player moveAndIncreaseTrophies(Player player) {
         int numOfTrophies = player.getTrophies().size();
         if (numOfTrophies >= PlayedGameApplication.numOfTrophiesToGetPoint) {
             player.getPlayerManager().increaseStrength(player, PlayedGameApplication.trophiesPointIncrease);

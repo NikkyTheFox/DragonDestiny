@@ -38,8 +38,7 @@ public class PlayedBoard implements Serializable {
      *
      * @param field
      */
-    public void addFieldsInBoard(Field field)
-    {
+    public void addFieldsInBoard(Field field) {
         this.fieldsOnBoard.add(field);
     }
 
