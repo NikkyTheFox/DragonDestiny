@@ -2,3 +2,8 @@ p {
   font-family: 'Shadows Into Light Two', cursive;
   font-size: 30px;
 }
+
+a {
+  text-decoration: none;
+  color: #ff6600;
+}

@@ -1,32 +1,45 @@
-app-component
-  login-component
-    login-in-component
-     register-component
+[ COMPONENT ] app { ROOT }
 
-  your-games-component
-    played-games-container-component
-      played-games-list-container
-        join-button
-      create-button
-      invite-button
-      start-button
+  [ DIRECTORY ] game-ui-header
+   [ COMPONENT ] header
+    [ COMPONENT ] header-left-section
+    [ COMPONENT ] header-middle-section
+    [ COMPONENT ] header-right-section
 
-  main-component
-    header-component
-      left-section-component
-      middle-section-component
-      right-section-component
-    right-sidebar-component
-      cards-deck-component
-      character-info-component
-        character-portrait-component
-        character-statistics-component
-          statistic-component
-    main-section
-      board-component
-        row-component
-          field-component
-      additional-field-component
-        other-characters-component
-        items-component
-    footer-component
+  [ DIRECTORY ] game-ui-login
+  [ COMPONENT ] login-in
+  [ COMPONENT ] signup
+
+  [ DIRECTORY ]game-ui-dashboard
+  [ COMPONENT ] game-ui-dashboard
+    [ COMPONENT ] played-games-list
+    [ COMPONENT ] game-ui-dashboard-sidebar
+    [ COMPONENT ] create-game
+    [ COMPONENT ] join-game                       // new TODO
+
+  [ DIRECTORY ] game-ui-prepare-game                       // new TODO
+  [ COMPONENT ] prepare-game                       // new TODO
+    [ COMPONENT ] select-character            // tiles with characters to choose // new TODO
+    [ COMPONENT ] invite-player                       // new TODO
+    [ COMPONENT ] start-game                       // new TODO
+
+
+  [ DIRECTORY ] game-ui-playboard                         // where game is actually playable
+  [ COMPONENT ] main
+    [ COMPONENT ] right-sidebar
+      [ COMPONENT ] right-sidebar-dice-roll               // new TODO
+      [ COMPONENT ] right-sidebar-cards-deck
+      [ COMPONENT ] right-sidebar-character-info
+        [ COMPONENT ] right-sidebar-character-info-portrait
+        [ COMPONENT ] right-sidebar-character-info-statistics
+          [ COMPONENT ] right-sidebar-character-info-statistic-stat
+    [ COMPONENT ] main-section
+      [ COMPONENT ] main-section-board
+        [ COMPONENT ] main-section-board-row
+          [ COMPONENT ] main-section-board-field
+      [ COMPONENT ] main-section-additional-field
+        [ COMPONENT ] main-section-additional-field-other-characters
+        [ COMPONENT ] main-section-additional-field-items
+
+  [ DIRECTORY ] game-ui-footer
+  [ COMPONENT ] footer

@@ -26,7 +26,7 @@ export class CreateGameComponent {
     this.playedGameService.initializeGame(this.selectedOption).subscribe((data: any)=>{
       this.playedGameService.addPlayerToGameByLogin(data.id, this.playerLogin).subscribe();
       this.dataService.chosenGame = data.id;
-      this.router.navigate(["/main"]);
+      this.router.navigate(["/preparegame"]);
     });
   }
 }
