@@ -11,6 +11,11 @@ import lombok.AccessLevel;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import pl.edu.pg.eti.game.engine.card.enemycard.entity.EnemyCard;
+import pl.edu.pg.eti.game.engine.character.entity.Character;
+
+import javax.xml.stream.events.Characters;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represent a field (of possible board) in the game.
@@ -66,5 +71,11 @@ public class Field {
      */
     @OneToOne
     private EnemyCard enemy;
+
+    /**
+     * List of characters that have their initial position on that field.
+     */
+    @OneToMany(mappedBy = "field")
+    private List<Character> characters = new ArrayList<>();
 
 }

@@ -1,13 +1,8 @@
 package pl.edu.pg.eti.game.engine.character.entity;
 
+import jakarta.persistence.*;
+import pl.edu.pg.eti.game.engine.field.entity.Field;
 import pl.edu.pg.eti.game.engine.game.entity.Game;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,6 +63,13 @@ public class Character {
      */
     @Column(name = "initial_health")
     private Integer initialHealth;
+
+    /**
+     * Initial position field on board.
+     */
+    @ManyToOne
+    @JoinColumn(name = "field_id")
+    private Field field;
 
     /**
      * List of games the character belongs to.

@@ -36,24 +36,30 @@ public class GatewayApplication {
                         .path("/api/playedgames",
                                 "/api/playedgames/{playedGameId}",
                                 "/api/playedgames/{playedGameId}/cards/deck",
-                                "/api/playedgames/{playedGameId}/cards/deck/{cardId}",
                                 "/api/playedgames/{playedGameId}/cards/used",
+                                "/api/playedgames/{playedGameId}/cards/deck/{cardId}",
                                 "/api/playedgames/{playedGameId}/cards/used/{cardId}",
                                 "/api/playedgames/{playedGameId}/cardToUsed/{cardId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/cardToUsed/{cardId}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cardToPlayer/{cardId}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cardToTrophies/{cardId}",
                                 "/api/playedgames/{playedGameId}/characters",
                                 "/api/playedgames/{playedGameId}/characters/{characterId}",
                                 "/api/playedgames/{playedGameId}/players",
                                 "/api/playedgames/{playedGameId}/players/{playerId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/character",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cards",
-                                "/api/playedgames/{playedGameId}/players/{playerId}/trophies",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/cards/{cardId}",
-                                "/api/playedgames/{playedGameId}/addPlayer",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/trophies",
                                 "/api/playedgames/{playedGameId}/addPlayer/{playerLogin}",
                                 "/api/playedgames/{playedGameId}/players/{playerId}/character/{characterId}",
-                                "/api/playedgames/{playedGameId}/players/{playerId}/character",
-                                "/api/playedgames/{playedGameId}/players/{playerId}/character/field/{fieldId}")
+                                "/api/playedgames/{playedGameId}/players/{playerId}/field/{fieldId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/drawCard",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/handleItemCard/{cardId}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/roll/{playerRoll}/enemy/{cardId}/roll/{enemyRoll}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/roll/{playerRoll}/enemy/roll/{enemyRoll}",
+                                "/api/playedgames/{playedGameId}/players/{playerId}/roll/{playerRoll}"
+                                )
                         .uri("lb://played-game"))
                 .route("games", r -> r
                         .path(

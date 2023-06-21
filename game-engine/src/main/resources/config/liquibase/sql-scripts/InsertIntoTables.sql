@@ -133,17 +133,17 @@ INSERT INTO fields (type, x_position, y_position) VALUES
 
 -- CHARACTERS
 INSERT INTO characters VALUES
-    ('Harry Potter', 'Wizard', 'There was a wizard called Harry Potter. End of story', 10, 4)
+    ('Harry Potter', 'Wizard', 'There was a wizard called Harry Potter. End of story', 10, 4, 1)
 
 INSERT INTO games_characters
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))
 
 INSERT INTO characters VALUES
-    ('Frodo Baggins', 'Hobbit', 'Very cool hobbit. Saved the Middle Earth. End of story', 10, 9)
+    ('Frodo Baggins', 'Hobbit', 'Very cool hobbit. Saved the Middle Earth. End of story', 10, 9, 2)
 INSERT INTO games_characters
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))
 
 INSERT INTO characters VALUES
-    ('Winnie the Pooh', 'Bear', 'Nice bear. End of story', 10, 1)
+    ('Winnie the Pooh', 'Bear', 'Nice bear. End of story', 10, 1, 3)
 INSERT INTO games_characters
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))

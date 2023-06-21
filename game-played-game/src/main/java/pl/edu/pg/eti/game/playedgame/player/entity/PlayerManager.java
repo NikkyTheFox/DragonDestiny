@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public class PlayerManager extends Player{
+public class PlayerManager extends Player {
 
     /**
      * Method to calculate total Health points of player.
@@ -96,7 +96,7 @@ public class PlayerManager extends Player{
      * @return
      */
     public Player increaseStrength(Player player, Integer val) {
-        player.getCharacter().increaseStrength(val);
+        player.getCharacter().getCharacterManager().increaseStrength(player.getCharacter(), val);
         return player;
     }
 
@@ -108,42 +108,18 @@ public class PlayerManager extends Player{
      * @return
      */
     public Player increaseHealth(Player player, Integer val) {
-        player.getCharacter().increaseHealth(val);
+        player.getCharacter().getCharacterManager().increaseHealth(player.getCharacter(), val);
         return player;
     }
 
-    /**
-     * Method to decrease health of the Player.
-     * Checks if Player has health item cards that act as a shield, if so removes health point from them.
-     * If not, removes health point directly from Character.
-     *
-     * @param player
-     * @param val
-     * @return
-     */
-    public Player decreaseHealth(Player player, Integer val) {
-        Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).findFirst();
-        if (card.isEmpty()) {
-            // no health cards
-            player.getCharacter().decreaseHealth(val);
-        } else {
-            // decrease health card
-            card.get().decreaseHealth(val);
-            if (card.get().getHealth() <= 0) { // remove used up card
-                player.getPlayerManager().removeCardFromPlayer(player, card.get());
-            }
-        }
-        return player;
-    }
-
-    /**
+     /**
      * Method to change player's character's position on board.
      *
      * @param player
      * @param field
      */
     public Player changeCharacterPosition(Player player, Field field) {
-        player.getCharacter().setPositionField(field);
+        player.getCharacter().getCharacterManager().setPositionField(player.getCharacter(), field);
         return player;
     }
 

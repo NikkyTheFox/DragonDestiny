@@ -58,7 +58,6 @@ public class Player {
     @JsonIgnore
     private PlayerManager playerManager;
 
-
     public void setPlayerManager(PlayerManager playerManager) {
         this.playerManager = playerManager;
     }

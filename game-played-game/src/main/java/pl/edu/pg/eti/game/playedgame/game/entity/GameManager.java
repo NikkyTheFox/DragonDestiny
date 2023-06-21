@@ -1,11 +1,13 @@
 package pl.edu.pg.eti.game.playedgame.game.entity;
 
+import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import pl.edu.pg.eti.game.playedgame.player.entity.PlayerManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +18,7 @@ import java.util.stream.IntStream;
 @AllArgsConstructor
 @Getter
 @Setter
-public class GameManager {
+public class GameManager extends PlayedGame {
 
     /**
      * Method to add player to play in the game.
@@ -90,4 +92,28 @@ public class GameManager {
         game.getUsedCardDeck().remove(index.getAsInt());
     }
 
+    public PlayedGame setBoard(PlayedGame game, PlayedBoard board) {
+        game.setBoard(board);
+        return game;
+    }
+
+    public PlayedGame setCharactersInGame(PlayedGame game, List<Character> characters) {
+        game.setCharactersInGame(characters);
+        return game;
+    }
+
+    public PlayedGame setPlayers(PlayedGame game, List<Player> players) {
+        game.setPlayers(players);
+        return game;
+    }
+
+    public PlayedGame setCardDeck(PlayedGame game, List<Card> cards) {
+        game.setCardDeck(cards);
+        return game;
+    }
+
+    public PlayedGame setUsedCardDeck(PlayedGame game, List<Card> cards) {
+        game.setUsedCardDeck(cards);
+        return game;
+    }
 }

@@ -1,6 +1,5 @@
 package pl.edu.pg.eti.game.playedgame.game.controller;
 
-import org.springframework.web.ErrorResponse;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.response.EnemyCardList;
@@ -11,8 +10,11 @@ import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.response.ItemCardList;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.character.response.CharacterList;
+import pl.edu.pg.eti.game.playedgame.field.FieldOption;
+import pl.edu.pg.eti.game.playedgame.field.FieldOptionList;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.field.entity.FieldType;
+import pl.edu.pg.eti.game.playedgame.field.response.FieldList;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGameList;
 import pl.edu.pg.eti.game.playedgame.game.service.PlayedGameService;
@@ -109,33 +111,59 @@ public class PlayedGameController {
     }
 
     /**
-     * Call to create new played game from request.
-     *
-     * @param playedGameRequest
-     * @return created game
-     */
-    @PostMapping
-    public ResponseEntity<PlayedGame> createGame(@RequestBody PlayedGame playedGameRequest) {
-        PlayedGame game = playedGameService.save(playedGameRequest);
-        return ResponseEntity.ok().body(game);
-    }
-
-    /**
      * Call to delete game by ID.
      *
-     * @param gameId
+     * @param playedGameId
      * @return
      */
-    @DeleteMapping("{gameId}")
-    public ResponseEntity<String> deleteGame(@PathVariable(name = "gameId") String gameId) {
-        Optional<PlayedGame> game = playedGameService.findPlayedGame(gameId);
+    @DeleteMapping("{playedGameId}")
+    public ResponseEntity<String> deleteGame(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
         if (game.isEmpty())
             return ResponseEntity.notFound().build();
-        playedGameService.deleteById(gameId);
+        playedGameService.deleteById(playedGameId);
         return ResponseEntity.ok().build();
     }
 
-    // CARDS ---------------------------------------
+    // BOARD + FIELDS
+    @GetMapping("{playedGameId}/board")
+    public ResponseEntity<PlayedBoard> getBoard(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        PlayedBoard board = game.get().getBoard();
+        if (board == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(board);
+    }
+
+    @GetMapping("{playedGameId}/board/fields")
+    public ResponseEntity<FieldList> getFields(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        PlayedBoard board = game.get().getBoard();
+        if (board == null)
+            return ResponseEntity.notFound().build();
+        FieldList fieldList = new FieldList(board.getFieldsOnBoard());
+        return ResponseEntity.ok().body(fieldList);
+    }
+
+    @GetMapping("{playedGameId}/board/fields/{fieldId}")
+    public ResponseEntity<Field> getField(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "fieldId") Integer fieldId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        PlayedBoard board = game.get().getBoard();
+        if (board == null)
+            return ResponseEntity.notFound().build();
+        Optional<Field> field = playedGameService.findField(playedGameId, fieldId);
+        if (field.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(field.get());
+    }
+
+        // CARDS ---------------------------------------
 
     /**
      * Call to get all cards in deck of played game.
@@ -493,13 +521,11 @@ public class PlayedGameController {
         if (gameRequest.isEmpty())
             return ResponseEntity.notFound().build();
         // find player
-        System.out.println("Looking for player " + playerLogin);
         Optional<Player> player = playerService.findByLogin(playerLogin);
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         //Player player = playerToAdd;
         player.get().setPlayerManager(new PlayerManager());
-        System.out.println("ADDING PLAYER: " + player.hashCode());
         PlayedGame game = playedGameService.addPlayer(gameRequest.get(), player.get());
         playerService.addGame(playerLogin, playedGameId);
         return ResponseEntity.ok().body(game);
@@ -528,6 +554,11 @@ public class PlayedGameController {
         if (character.isEmpty())
             return ResponseEntity.notFound().build();
         PlayedGame game = playedGameService.setCharacterToPlayer(gameRequest.get(), player.get(), character.get());
+        // find field
+        Optional<Field> field = playedGameService.findField(playedGameId, character.get().getField().getId());
+        if (field.isEmpty())
+            return ResponseEntity.notFound().build();
+        playedGameService.changePosition(gameRequest.get(), player.get(), character.get(), field.get());
         return ResponseEntity.ok().body(game);
     }
 
@@ -539,8 +570,8 @@ public class PlayedGameController {
      * @param fieldId
      * @return type of field
      */
-    @PutMapping("{playedGameId}/players/{playerId}/character/field/{fieldId}")
-    public ResponseEntity<FieldType> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "fieldId") Integer fieldId) {
+    @PutMapping("{playedGameId}/players/{playerId}/field/{fieldId}")
+    public ResponseEntity<FieldOptionList> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerId") String playerId, @PathVariable(name = "fieldId") Integer fieldId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
         if (gameRequest.isEmpty())
@@ -558,10 +589,10 @@ public class PlayedGameController {
         Optional<Field> field = playedGameService.findField(playedGameId, fieldId);
         if (field.isEmpty())
             return ResponseEntity.notFound().build();
-        PlayedGame game = playedGameService.changePosition(gameRequest.get(), player.get(), character, field.get());
-        // handle new field position
-
-        return ResponseEntity.ok().body(field.get().getType());
+        playedGameService.changePosition(gameRequest.get(), player.get(), character, field.get());
+        // return possible actions on field
+        FieldOptionList optionList = playedGameService.checkField(gameRequest.get(), player.get(), field.get());
+        return ResponseEntity.ok().body(optionList);
     }
 
     /**
@@ -624,6 +655,7 @@ public class PlayedGameController {
 
     /**
      * Call to get result of fight between Player and Enemy from card.
+     * Decreases health points of player and enemy. If enemy killed, adds to trophies of player.
      *
      * @param playedGameId
      * @param playerLogin
@@ -648,8 +680,10 @@ public class PlayedGameController {
         if (card.isEmpty() || card.get().getCardType() != CardType.ENEMY_CARD)
             return ResponseEntity.notFound().build();
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), (EnemyCard) card.get(), playerRoll, enemyRoll);
-        if (fightResult) // player won
+        if (fightResult) { // player won
+            playedGameService.decreaseHealth(gameRequest.get(), player.get(), (EnemyCard) card.get(), 1);
             return ResponseEntity.ok().body(Boolean.TRUE);
+        }
         playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
@@ -674,15 +708,18 @@ public class PlayedGameController {
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         // find enemy from field
-        Field field = player.get().getCharacter().getPositionField();
-        if (field == null)
-            return ResponseEntity.notFound().build();
-        EnemyCard enemy = field.getEnemy();
+//        Field field = player.get().getCharacter().getPositionField();
+//        if (field == null)
+//            return ResponseEntity.notFound().build();
+        Optional<Field> field = playedGameService.findField(playedGameId, player.get().getCharacter().getPositionField().getId());
+        EnemyCard enemy = field.get().getEnemy();
         if (enemy == null)
             return ResponseEntity.notFound().build();
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemy, playerRoll, enemyRoll);
-        if (fightResult) // player won
+        if (fightResult) {// player won
+            playedGameService.decreaseHealth(gameRequest.get(), player.get(), field.get(), enemy, 1);
             return ResponseEntity.ok().body(Boolean.TRUE);
+        }
         playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }

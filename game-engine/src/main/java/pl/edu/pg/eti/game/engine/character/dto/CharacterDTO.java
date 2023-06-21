@@ -1,6 +1,9 @@
 package pl.edu.pg.eti.game.engine.character.dto;
 
+import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import pl.edu.pg.eti.game.engine.field.dto.FieldDTO;
+import pl.edu.pg.eti.game.engine.field.entity.Field;
 
 /**
  * DTO allows to hide implementation from the client.
@@ -37,5 +40,10 @@ public class CharacterDTO {
      * Value of initial health points of character.
      */
     private Integer initialHealth;
+
+    /**
+     * Initial position field on board.
+     */
+    private FieldDTO field;
 
 }

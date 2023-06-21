@@ -56,7 +56,8 @@ CREATE TABLE characters
     profession VARCHAR(200),
     story VARCHAR(1000),
     initial_strength INT,
-    initial_health INT
+    initial_health INT,
+    field_id INT REFERENCES fields
 )
 
 CREATE TABLE games_characters

@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.card.itemcard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
@@ -32,21 +33,12 @@ public class ItemCard extends Card {
     private Integer usedAdditionalHealth = 0;
 
     /**
-     * Method to return number of health points left on item.
-     *
-     * @return
+     * Item Card Manager;
      */
-    public Integer getHealth() {
-        return additionalHealth + usedAdditionalHealth;
-    }
-
-    /**
-     * Method to remove health points from the item.
-     *
-     * @param val
-     */
-    public void decreaseHealth(Integer val) {
-        usedAdditionalHealth = usedAdditionalHealth - val;
+    @JsonIgnore
+    private ItemCardManager cardManager;
+    public void setCardManager(ItemCardManager cardManager) {
+        this.cardManager = cardManager;
     }
 
 }
