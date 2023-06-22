@@ -8,6 +8,9 @@ import {PlayedGameItemCard} from "../interfaces/game-played-game/played-game-ite
 import {PlayedGameCharacter} from "../interfaces/game-played-game/played-game-character";
 import {PlayedGameCard} from "../interfaces/game-played-game/played-game-card";
 import {PlayedGameEnemyCard} from "../interfaces/game-played-game/played-game-enemy-card";
+import {PlayedGameBoard} from "../interfaces/game-played-game/played-game-board";
+import {Field} from "../interfaces/game-engine/field";
+import {GameFieldOption} from "../interfaces/game-played-game/game-field-option";
 
 
 @Injectable({
@@ -15,129 +18,145 @@ import {PlayedGameEnemyCard} from "../interfaces/game-played-game/played-game-en
 })
 export class GamePlayedGameService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
 
   // GAME----------------------------------------------------------
 
-  getGames(): Observable<PlayedGame[]>{
-    return this.http.get<PlayedGame[]>(`${environment.apiUrl}/playedgames`);
-  }
-
-  getGame(playedGameId: string): Observable<PlayedGame>{
+  getGame(playedGameId: string): Observable<PlayedGame> {
     return this.http.get<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}`);
   }
 
-  initializeGame(baseGameId: number):Observable<PlayedGame>{
+  getGames(): Observable<PlayedGame[]> {
+    return this.http.get<PlayedGame[]>(`${environment.apiUrl}/playedgames`);
+  }
+
+  initializeGame(baseGameId: number): Observable<PlayedGame> {
     return this.http.post<PlayedGame>(`${environment.apiUrl}/playedgames/${baseGameId}`, null);
   }
 
-  createGame(){
-    return this.http.post(`${environment.apiUrl}/playedgames}`, null);
+  deleteGame(playedGameId: string):Observable<string> {
+    return this.http.delete<string>(`${environment.apiUrl}/playedgames/${playedGameId}`);
+  }
+
+  // BOARD + FIELD ----------------------------------------------------------
+
+  getBoard(playedGameId: string): Observable<PlayedGameBoard> {
+    return this.http.get<PlayedGameBoard>(`${environment.apiUrl}/playedgames/${playedGameId}/board`);
+  }
+
+  getFields(playedGameId: string): Observable<Field[]> {
+    return this.http.get<Field[]>(`${environment.apiUrl}/playedgames/${playedGameId}/board/fields`);
+  }
+
+  getField(playedGameId: string, fieldId: number): Observable<Field> {
+    return this.http.get<Field>(`${environment.apiUrl}/playedgames/${playedGameId}/board/fields/${fieldId}`);
   }
 
   // CARDS----------------------------------------------------------
 
-  getCardsDeck(playedGameId: string):Observable<PlayedGameCard[]>{
+  getCardsDeck(playedGameId: string): Observable<PlayedGameCard[]> {
     return this.http.get<PlayedGameCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/deck`);
   }
 
-  getCardsUsed(playedGameId: string):Observable<PlayedGameCard[]>{
+  getCardsUsed(playedGameId: string): Observable<PlayedGameCard[]> {
     return this.http.get<PlayedGameCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/used`);
   }
 
-  getCardFromDeck(playedGameId: string, cardId: number):Observable<PlayedGameCard>{
+  getCardFromDeck(playedGameId: string, cardId: number): Observable<PlayedGameCard> {
     return this.http.get<PlayedGameCard>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/deck/${cardId}`);
   }
 
-  getCardFromUsed(playedGameId: string, cardId: number):Observable<PlayedGameCard>{
+  getCardFromUsed(playedGameId: string, cardId: number): Observable<PlayedGameCard> {
     return this.http.get<PlayedGameCard>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/used/${cardId}`)
   }
 
-  moveCardFromDeckToUsed(playedGameId: string, cardId: number){
-    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/cardToUsed/${cardId}`, null);
+  moveCardFromDeckToUsed(playedGameId: string, cardId: number):Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/cardToUsed/${cardId}`, null);
   }
 
-  moveCardFromDeckToPlayerHand(playedGameId: string, cardId: number, playerId: string){
+  moveCardFromHandToUsed(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToUsed/${cardId}`, null);
+  }
+
+  moveCardFromDeckToPlayerHand(playedGameId: string, cardId: number, playerId: string) {
     return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToPlayer/${cardId}`, null);
+  }
+
+  moveTrophyToPlayer(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToTrophies/${cardId}`, null);
   }
 
   // CHARACTERS -------------------------------------------------------
 
-  getGameCharacters(playedGameId: string):Observable<PlayedGameCharacter[]>{
+  getGameCharacters(playedGameId: string): Observable<PlayedGameCharacter[]> {
     return this.http.get<PlayedGameCharacter[]>(`${environment.apiUrl}/playedgames/${playedGameId}/characters`)
   }
 
-  getGameCharacter(playedGameId: string, characterId: number):Observable<PlayedGameCharacter>{
+  getGameCharacter(playedGameId: string, characterId: number): Observable<PlayedGameCharacter> {
     return this.http.get<PlayedGameCharacter>(`${environment.apiUrl}/playedgames/${playedGameId}/characters/${characterId}`)
   }
 
   // PLAYERS -------------------------------------------------------------
 
-  getPlayers(playedGameId: string):Observable<PlayedGamePlayer[]>{
+  getPlayers(playedGameId: string): Observable<PlayedGamePlayer[]> {
     return this.http.get<PlayedGamePlayer[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players`);
   }
 
-  getPlayer(playedGameId: string, playerId: string):Observable<PlayedGamePlayer>{
+  getPlayer(playedGameId: string, playerId: string): Observable<PlayedGamePlayer> {
     return this.http.get<PlayedGamePlayer>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}`);
   }
 
-  getPlayerCharacter(playedGameId: string, playerId: string):Observable<PlayedGameCharacter>{
+  getPlayerCharacter(playedGameId: string, playerId: string): Observable<PlayedGameCharacter> {
     return this.http.get<PlayedGameCharacter>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character`);
   }
 
-  getPlayersCards(playedGameId: string, playerId: string):Observable<PlayedGameItemCard[]>{
+  getPlayersCards(playedGameId: string, playerId: string): Observable<PlayedGameItemCard[]> {
     return this.http.get<PlayedGameItemCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards`);
   }
 
-  getPlayersCard(playedGameId: string, playerId: string, cardId: number):Observable<PlayedGameItemCard>{
+  getPlayersCard(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGameItemCard> {
     return this.http.get<PlayedGameItemCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards/${cardId}`);
   }
 
-  getPlayerTrophies(playedGameId: string, playerId: string):Observable<PlayedGameEnemyCard[]>{
+  getPlayerTrophies(playedGameId: string, playerId: string): Observable<PlayedGameEnemyCard[]> {
     return this.http.get<PlayedGameEnemyCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/trophies`);
   }
 
-  addPlayerToGameByLogin(playedGameId: string, playerId: string):Observable<PlayedGame>{
+  addPlayerToGameByLogin(playedGameId: string, playerId: string): Observable<PlayedGame> {
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/addPlayer/${playerId}`, null);
   }
 
-  selectCharacter(playedGameId: string, playerId: string, characterId: number){
-    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character/${characterId}`, null);
+  selectCharacter(playedGameId: string, playerId: string, characterId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character/${characterId}`, null);
   }
 
-  changeFieldPositionOfCharacter(playedGameId: string, playerId: string, characterId: number, fieldId: number){
-    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character/${characterId}/field/${fieldId}`, null);
+  changeFieldPositionOfCharacter(playedGameId: string, playerId: string, fieldId: number): Observable<GameFieldOption[]> {
+    return this.http.put<GameFieldOption[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/field/${fieldId}`, null);
   }
 
-  // GAME ENGINE INFO -------------------------------------------------------------
-/*
-  getBoardFromGameEngine(gameId: string): Observable<Board>{
-    const game: Observable<PlayedGame> = this.http.get<PlayedGame>(`${environment.apiUrl}/playedgames/${gameId}`);
-    return game.pipe(
-      switchMap((playedGame: PlayedGame) => {
-        const boardId = playedGame.board.id;
-        return this.http.get<Board>(`${environment.apiUrl}/games/${boardId}/board`);
-      })
-    )
+  // GAME MECHANICS
+
+  drawRandomCard(playedGameId: string, playerId: string):Observable<PlayedGameCard>{
+    return this.http.put<PlayedGameCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/drawCard`, null);
   }
 
-  getPlayedBoardFields(gameId: string):Observable<Field[]>{
-    //return this.http.get<Field[]>(`${environment.apiUrl}/boards/${id}/fields`)
-    const game: Observable<PlayedGame> = this.http.get<PlayedGame>(`${environment.apiUrl}/playedgames/${gameId}`);
-    return game.pipe(
-      switchMap((playedGame: PlayedGame) => {
-        return of(playedGame.board.fieldsOnBoard); // 'of' used to create an expected Observable to return
-      })
-    )
+  handleItemCard(playedGameId: string, playerId: string, cardId: number): Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/handleItemCard/${cardId}`, null);
   }
 
-  getPlayedEnemyCards(gameId: string):Observable<EnemyCard[]>{
-    return this.http.get<EnemyCard[]>(`${environment.apiUrl}/games/${gameId}/cards/enemy`)
+      // FIGHT
+
+  handleFightWithEnemyCard(playedGameId: string, playerId: string, playerRoll: number, enemyCardId: number, enemyRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
   }
 
-  getPlayedItemCards(gameId: string):Observable<ItemCard[]>{
-    return this.http.get<ItemCard[]>(`${environment.apiUrl}/games/${gameId}/cards/item`)
+  handleFightWithEnemyField(playedGameId: string, playerId: string, playerRoll: number, enemyRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}/enemy/roll/${enemyRoll}`, null);
   }
 
-*/
+  handleFightWithOtherPlayer(playedGameId: string, playerId: string, playerRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}`, null);
+  }
+
 }

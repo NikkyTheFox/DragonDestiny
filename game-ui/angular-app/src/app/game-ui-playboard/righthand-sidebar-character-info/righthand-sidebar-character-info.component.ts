@@ -16,6 +16,7 @@ export class RighthandSidebarCharacterInfoComponent {
     initialHealth: 0,
     additionalHealth: 0,
     additionalStrength: 0,
+    field: null,
     positionField: null
   }
 

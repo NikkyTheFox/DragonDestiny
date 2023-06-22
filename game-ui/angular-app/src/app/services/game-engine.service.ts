@@ -93,6 +93,10 @@ export class GameEngineService {
     return this.http.get<Field>(`${environment.apiUrl}/fields/${fieldId}`);
   }
 
+  getFieldEnemy(fieldId: number):Observable<EnemyCard>{
+    return this.http.get<EnemyCard>(`${environment.apiUrl}/fields/${fieldId}/enemy`);
+  }
+
   // BOARD-FIELD CONTROLLER
 
   getBoardFields(boardId: number):Observable<Field[]>{
@@ -103,14 +107,22 @@ export class GameEngineService {
     return this.http.get<Field>(`${environment.apiUrl}/boards/${boardId}/fields/${fieldId}`);
   }
 
+  getBoardFieldEnemy(boardId: number, fieldId: number):Observable<EnemyCard>{
+    return this.http.get<EnemyCard>(`${environment.apiUrl}/boards/${boardId}/fields/${fieldId}/enemy`);
+  }
+
   // GAME-FIELD CONTROLLER
 
   getGameFields(gameId: number):Observable<Field[]>{
-    return this.http.get<Field[]>(`${environment.apiUrl}/games/${gameId}/boards/fields`);
+    return this.http.get<Field[]>(`${environment.apiUrl}/games/${gameId}/board/fields`);
   }
 
   getGameField(gameId: number, fieldId: number):Observable<Field>{
-    return this.http.get<Field>(`${environment.apiUrl}/games/${gameId}/boards/fields/${fieldId}`);
+    return this.http.get<Field>(`${environment.apiUrl}/games/${gameId}/board/fields/${fieldId}`);
+  }
+
+  getGameFieldEnemy(gameId: number, fieldId: number):Observable<EnemyCard>{
+    return this.http.get<EnemyCard>(`${environment.apiUrl}/games/${gameId}/board/fields/${fieldId}/enemy`);
   }
 
   // GAME CONTROLLER

@@ -17,6 +17,7 @@ export class MainSectionAdditionalFieldOtherCharactersComponent {
     initialStrength: 0,
     additionalStrength: 0,
     additionalHealth: 0,
+    field: null,
     positionField: null
   };
   otherCharacters: PlayedGameCharacter[];

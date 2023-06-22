@@ -4,6 +4,7 @@ import {PlayedGameEnemyCard} from "./played-game-enemy-card";
 
 export interface PlayedGamePlayer {
   login: string;
+  fightRoll: number;
   character: PlayedGameCharacter;
   cardsOnHand: PlayedGameItemCard[];
   trophies: PlayedGameEnemyCard[];

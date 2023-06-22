@@ -16,7 +16,8 @@ export class RighthandSidebarCharacterInfoPortraitComponent {
     profession: "",
     story: "",
     initialStrength: 0,
-    initialHealth: 0
+    initialHealth: 0,
+    field: null
   };
 
   constructor(private gameEngineService: GameEngineService) {

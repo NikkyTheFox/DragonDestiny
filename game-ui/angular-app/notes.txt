@@ -27,7 +27,9 @@
   [ DIRECTORY ] game-ui-playboard                         // where game is actually playable
   [ COMPONENT ] main
     [ COMPONENT ] right-sidebar
-      [ COMPONENT ] right-sidebar-dice-roll               // new TODO
+      [ COMPONENT ] right-sidebar-game-control            // new TODO
+        [ COMPONENT ] right-sidebar-dice-roll             // new TODO
+        [ COMPONENT ] right-sidebar-confirm-move?         // new TODO?
       [ COMPONENT ] right-sidebar-cards-deck
       [ COMPONENT ] right-sidebar-character-info
         [ COMPONENT ] right-sidebar-character-info-portrait
