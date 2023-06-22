@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.game.repository;
 
+import org.bouncycastle.crypto.signers.PlainDSAEncoding;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
@@ -10,6 +11,7 @@ import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,6 +45,24 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                         .findFirst());
     }
 
+    default Optional<Player> findPlayerByField(String gameId, Integer fieldID) {
+        return findById(gameId)
+                .map(PlayedGame::getPlayers)
+                .flatMap(players -> players.stream()
+                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .findFirst());
+    }
+
+    default Optional<Player> findDifferentPlayerByField(String gameId, String playerId, Integer fieldID) {
+        return findById(gameId)
+                .map(PlayedGame::getPlayers)
+                .flatMap(players -> players.stream()
+                        .filter(player -> player.getCharacter() != null)
+                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .filter(player -> !player.getLogin().equals(playerId))
+                        .findFirst());
+    }
+
     default Optional<ItemCard> findCardInPlayers(String gameId, String playerLogin, Integer cardId) {
         return findById(gameId)
                 .map(PlayedGame::getPlayers)
@@ -61,6 +81,20 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                 .flatMap(characterList -> characterList.stream()
                         .filter(character -> character.getId().equals(characterId))
                         .findFirst());
+    }
+
+
+    default PlayedBoard findBoard(String gameId) {
+        return findById(gameId)
+                .map(PlayedGame::getBoard)
+                .get();
+    }
+
+    default List<Field> findFieldsOnBoard(String gameId) {
+        return findById(gameId)
+                .map(PlayedGame::getBoard)
+                .map(PlayedBoard::getFieldsOnBoard)
+                .get();
     }
 
     default Optional<Field> findFieldOnBoard(String gameId, Integer fieldId) {

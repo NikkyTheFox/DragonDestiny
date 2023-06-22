@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.character.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.io.Serializable;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Character implements Serializable {
@@ -52,27 +53,23 @@ public class Character implements Serializable {
     private Integer additionalHealth = 0;
 
     /**
+     * Initial position field of character.
+     */
+    private Field field;
+
+    /**
      * Position of the character on the board - on particular field.
      * Many characters can stand on the same field.
      */
     private Field positionField;
 
     /**
-     * Method to increase additional (received) strength points by val.
-     *
-     * @param val
+     * Character Manager.
      */
-    public void increaseStrength(Integer val) {
-        this.additionalStrength += val;
-    }
-
-    /**
-     * Method to increase additional (received) health points by val.
-     *
-     * @param val
-     */
-    public void increaseHealth(Integer val) {
-        this.additionalHealth += val;
+    @JsonIgnore
+    private CharacterManager characterManager;
+    public void setCharacterManager(CharacterManager characterManager) {
+        this.characterManager = characterManager;
     }
 
 }

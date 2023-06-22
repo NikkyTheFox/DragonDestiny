@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.card.itemcard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
@@ -18,11 +19,26 @@ public class ItemCard extends Card {
     /**
      * Additional strength points for character that owns this card.
      */
-    private Integer additionalStrength;
+    private Integer additionalStrength = 0;
 
     /**
      * Additional health points for character that owns this card.
      */
-    private Integer additionalHealth;
+    private Integer additionalHealth = 0;
+
+    /**
+     * Number of health points already used up from the item.
+     * If additionalHealth - usedAdditionalHealth = 0, card is used.
+     */
+    private Integer usedAdditionalHealth = 0;
+
+    /**
+     * Item Card Manager;
+     */
+    @JsonIgnore
+    private ItemCardManager cardManager;
+    public void setCardManager(ItemCardManager cardManager) {
+        this.cardManager = cardManager;
+    }
 
 }

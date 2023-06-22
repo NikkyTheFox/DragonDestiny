@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.card.enemycard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import lombok.*;
 
@@ -18,28 +19,26 @@ public class EnemyCard extends Card {
     /**
      * Initial health points of the enemy.
      */
-    private Integer initialHealth;
+    private Integer initialHealth = 0;
 
     /**
      * Health points received or lost during the game.
      * If sum of initialHealth + additionalHealth <= 0, enemy dies.
      */
-    private Integer additionalHealth;
+    private Integer additionalHealth = 0;
 
     /**
      * Initial strength points of enemy.
      * Cannot be changed during the game.
      */
-    private Integer initialStrength;
+    private Integer initialStrength = 0;
 
     /**
-     * Method to calculate total health points of enemy
-     *
-     * @return totalHealth
+     * Enemy Card Manager.
      */
-    public Integer calculateTotalHealth()
-    {
-        return initialHealth + additionalHealth;
+    @JsonIgnore
+    private EnemyCardManager cardManager;
+    public void setCardManager(EnemyCardManager cardManager) {
+        this.cardManager = cardManager;
     }
-
 }

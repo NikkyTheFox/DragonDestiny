@@ -1,6 +1,7 @@
 package pl.edu.pg.eti.game.playedgame.field.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
+import pl.edu.pg.eti.game.playedgame.player.entity.PlayerManager;
 
 import java.io.Serializable;
 
@@ -17,7 +20,7 @@ import java.io.Serializable;
 
 @Data
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Field implements Serializable {
@@ -36,11 +39,26 @@ public class Field implements Serializable {
     /**
      * xPosition is equal to 0 (first row) or Board.ySize (last row).
      */
-    private Integer xPosition;
+    private Integer xPosition = 0;
 
     /**
      * yPosition is equal to 0 (first column) or Board.xSize (last column).
      */
-    private Integer yPosition;
+    private Integer yPosition = 0;
+
+    /**
+     * Enemy Card corresponding to enemy on that field.
+     */
+    private EnemyCard enemy;
+
+    /**
+     * Field Manager.
+     */
+    @JsonIgnore
+    private FieldManager fieldManager;
+
+    public void setFieldManager(FieldManager fieldManager) {
+        this.fieldManager = fieldManager;
+    }
 
 }

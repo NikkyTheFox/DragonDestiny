@@ -12,10 +12,11 @@ import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public class PlayerManager {
+public class PlayerManager extends Player {
 
     /**
      * Method to calculate total Health points of player.
@@ -40,11 +41,25 @@ public class PlayerManager {
      */
     public Integer calculateTotalStrength(Player player) {
         Integer addFromCards = 0;
-        for (ItemCard c : player.getCardsOnHand())
-        {
+        for (ItemCard c : player.getCardsOnHand()) {
             addFromCards += c.getAdditionalStrength();
         }
+        System.out.println("add from cards: " + addFromCards);
+        System.out.println("initial: " + player.getCharacter().getInitialStrength());
+        System.out.println("additional: " + player.getCharacter().getAdditionalStrength());
         return player.getCharacter().getInitialStrength() + player.getCharacter().getAdditionalStrength() + addFromCards;
+    }
+
+    /**
+     * Checks if player has place on hand for new cards.
+     *
+     * @param player
+     * @return
+     */
+    public boolean checkCardsOnHand(Player player) {
+        if (player.getCardsOnHand().size() >= PlayedGameApplication.numOfCardsOnHand)
+            return false;
+        return true;
     }
 
     /**
@@ -64,7 +79,7 @@ public class PlayerManager {
      * @return
      */
 
-    public Player moveTrophies(Player player) {
+    public Player moveAndIncreaseTrophies(Player player) {
         int numOfTrophies = player.getTrophies().size();
         if (numOfTrophies >= PlayedGameApplication.numOfTrophiesToGetPoint) {
             player.getPlayerManager().increaseStrength(player, PlayedGameApplication.trophiesPointIncrease);
@@ -81,7 +96,7 @@ public class PlayerManager {
      * @return
      */
     public Player increaseStrength(Player player, Integer val) {
-        player.getCharacter().increaseStrength(val);
+        player.getCharacter().getCharacterManager().increaseStrength(player.getCharacter(), val);
         return player;
     }
 
@@ -93,18 +108,18 @@ public class PlayerManager {
      * @return
      */
     public Player increaseHealth(Player player, Integer val) {
-        player.getCharacter().increaseHealth(val);
+        player.getCharacter().getCharacterManager().increaseHealth(player.getCharacter(), val);
         return player;
     }
 
-    /**
+     /**
      * Method to change player's character's position on board.
      *
      * @param player
      * @param field
      */
     public Player changeCharacterPosition(Player player, Field field) {
-        player.getCharacter().setPositionField(field);
+        player.getCharacter().getCharacterManager().setPositionField(player.getCharacter(), field);
         return player;
     }
 
@@ -123,14 +138,15 @@ public class PlayerManager {
      *
      * @param card
      */
-    public void removeCardFromPlayer(Player player, Card card) {
+    public Player removeCardFromPlayer(Player player, Card card) {
         OptionalInt index = IntStream.range(0, player.getCardsOnHand().size())
                 .filter(i -> Objects.equals(player.getCardsOnHand().get(i).getId(), card.getId()))
                 .findFirst();
         if (index.isEmpty()) {
-            return;
+            return player;
         }
         player.getCardsOnHand().remove(index.getAsInt());
+        return player;
     }
 
     /**
@@ -163,8 +179,19 @@ public class PlayerManager {
      *
      * @param character
      */
-    public void setCharacter(Player player, Character character) {
+    public Player setCharacter(Player player, Character character) {
         player.setCharacter(character);
+        return player;
+    }
+
+    /**
+     * Method to set character to the player.
+     *
+     * @param val
+     */
+    public Player setFightRoll(Player player, Integer val) {
+        player.setFightRoll(val);
+        return player;
     }
 
 }

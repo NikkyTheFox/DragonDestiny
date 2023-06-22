@@ -2,6 +2,7 @@ package pl.edu.pg.eti.game.engine.field.controller;
 
 import pl.edu.pg.eti.game.engine.board.entity.Board;
 import pl.edu.pg.eti.game.engine.board.service.BoardService;
+import pl.edu.pg.eti.game.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.game.engine.field.dto.FieldDTO;
 import pl.edu.pg.eti.game.engine.field.dto.FieldListDTO;
 import pl.edu.pg.eti.game.engine.field.entity.Field;
@@ -110,6 +111,35 @@ public class GameFieldController {
             return ResponseEntity.notFound().build();
         FieldDTO fieldResponse = modelMapper.map(field.get(), FieldDTO.class);
         return ResponseEntity.ok().body(fieldResponse);
+    }
+
+    /**
+     * Retrieve enemy on the field.
+     *
+     * @param gameId
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}/enemy")
+    public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable("gameId") Integer gameId, @PathVariable(name = "id") Integer id) {
+        // find game
+        Optional<Game> game = gameService.findGame(gameId);
+        if (game.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        // find board
+        Optional<Board> board = boardService.findBoard(game.get());
+        if (board.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        // find field
+        Optional<Field> field = fieldService.findField(board.get(), id);
+        if (field.isEmpty())
+            return ResponseEntity.notFound().build();
+        if (field.get().getEnemy() == null)
+            return ResponseEntity.notFound().build();
+        EnemyCardDTO enemyCardDTO = modelMapper.map(field.get().getEnemy(), EnemyCardDTO.class);
+        return ResponseEntity.ok().body(enemyCardDTO);
     }
 
 }

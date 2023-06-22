@@ -22,7 +22,7 @@ import java.util.List;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(collection = "Game")
@@ -65,4 +65,7 @@ public class PlayedGame {
     @JsonIgnore
     private GameManager gameManager;
 
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
 }

@@ -1,16 +1,7 @@
 package pl.edu.pg.eti.game.engine.field.entity;
 
+import jakarta.persistence.*;
 import pl.edu.pg.eti.game.engine.board.entity.Board;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +10,12 @@ import lombok.experimental.SuperBuilder;
 import lombok.AccessLevel;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
+import pl.edu.pg.eti.game.engine.card.enemycard.entity.EnemyCard;
+import pl.edu.pg.eti.game.engine.character.entity.Character;
+
+import javax.xml.stream.events.Characters;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represent a field (of possible board) in the game.
@@ -68,5 +65,17 @@ public class Field {
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+
+    /**
+     * Enemy Card corresponding to enemy on that field.
+     */
+    @OneToOne
+    private EnemyCard enemy;
+
+    /**
+     * List of characters that have their initial position on that field.
+     */
+    @OneToMany(mappedBy = "field")
+    private List<Character> characters = new ArrayList<>();
 
 }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 
 @Getter
-@Setter
+@Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -28,6 +28,11 @@ public class Player {
      */
     @Id
     private String login;
+
+    /**
+     * Most recent result for Player's fight roll.
+     */
+    private Integer fightRoll = 0;
 
     /**
      * Character chosen by the player.
@@ -52,5 +57,9 @@ public class Player {
      */
     @JsonIgnore
     private PlayerManager playerManager;
+
+    public void setPlayerManager(PlayerManager playerManager) {
+        this.playerManager = playerManager;
+    }
 
 }

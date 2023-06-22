@@ -1,5 +1,8 @@
 package pl.edu.pg.eti.game.engine.field.dto;
 
+import jakarta.persistence.OneToOne;
+import pl.edu.pg.eti.game.engine.card.enemycard.dto.EnemyCardDTO;
+import pl.edu.pg.eti.game.engine.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.engine.field.entity.FieldType;
 import lombok.Data;
 
@@ -31,5 +34,10 @@ public class FieldDTO {
      * Represents location of field on the board.
      */
     private Integer yPosition;
+
+    /**
+     * Enemy Card corresponding to enemy on that field.
+     */
+    private EnemyCardDTO enemy;
 
 }
