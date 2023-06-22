@@ -4,7 +4,12 @@
     <p>{{character.profession}}</p>
     <p>S: {{character.initialStrength}} HP: {{character.initialHealth}}</p>
     <div class="story">{{character.story}}</div>
-    <button class="button" type="button" (click)="select(character)">Select</button>
+    <div *ngIf="!isSelectedFlag">
+      <button class="select-button" type="button" (click)="select(character)">Select</button>
+    </div>
+    <div *ngIf="isSelectedFlag">
+      <div class="character-select-confirmation">Selected</div>
+    </div>
   </div>
 </div>
 

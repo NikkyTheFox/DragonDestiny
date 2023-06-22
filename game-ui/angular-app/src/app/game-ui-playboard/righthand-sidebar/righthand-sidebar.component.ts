@@ -7,6 +7,6 @@ import {Component, Input} from '@angular/core';
 })
 export class RighthandSidebarComponent {
   @Input() gameId!: string;
-  @Input() playerId!: string;
+  @Input() playerLogin!: string;
 
 }

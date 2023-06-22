@@ -36,6 +36,10 @@ import { PrepareGameComponent } from './game-ui-prepare-game/prepare-game/prepar
 import { SelectCharacterComponent } from './game-ui-prepare-game/select-character/select-character.component';
 import { InvitePlayerComponent } from './game-ui-prepare-game/invite-player/invite-player.component';
 import { StartGameComponent } from './game-ui-prepare-game/start-game/start-game.component';
+import { RighthandSidebarGameControlComponent } from './game-ui-playboard/righthand-sidebar-game-control/righthand-sidebar-game-control.component';
+import { RighthandSidebarGameControlDiceComponent } from './game-ui-playboard/righthand-sidebar-game-control-dice/righthand-sidebar-game-control-dice.component';
+import { RighthandSidebarGameControlConfirmComponent } from './game-ui-playboard/righthand-sidebar-game-control-confirm/righthand-sidebar-game-control-confirm.component';
+import { JoinGameComponent } from './game-ui-dashboard/join-game/join-game.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +73,10 @@ import { StartGameComponent } from './game-ui-prepare-game/start-game/start-game
     SelectCharacterComponent,
     InvitePlayerComponent,
     StartGameComponent,
+    RighthandSidebarGameControlComponent,
+    RighthandSidebarGameControlDiceComponent,
+    RighthandSidebarGameControlConfirmComponent,
+    JoinGameComponent,
   ],
   imports: [
     BrowserModule,

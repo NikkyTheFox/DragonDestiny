@@ -75,16 +75,16 @@ export class GamePlayedGameService {
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/cardToUsed/${cardId}`, null);
   }
 
-  moveCardFromHandToUsed(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGame> {
-    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToUsed/${cardId}`, null);
+  moveCardFromHandToUsed(playedGameId: string, playerLogin: string, cardId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cardToUsed/${cardId}`, null);
   }
 
-  moveCardFromDeckToPlayerHand(playedGameId: string, cardId: number, playerId: string) {
-    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToPlayer/${cardId}`, null);
+  moveCardFromDeckToPlayerHand(playedGameId: string, cardId: number, playerLogin: string) {
+    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cardToPlayer/${cardId}`, null);
   }
 
-  moveTrophyToPlayer(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGame> {
-    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cardToTrophies/${cardId}`, null);
+  moveTrophyToPlayer(playedGameId: string, playerLogin: string, cardId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cardToTrophies/${cardId}`, null);
   }
 
   // CHARACTERS -------------------------------------------------------
@@ -103,60 +103,60 @@ export class GamePlayedGameService {
     return this.http.get<PlayedGamePlayer[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players`);
   }
 
-  getPlayer(playedGameId: string, playerId: string): Observable<PlayedGamePlayer> {
-    return this.http.get<PlayedGamePlayer>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}`);
+  getPlayer(playedGameId: string, playerLogin: string): Observable<PlayedGamePlayer> {
+    return this.http.get<PlayedGamePlayer>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}`);
   }
 
-  getPlayerCharacter(playedGameId: string, playerId: string): Observable<PlayedGameCharacter> {
-    return this.http.get<PlayedGameCharacter>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character`);
+  getPlayerCharacter(playedGameId: string, playerLogin: string): Observable<PlayedGameCharacter> {
+    return this.http.get<PlayedGameCharacter>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/character`);
   }
 
-  getPlayersCards(playedGameId: string, playerId: string): Observable<PlayedGameItemCard[]> {
-    return this.http.get<PlayedGameItemCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards`);
+  getPlayersCards(playedGameId: string, playerLogin: string): Observable<PlayedGameItemCard[]> {
+    return this.http.get<PlayedGameItemCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards`);
   }
 
-  getPlayersCard(playedGameId: string, playerId: string, cardId: number): Observable<PlayedGameItemCard> {
-    return this.http.get<PlayedGameItemCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/cards/${cardId}`);
+  getPlayersCard(playedGameId: string, playerLogin: string, cardId: number): Observable<PlayedGameItemCard> {
+    return this.http.get<PlayedGameItemCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/${cardId}`);
   }
 
-  getPlayerTrophies(playedGameId: string, playerId: string): Observable<PlayedGameEnemyCard[]> {
-    return this.http.get<PlayedGameEnemyCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/trophies`);
+  getPlayerTrophies(playedGameId: string, playerLogin: string): Observable<PlayedGameEnemyCard[]> {
+    return this.http.get<PlayedGameEnemyCard[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/trophies`);
   }
 
-  addPlayerToGameByLogin(playedGameId: string, playerId: string): Observable<PlayedGame> {
-    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/addPlayer/${playerId}`, null);
+  addPlayerToGameByLogin(playedGameId: string, playerLogin: string): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/addPlayer/${playerLogin}`, null);
   }
 
-  selectCharacter(playedGameId: string, playerId: string, characterId: number): Observable<PlayedGame> {
-    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/character/${characterId}`, null);
+  selectCharacter(playedGameId: string, playerLogin: string, characterId: number): Observable<PlayedGame> {
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/character/${characterId}`, null);
   }
 
-  changeFieldPositionOfCharacter(playedGameId: string, playerId: string, fieldId: number): Observable<GameFieldOption[]> {
-    return this.http.put<GameFieldOption[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/field/${fieldId}`, null);
+  changeFieldPositionOfCharacter(playedGameId: string, playerLogin: string, fieldId: number): Observable<GameFieldOption[]> {
+    return this.http.put<GameFieldOption[]>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/${fieldId}`, null);
   }
 
   // GAME MECHANICS
 
-  drawRandomCard(playedGameId: string, playerId: string):Observable<PlayedGameCard>{
-    return this.http.put<PlayedGameCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/drawCard`, null);
+  drawRandomCard(playedGameId: string, playerLogin: string):Observable<PlayedGameCard>{
+    return this.http.put<PlayedGameCard>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/drawCard`, null);
   }
 
-  handleItemCard(playedGameId: string, playerId: string, cardId: number): Observable<Boolean>{
-    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/handleItemCard/${cardId}`, null);
+  handleItemCard(playedGameId: string, playerLogin: string, cardId: number): Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/handleItemCard/${cardId}`, null);
   }
 
       // FIGHT
 
-  handleFightWithEnemyCard(playedGameId: string, playerId: string, playerRoll: number, enemyCardId: number, enemyRoll: number):Observable<Boolean>{
-    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
+  handleFightWithEnemyCard(playedGameId: string, playerLogin: string, playerRoll: number, enemyCardId: number, enemyRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
   }
 
-  handleFightWithEnemyField(playedGameId: string, playerId: string, playerRoll: number, enemyRoll: number):Observable<Boolean>{
-    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}/enemy/roll/${enemyRoll}`, null);
+  handleFightWithEnemyField(playedGameId: string, playerLogin: string, playerRoll: number, enemyRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}/enemy/roll/${enemyRoll}`, null);
   }
 
-  handleFightWithOtherPlayer(playedGameId: string, playerId: string, playerRoll: number):Observable<Boolean>{
-    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerId}/roll/${playerRoll}`, null);
+  handleFightWithOtherPlayer(playedGameId: string, playerLogin: string, playerRoll: number):Observable<Boolean>{
+    return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}`, null);
   }
 
 }

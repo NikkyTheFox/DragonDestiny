@@ -3,6 +3,7 @@ import {Character} from "../../interfaces/game-engine/game-character";
 import {GameEngineService} from "../../services/game-engine.service";
 import {PlayedGameCharacter} from "../../interfaces/game-played-game/played-game-character";
 import {GamePlayedGameService} from "../../services/game-played-game-service";
+import {PlayedGamePlayer} from "../../interfaces/game-played-game/played-game-player";
 @Component({
   selector: 'app-main-section-additional-field-other-characters',
   templateUrl: './main-section-additional-field-other-characters.component.html',
@@ -10,7 +11,7 @@ import {GamePlayedGameService} from "../../services/game-played-game-service";
 })
 export class MainSectionAdditionalFieldOtherCharactersComponent {
   @Input() gameId!: string;
-  @Input() playerId!: string;
+  @Input() playerLogin!: string;
   playersCharacter: PlayedGameCharacter = {
     id: 0,
     initialHealth: 0,
@@ -30,10 +31,13 @@ export class MainSectionAdditionalFieldOtherCharactersComponent {
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayerCharacter(this.gameId, this.playerId).subscribe( (data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayerCharacter(this.gameId, this.playerLogin).subscribe( (data: PlayedGameCharacter) => {
       this.playersCharacter = data;
-      this.playedGameService.getGameCharacters(this.gameId).subscribe( (data: any) => {
-        this.allCharacters = data.characterList;
+      this.playedGameService.getPlayers(this.gameId).subscribe( (data: any) => {
+        let playerList = data.playerList;
+        playerList.forEach( (data: PlayedGamePlayer) => {
+          this.allCharacters.push(data.character);
+        });
         this.retrieveOtherCharacters();
         this.retrieveCharacterNames();
       });

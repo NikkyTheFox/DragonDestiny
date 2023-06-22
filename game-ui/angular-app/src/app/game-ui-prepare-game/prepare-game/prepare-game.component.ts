@@ -8,12 +8,15 @@ import {GameDataService} from "../../services/game-data.service";
 })
 export class PrepareGameComponent {
   gameId: string;
+  playerLogin: string;
 
   constructor(private dataService: GameDataService) {
     this.gameId = "";
+    this.playerLogin = "";
   }
 
   ngOnInit(){
     this.gameId = this.dataService.chosenGame;
+    this.playerLogin = this.dataService.loginData.login;
   }
 }

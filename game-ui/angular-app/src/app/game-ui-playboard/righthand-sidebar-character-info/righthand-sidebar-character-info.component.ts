@@ -9,7 +9,7 @@ import {PlayedGameCharacter} from "../../interfaces/game-played-game/played-game
 })
 export class RighthandSidebarCharacterInfoComponent {
   @Input() gameId!: string;
-  @Input() playerId!: string;
+  @Input() playerLogin!: string;
   character: PlayedGameCharacter = {
     id: 0,
     initialStrength: 0,
@@ -24,7 +24,7 @@ export class RighthandSidebarCharacterInfoComponent {
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayerCharacter(this.gameId, this.playerId).subscribe( (data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayerCharacter(this.gameId, this.playerLogin).subscribe( (data: PlayedGameCharacter) => {
       this.character = data;
     });
   }

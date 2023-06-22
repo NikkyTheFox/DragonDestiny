@@ -7,5 +7,5 @@ import {Component, Input} from '@angular/core';
 })
 export class MainSectionComponent {
   @Input() gameId!: string;
-  @Input() playerId!: string;
+  @Input() playerLogin!: string;
 }

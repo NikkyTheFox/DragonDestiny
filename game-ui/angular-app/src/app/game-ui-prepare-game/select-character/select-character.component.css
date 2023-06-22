@@ -2,7 +2,7 @@
   margin-top: 50px;
   display: flex;
   flex-direction: row;
-
+  margin-bottom: 50px;
 }
 
 .tile {
@@ -18,11 +18,16 @@
 
 .story {
   width: 200px;
+  height: 70%;
   margin-top: 10px;
   margin-bottom: 50px;
 }
 
-.button{
-  position: absolute;
+.select-button{
   bottom: 0;
 }
+
+.character-select-confirmation{
+  font-style: italic;
+}
+

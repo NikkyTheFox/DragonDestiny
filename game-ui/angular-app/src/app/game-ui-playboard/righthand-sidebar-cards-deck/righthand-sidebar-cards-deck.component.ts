@@ -9,6 +9,7 @@ import {PlayedGameCard} from "../../interfaces/game-played-game/played-game-card
 })
 export class RighthandSidebarCardsDeckComponent {
   @Input() gameId!: string;
+  @Input() playerLogin!: string;
   deck: PlayedGameCard[];
   numberOfCardsInDeck: number;
 
@@ -22,5 +23,9 @@ export class RighthandSidebarCardsDeckComponent {
       this.deck = data.cardList;
       this.numberOfCardsInDeck = this.deck.length;
     });
+  }
+
+  drawCard() { // FOR TESTS OF MOVING CARD TO HAND: ID=7 is first item card in deck
+    this.playedGameService.moveCardFromDeckToPlayerHand(this.gameId, 8, this.playerLogin).subscribe();
   }
 }

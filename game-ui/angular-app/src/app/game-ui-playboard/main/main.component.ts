@@ -8,16 +8,16 @@ import {GameDataService} from "../../services/game-data.service";
 })
 export class MainComponent {
   gameId: string;
-  playerId: string;
+  playerLogin: string;
 
   constructor(private dataService: GameDataService) {
     this.gameId = "";
-    this.playerId = "";
+    this.playerLogin = "";
   }
 
   ngOnInit(){
     if(!this.dataService.loginFlag) return;
     this.gameId = this.dataService.chosenGame;
-    this.playerId = this.dataService.loginData.login;
+    this.playerLogin = this.dataService.loginData.login;
   }
 }

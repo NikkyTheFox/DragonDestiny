@@ -6,6 +6,7 @@ import {Character} from "../../interfaces/game-engine/game-character";
 import {PlayedGamePlayer} from "../../interfaces/game-played-game/played-game-player";
 import {GameEngineService} from "../../services/game-engine.service";
 import {isEmpty} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-select-character',
@@ -14,6 +15,8 @@ import {isEmpty} from "rxjs";
 })
 export class SelectCharacterComponent {
   @Input() gameId!: string;
+  @Input() playerLogin!: string;
+  isSelectedFlag: boolean;
   allCharacters: PlayedGameCharacter[];
   availableCharacters: PlayedGameCharacter[];
   charactersToDisplay: Character[];
@@ -22,11 +25,21 @@ export class SelectCharacterComponent {
     this.allCharacters = [];
     this.availableCharacters = [];
     this.charactersToDisplay = [];
+    this.isSelectedFlag = false;
+  }
 
+  resetAllTables(){
+    this.allCharacters = [];
+    this.availableCharacters = [];
+    this.charactersToDisplay = [];
   }
 
   ngOnChanges(){
-    this.gameId = "649077133f7dfb14aa8bf96d";
+    this.resetAllTables();
+    this.handleCharacterTiles();
+  }
+
+  findCharactersToDisplay(){
     this.playedGameService.getGameCharacters(this.gameId).subscribe( (data: any) => {
       this.allCharacters = data.characterList;
       this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
@@ -39,10 +52,22 @@ export class SelectCharacterComponent {
         this.availableCharacters.forEach( (character: PlayedGameCharacter) => {
           this.gameEngineService.getCharacter(character.id).subscribe( (data: Character) => {
             this.charactersToDisplay.push(data);
-          })
+          });
         });
       });
     });
+  }
+
+  handleCharacterTiles(){
+    this.playedGameService.getPlayerCharacter(this.gameId, this.playerLogin).subscribe((data: PlayedGameCharacter) => {
+      this.gameEngineService.getCharacter(data.id).subscribe( (data: Character) => {
+        this.charactersToDisplay.push(data);
+        this.isSelectedFlag = true;
+      });
+    },
+      (error: any) => {
+      this.findCharactersToDisplay();
+      });
   }
 
   isEmpty(character: any): boolean {
@@ -51,6 +76,9 @@ export class SelectCharacterComponent {
   }
 
   select(character: Character) {
-
+    this.playedGameService.selectCharacter(this.gameId, this.playerLogin,  character.id).subscribe( (data: any) => {
+      this.resetAllTables();
+      this.handleCharacterTiles();
+    });
   }
 }
