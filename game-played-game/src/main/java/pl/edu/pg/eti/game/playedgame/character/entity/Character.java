@@ -52,8 +52,16 @@ public class Character implements Serializable {
      */
     private Integer receivedHealth = 0;
 
+    /**
+     * Additional strength points received from cards.
+     * Sum of points from cards.
+     */
     private Integer cardsStrength = 0;
 
+    /**
+     * Additional health points received from cards.
+     * Sum of points from cards.
+     */
     private Integer cardsHealth = 0;
 
     /**
