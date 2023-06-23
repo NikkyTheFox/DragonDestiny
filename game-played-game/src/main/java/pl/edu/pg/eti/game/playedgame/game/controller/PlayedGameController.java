@@ -672,6 +672,27 @@ public class PlayedGameController {
     // FIGHT -----------------------------------------------------------------------------------------------------------
 
     /**
+     * Call to get random Integer score for roll of the dice.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @return
+     */
+    @GetMapping("{playedGameId}/players/{playerLogin}/dice")
+    public ResponseEntity<Integer> rollDice(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
+        // find game
+        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
+        if (gameRequest.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        Integer roll = playedGameService.rollDice();
+        return ResponseEntity.ok().body(roll);
+    }
+
+    /**
      * Call to get result of fight between Player and Enemy from card.
      * Decreases health points of player and enemy. If enemy killed, adds to trophies of player.
      *

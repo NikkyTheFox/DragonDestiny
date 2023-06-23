@@ -41,6 +41,26 @@ public class PlayedGameApplication {
 		numOfCardsOnHand = num;
 	}
 
+	/**
+	 * Number of trophies needed to get strength points increase.
+	 */
+	public static Integer lowDiceBound;
+
+	@Value("${played-game.low-dice-bound}")
+	public void setLowDiceBound(Integer num) {
+		lowDiceBound = num;
+	}
+
+	/**
+	 * Number of trophies needed to get strength points increase.
+	 */
+	public static Integer upDiceBound;
+
+	@Value("${played-game.up-dice-bound}")
+	public void setUpDiceBound(Integer num) {
+		upDiceBound = num;
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(PlayedGameApplication.class, args);

@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.game.service;
 
+import pl.edu.pg.eti.game.playedgame.PlayedGameApplication;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
@@ -477,6 +478,16 @@ public class PlayedGameService {
         Field updatedField = field.getFieldManager().setEnemy(field, updatedEnemy);
         PlayedGame updatedGame = updateField(game, updatedField);
         return playedGameRepository.save(updatedGame);
+    }
+
+    /**
+     * Method to return random Integer value for roll of the dice.
+     *
+     * @return
+     */
+    public Integer rollDice() {
+        Random randomId = new Random();
+        return randomId.nextInt(PlayedGameApplication.lowDiceBound, PlayedGameApplication.upDiceBound + 1);
     }
 
 
