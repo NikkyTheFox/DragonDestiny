@@ -1,12 +1,15 @@
 package pl.edu.pg.eti.game.playedgame.player.entity;
 
-
-import org.springframework.data.annotation.Transient;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;

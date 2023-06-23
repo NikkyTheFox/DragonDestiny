@@ -1,5 +1,12 @@
 package pl.edu.pg.eti.game.playedgame.game.controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.response.EnemyCardList;
@@ -10,10 +17,8 @@ import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.response.ItemCardList;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.character.response.CharacterList;
-import pl.edu.pg.eti.game.playedgame.field.FieldOption;
 import pl.edu.pg.eti.game.playedgame.field.FieldOptionList;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
-import pl.edu.pg.eti.game.playedgame.field.entity.FieldType;
 import pl.edu.pg.eti.game.playedgame.field.response.FieldList;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGameList;
@@ -24,7 +29,6 @@ import pl.edu.pg.eti.game.playedgame.player.entity.PlayerManager;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import pl.edu.pg.eti.game.playedgame.player.service.PlayerService;
 
 import java.util.Optional;
@@ -111,6 +115,21 @@ public class PlayedGameController {
     }
 
     /**
+     * Call to start initialized game with players added.
+     *
+     * @param playedGameId
+     * @return
+     */
+    @PutMapping("{playedGameId}/start")
+    public ResponseEntity<PlayedGame> startGame(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        playedGameService.startGame(game.get());
+        return ResponseEntity.ok().body(game.get());
+    }
+
+    /**
      * Call to delete game by ID.
      *
      * @param playedGameId
@@ -163,7 +182,7 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(field.get());
     }
 
-        // CARDS ---------------------------------------
+    // CARDS -----------------------------------------------------------------------------------------------------------
 
     /**
      * Call to get all cards in deck of played game.
@@ -345,7 +364,7 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(game);
     }
 
-    // CHARACTERS -------------------------------------------------------
+    // CHARACTERS ------------------------------------------------------------------------------------------------------
 
     /**
      * Call to get all characters in played game.
@@ -382,7 +401,7 @@ public class PlayedGameController {
         return ResponseEntity.ok().body(character.get());
     }
 
-    // PLAYERS -------------------------------------------------------------
+    // PLAYERS ---------------------------------------------------------------------------------------------------------
 
     /**
      * Call to get all players in played game.
@@ -434,7 +453,6 @@ public class PlayedGameController {
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(character);
     }
-
 
     /**
      * Call to get cards in hand of player in played game.

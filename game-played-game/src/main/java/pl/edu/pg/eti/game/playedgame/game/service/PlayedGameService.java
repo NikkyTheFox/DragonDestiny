@@ -14,6 +14,8 @@ import pl.edu.pg.eti.game.playedgame.game.repository.PlayedGameRepository;
 import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.edu.pg.eti.game.playedgame.round.Round;
+import pl.edu.pg.eti.game.playedgame.round.RoundManager;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -129,6 +131,25 @@ public class PlayedGameService {
 
     public Optional<Player> findDifferentPlayerByField(String gameId, String playerId, Integer fieldId) {
         return playedGameRepository.findDifferentPlayerByField(gameId, playerId, fieldId);
+    }
+
+    /**
+     * Method to start initialized PlayedGame.
+     * Starts a first round and selects a random Players order.
+     *
+     * @param game
+     * @return
+     */
+    public PlayedGame startGame(PlayedGame game) {
+        Round round = new Round();
+        round.setRoundManager(new RoundManager());
+        List<Player> players = game.getPlayers();
+        Collections.shuffle(players);
+        round.getRoundManager().setPlayers(round, players);
+        Player startingPlayer = players.get(0);
+        round.getRoundManager().setActivePlayer(round, startingPlayer);
+        game.getGameManager().startGame(game, round);
+        return playedGameRepository.save(game);
     }
 
     /**

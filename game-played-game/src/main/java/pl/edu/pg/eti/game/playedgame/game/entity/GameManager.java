@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import pl.edu.pg.eti.game.playedgame.player.entity.PlayerManager;
+import pl.edu.pg.eti.game.playedgame.round.Round;
 
 import java.util.List;
 import java.util.Objects;
@@ -90,6 +91,12 @@ public class GameManager extends PlayedGame {
             return;
         }
         game.getUsedCardDeck().remove(index.getAsInt());
+    }
+
+    public PlayedGame startGame(PlayedGame game, Round round) {
+        game.setIsStarted(true);
+        game.setActiveRound(round);
+        return game;
     }
 
     public PlayedGame setBoard(PlayedGame game, PlayedBoard board) {

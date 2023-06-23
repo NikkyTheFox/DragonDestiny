@@ -1,6 +1,5 @@
 package pl.edu.pg.eti.game.playedgame.game.entity;
 
-import org.springframework.data.annotation.Transient;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
@@ -13,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AccessLevel;
 import org.springframework.data.annotation.Id;
+import pl.edu.pg.eti.game.playedgame.round.Round;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class PlayedGame {
      * Identifier of the played game.
      */
     @Id
-    private String id; // changed from ObjectId to String; Parametrized retrieval from database was not possible based on ObjectId
+    private String id;
 
     /**
      * Players playing the game.
@@ -58,6 +58,22 @@ public class PlayedGame {
      * Characters available to play in the game - not those chosen by users!
      */
     private List<Character> charactersInGame = new ArrayList<>();
+
+    /**
+     * States whether the game started.
+     */
+    private Boolean isStarted = false;
+
+    /**
+     * Correspond to active round.
+     */
+    private Round activeRound;
+
+    /**
+     * Rounds in the game already performed. One round contains move of all players.
+     */
+    @JsonIgnore
+    private List<Round> rounds = new ArrayList<>();
 
     /**
      * Game Manager for handling actions on cards, players and characters.
