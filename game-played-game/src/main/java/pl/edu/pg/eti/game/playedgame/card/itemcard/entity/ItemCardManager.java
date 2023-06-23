@@ -10,16 +10,16 @@ public class ItemCardManager extends ItemCard {
      * @return
      */
     public Integer calculateHealth(ItemCard card) {
-        return card.getAdditionalHealth() + card.getUsedAdditionalHealth();
+        return card.getHealth() + card.getUsedHealth();
     }
 
     /**
-     * Method to remove health points from the item.
+     * Method to add or remove health points from the item.
      *
      * @param val
      */
-    public ItemCard decreaseHealth(ItemCard card, Integer val) {
-        card.setUsedAdditionalHealth(card.getUsedAdditionalHealth() - val);
+    public ItemCard addHealth(ItemCard card, Integer val) {
+        card.setUsedHealth(card.getUsedHealth() + val);
         return card;
     }
 

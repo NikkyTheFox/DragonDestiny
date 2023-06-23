@@ -1,18 +1,13 @@
 package pl.edu.pg.eti.game.playedgame.player.entity;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import pl.edu.pg.eti.game.playedgame.PlayedGameApplication;
 import pl.edu.pg.eti.game.playedgame.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
-import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
@@ -26,11 +21,10 @@ public class PlayerManager extends Player {
      */
     public Integer calculateTotalHealth(Player player) {
         Integer addFromCards = 0;
-        for (ItemCard c : player.getCardsOnHand())
-        {
-            addFromCards += c.getAdditionalHealth();
+        for (ItemCard c : player.getCardsOnHand()) {
+            addFromCards += c.getHealth();
         }
-        return player.getCharacter().getInitialHealth() + player.getCharacter().getAdditionalHealth() + addFromCards;
+        return player.getCharacter().getInitialHealth() + player.getCharacter().getReceivedHealth() + addFromCards;
     }
 
     /**
@@ -42,12 +36,12 @@ public class PlayerManager extends Player {
     public Integer calculateTotalStrength(Player player) {
         Integer addFromCards = 0;
         for (ItemCard c : player.getCardsOnHand()) {
-            addFromCards += c.getAdditionalStrength();
+            addFromCards += c.getStrength();
         }
         System.out.println("add from cards: " + addFromCards);
         System.out.println("initial: " + player.getCharacter().getInitialStrength());
-        System.out.println("additional: " + player.getCharacter().getAdditionalStrength());
-        return player.getCharacter().getInitialStrength() + player.getCharacter().getAdditionalStrength() + addFromCards;
+        System.out.println("additional: " + player.getCharacter().getReceivedStrength());
+        return player.getCharacter().getInitialStrength() + player.getCharacter().getReceivedStrength() + addFromCards;
     }
 
     /**
@@ -82,7 +76,7 @@ public class PlayerManager extends Player {
     public Player moveAndIncreaseTrophies(Player player) {
         int numOfTrophies = player.getTrophies().size();
         if (numOfTrophies >= PlayedGameApplication.numOfTrophiesToGetPoint) {
-            player.getPlayerManager().increaseStrength(player, PlayedGameApplication.trophiesPointIncrease);
+            player.getPlayerManager().addStrength(player, PlayedGameApplication.trophiesPointIncrease);
             player = removeCardsFromTrophies(player, PlayedGameApplication.numOfTrophiesToGetPoint);
         }
         return player;
@@ -95,20 +89,20 @@ public class PlayerManager extends Player {
      * @param val
      * @return
      */
-    public Player increaseStrength(Player player, Integer val) {
-        player.getCharacter().getCharacterManager().increaseStrength(player.getCharacter(), val);
+    public Player addStrength(Player player, Integer val) {
+        player.getCharacter().getCharacterManager().addStrength(player.getCharacter(), val);
         return player;
     }
 
     /**
-     * Method to increase health points of player's character by val.
+     * Method to increase or decrease health points of player's character by val.
      *
      * @param player
      * @param val
      * @return
      */
-    public Player increaseHealth(Player player, Integer val) {
-        player.getCharacter().getCharacterManager().increaseHealth(player.getCharacter(), val);
+    public Player addHealth(Player player, Integer val) {
+        player.getCharacter().getCharacterManager().addHealth(player.getCharacter(), val);
         return player;
     }
 
@@ -130,6 +124,7 @@ public class PlayerManager extends Player {
      */
     public Player moveCardToPlayer(Player player, Card card) {
         player.getCardsOnHand().add((ItemCard) card);
+        player.getCharacter().getCharacterManager().addCard(player.getCharacter(), (ItemCard) card);
         return player;
     }
 
@@ -145,6 +140,7 @@ public class PlayerManager extends Player {
         if (index.isEmpty()) {
             return player;
         }
+        player.getCharacter().getCharacterManager().removeCard(player.getCharacter(), (ItemCard) card);
         player.getCardsOnHand().remove(index.getAsInt());
         return player;
     }
@@ -168,7 +164,6 @@ public class PlayerManager extends Player {
      */
     public Player removeCardsFromTrophies(Player player, Integer N) {
         for (int d = N - 1; d >= 0; d--) {
-            System.out.println("removing " + d);
             player.getTrophies().remove(d);
         }
         return player;

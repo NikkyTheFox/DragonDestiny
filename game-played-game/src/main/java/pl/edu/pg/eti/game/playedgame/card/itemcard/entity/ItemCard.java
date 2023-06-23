@@ -19,24 +19,25 @@ public class ItemCard extends Card {
     /**
      * Additional strength points for character that owns this card.
      */
-    private Integer additionalStrength = 0;
+    private Integer strength = 0;
 
     /**
      * Additional health points for character that owns this card.
      */
-    private Integer additionalHealth = 0;
+    private Integer health = 0;
 
     /**
      * Number of health points already used up from the item.
      * If additionalHealth - usedAdditionalHealth = 0, card is used.
      */
-    private Integer usedAdditionalHealth = 0;
+    private Integer usedHealth = 0;
 
     /**
      * Item Card Manager;
      */
     @JsonIgnore
     private ItemCardManager cardManager;
+
     public void setCardManager(ItemCardManager cardManager) {
         this.cardManager = cardManager;
     }

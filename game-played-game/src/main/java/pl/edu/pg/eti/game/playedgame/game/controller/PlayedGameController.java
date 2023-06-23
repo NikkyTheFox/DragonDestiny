@@ -699,10 +699,10 @@ public class PlayedGameController {
             return ResponseEntity.notFound().build();
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), (EnemyCard) card.get(), playerRoll, enemyRoll);
         if (fightResult) { // player won
-            playedGameService.decreaseHealth(gameRequest.get(), player.get(), (EnemyCard) card.get(), 1);
+            playedGameService.decreaseHealth(gameRequest.get(), player.get(), (EnemyCard) card.get(), -1);
             return ResponseEntity.ok().body(Boolean.TRUE);
         }
-        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), -1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
 
@@ -726,19 +726,16 @@ public class PlayedGameController {
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         // find enemy from field
-//        Field field = player.get().getCharacter().getPositionField();
-//        if (field == null)
-//            return ResponseEntity.notFound().build();
-        Optional<Field> field = playedGameService.findField(playedGameId, player.get().getCharacter().getPositionField().getId());
+        Optional<Field> field = playedGameService.findField(playedGameId, player.get().getCharacter().getField().getId());
         EnemyCard enemy = field.get().getEnemy();
         if (enemy == null)
             return ResponseEntity.notFound().build();
         boolean fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), enemy, playerRoll, enemyRoll);
         if (fightResult) {// player won
-            playedGameService.decreaseHealth(gameRequest.get(), player.get(), field.get(), enemy, 1);
+            playedGameService.decreaseHealth(gameRequest.get(), player.get(), field.get(), enemy, -1);
             return ResponseEntity.ok().body(Boolean.TRUE);
         }
-        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), -1);
         return ResponseEntity.ok().body(Boolean.FALSE); // player lost
     }
 
@@ -761,7 +758,7 @@ public class PlayedGameController {
         if (player.isEmpty())
             return ResponseEntity.notFound().build();
         // find player enemy from field
-        Field field = player.get().getCharacter().getPositionField();
+        Field field = player.get().getCharacter().getField();
         if (field == null)
             return ResponseEntity.notFound().build();
         Optional<Player> enemyPlayer = playedGameService.findDifferentPlayerByField(playedGameId, playerLogin, field.getId());
@@ -775,10 +772,10 @@ public class PlayedGameController {
         playedGameService.setPlayerFightRoll(gameRequest.get(), player.get(), 0);
         playedGameService.setPlayerFightRoll(gameRequest.get(), enemyPlayer.get(), 0);
         if (fightResult) { // attacked (player) won
-            playedGameService.decreaseHealth(gameRequest.get(), enemyPlayer.get(), 1);
+            playedGameService.decreaseHealth(gameRequest.get(), enemyPlayer.get(), -1);
             return ResponseEntity.ok(Boolean.TRUE);
         }
-        playedGameService.decreaseHealth(gameRequest.get(), player.get(), 1);
+        playedGameService.decreaseHealth(gameRequest.get(), player.get(), -1);
         return ResponseEntity.ok(Boolean.FALSE); // attacking (enemy) won
     }
 

@@ -1,6 +1,5 @@
 package pl.edu.pg.eti.game.playedgame.game.repository;
 
-import org.bouncycastle.crypto.signers.PlainDSAEncoding;
 import pl.edu.pg.eti.game.playedgame.board.entity.PlayedBoard;
 import pl.edu.pg.eti.game.playedgame.card.entity.Card;
 import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
@@ -49,7 +48,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
         return findById(gameId)
                 .map(PlayedGame::getPlayers)
                 .flatMap(players -> players.stream()
-                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .filter(player -> player.getCharacter().getField().getId().equals(fieldID))
                         .findFirst());
     }
 
@@ -58,7 +57,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                 .map(PlayedGame::getPlayers)
                 .flatMap(players -> players.stream()
                         .filter(player -> player.getCharacter() != null)
-                        .filter(player -> player.getCharacter().getPositionField().getId().equals(fieldID))
+                        .filter(player -> player.getCharacter().getField().getId().equals(fieldID))
                         .filter(player -> !player.getLogin().equals(playerId))
                         .findFirst());
     }

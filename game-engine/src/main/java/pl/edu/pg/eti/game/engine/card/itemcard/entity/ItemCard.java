@@ -32,13 +32,13 @@ public class ItemCard extends Card {
     /**
      * Value of strength points ItemCard gives.
      */
-    @Column(name = "additional_strength")
-    Integer additionalStrength;
+    @Column(name = "strength")
+    Integer strength;
 
     /**
      * Value of health points ItemCard gives.
      */
-    @Column(name = "additional_health")
-    Integer additionalHealth;
+    @Column(name = "health")
+    Integer health;
 
 }

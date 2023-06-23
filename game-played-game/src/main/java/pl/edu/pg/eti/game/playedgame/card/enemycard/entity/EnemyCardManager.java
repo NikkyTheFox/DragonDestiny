@@ -8,7 +8,7 @@ public class EnemyCardManager extends EnemyCard {
      * @return totalHealth
      */
     public Integer calculateTotalHealth(EnemyCard enemyCard) {
-        return enemyCard.getInitialHealth() + enemyCard.getAdditionalHealth();
+        return enemyCard.getInitialHealth() + enemyCard.getReceivedHealth();
     }
 
     /**
@@ -25,9 +25,9 @@ public class EnemyCardManager extends EnemyCard {
      *
      * @param val
      */
-    public EnemyCard decreaseHealth(EnemyCard enemyCard, Integer val) {
-        enemyCard.setAdditionalHealth(enemyCard.getAdditionalHealth() - val);
-        return this;
+    public EnemyCard addHealth(EnemyCard enemyCard, Integer val) {
+        enemyCard.setReceivedHealth(enemyCard.getReceivedHealth() + val);
+        return enemyCard;
     }
 
 }

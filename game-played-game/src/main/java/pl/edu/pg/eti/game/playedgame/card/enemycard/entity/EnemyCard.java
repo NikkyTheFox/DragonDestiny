@@ -22,16 +22,16 @@ public class EnemyCard extends Card {
     private Integer initialHealth = 0;
 
     /**
-     * Health points received or lost during the game.
-     * If sum of initialHealth + additionalHealth <= 0, enemy dies.
-     */
-    private Integer additionalHealth = 0;
-
-    /**
      * Initial strength points of enemy.
      * Cannot be changed during the game.
      */
     private Integer initialStrength = 0;
+
+    /**
+     * Health points received or lost during the game.
+     * If sum of initialHealth + additionalHealth <= 0, enemy dies.
+     */
+    private Integer receivedHealth = 0;
 
     /**
      * Enemy Card Manager.

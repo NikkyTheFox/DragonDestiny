@@ -1,52 +1,58 @@
 package pl.edu.pg.eti.game.playedgame.character.entity;
 
+import pl.edu.pg.eti.game.playedgame.card.itemcard.entity.ItemCard;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
 
 public class CharacterManager extends Character {
 
     public Character setPositionField(Character character, Field field) {
-        character.setPositionField(field);
+        character.setField(field);
         return character;
     }
 
     /**
-     * Method to increase additional (received) strength points by val.
+     * Method to increase or decrease additional (received) strength points by val.
      *
      * @param val
      */
-    public Character increaseStrength(Character character, Integer val) {
-        character.setAdditionalStrength(character.getAdditionalStrength() + val);
+    public Character addStrength(Character character, Integer val) {
+        character.setReceivedStrength(character.getReceivedStrength() + val);
         return character;
     }
 
     /**
-     * Method to decrease additional (received) strength points by val.
+     * Method to increase or decrease additional (received) health points by val.
      *
      * @param val
      */
-    public Character decreaseStrength(Character character, Integer val) {
-        character.setAdditionalStrength(character.getAdditionalStrength() - val);
+    public Character addHealth(Character character, Integer val) {
+        character.setReceivedHealth(character.getReceivedHealth() + val);
         return character;
     }
 
     /**
-     * Method to increase additional (received) health points by val.
+     * Method to add strength and health points from card to character.
      *
-     * @param val
+     * @param character
+     * @param card
+     * @return
      */
-    public Character increaseHealth(Character character, Integer val) {
-        character.setAdditionalHealth(character.getAdditionalHealth() + val);
+    public Character addCard(Character character, ItemCard card) {
+        character.setCardsHealth(character.getCardsHealth() + card.getHealth());
+        character.setCardsStrength(character.getCardsStrength() + card.getStrength());
         return character;
     }
 
     /**
-     * Method to decrease additional (received) health points by val.
+     * Method to remove strength and health points from card to character.
      *
-     * @param val
+     * @param character
+     * @param card
+     * @return
      */
-    public Character decreaseHealth(Character character, Integer val) {
-        character.setAdditionalHealth(character.getAdditionalHealth() - val);
+    public Character removeCard(Character character, ItemCard card) {
+        character.setCardsHealth(character.getCardsHealth() - card.getHealth());
+        character.setCardsStrength(character.getCardsStrength() - card.getStrength());
         return character;
     }
-
 }

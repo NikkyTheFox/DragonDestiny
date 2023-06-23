@@ -14,11 +14,11 @@ public class ItemCardDTO extends CardDTO {
     /**
      * Value of strength points ItemCard gives.
      */
-    private Integer additionalStrength;
+    private Integer strength;
 
     /**
      * Value of health points ItemCard gives.
      */
-    private Integer additionalHealth;
+    private Integer health;
 
 }

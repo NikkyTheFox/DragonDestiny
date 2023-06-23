@@ -22,8 +22,8 @@ CREATE TABLE cards
 CREATE TABLE item_cards
 (
     id INT PRIMARY KEY REFERENCES cards,
-    additional_strength INT,
-    additional_health INT
+    strength INT,
+    health INT
 )
 
 CREATE TABLE enemy_cards

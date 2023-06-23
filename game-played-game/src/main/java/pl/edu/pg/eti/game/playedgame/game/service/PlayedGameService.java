@@ -123,8 +123,6 @@ public class PlayedGameService {
         return list;
     }
 
-
-
     public Optional<Player> findPlayerByField(String gameId, Integer fieldId) {
         return playedGameRepository.findPlayerByField(gameId, fieldId);
     }
@@ -433,10 +431,10 @@ public class PlayedGameService {
         Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getCardManager().calculateHealth(itemCard) > 0).findFirst();
         if (card.isEmpty()) {
             // no health cards
-            player.getCharacter().getCharacterManager().decreaseHealth(player.getCharacter(), val);
+            player.getPlayerManager().addHealth(player, val);
         } else {
             // decrease health card
-            card.get().getCardManager().decreaseHealth(card.get(), val);
+            card.get().getCardManager().addHealth(card.get(), val);
             if (card.get().getCardManager().calculateHealth(card.get()) <= 0) { // remove used up card
                 moveCardFromPlayer(game, player, card.get());
             }
@@ -455,7 +453,7 @@ public class PlayedGameService {
      * @return
      */
     public PlayedGame decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer val) {
-        EnemyCard updatedEnemy = enemyCard.getCardManager().decreaseHealth(enemyCard, val);
+        EnemyCard updatedEnemy = enemyCard.getCardManager().addHealth(enemyCard, val);
         if (updatedEnemy.getCardManager().calculateTotalHealth(updatedEnemy) <= 0) {
             PlayedGame updatedGame = moveCardToTrophies(game, updatedEnemy, player);
             updatedGame = checkTrophies(updatedGame, player);
@@ -475,7 +473,7 @@ public class PlayedGameService {
      * @return
      */
     public PlayedGame decreaseHealth(PlayedGame game, Player player, Field field, EnemyCard enemyCard, Integer val) {
-        EnemyCard updatedEnemy = enemyCard.getCardManager().decreaseHealth(enemyCard, val);
+        EnemyCard updatedEnemy = enemyCard.getCardManager().addHealth(enemyCard, val);
         Field updatedField = field.getFieldManager().setEnemy(field, updatedEnemy);
         PlayedGame updatedGame = updateField(game, updatedField);
         return playedGameRepository.save(updatedGame);

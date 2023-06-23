@@ -42,7 +42,7 @@ public class Character implements Serializable {
      * Additional points from trophies.
      * Total strength of character is sum of initialStrength + additionalStrength + cards.
      */
-    private Integer additionalStrength = 0;
+    private Integer receivedStrength = 0;
 
     /**
      * Additional health points received during the game - NOT FROM CARDS!.
@@ -50,18 +50,18 @@ public class Character implements Serializable {
      * Total number health points is sum of initialHealth + additionalHealth + cards.
      * If sum <= 0, character is dead and user that plays that character ends the game.
      */
-    private Integer additionalHealth = 0;
+    private Integer receivedHealth = 0;
 
-    /**
-     * Initial position field of character.
-     */
-    private Field field;
+    private Integer cardsStrength = 0;
+
+    private Integer cardsHealth = 0;
 
     /**
      * Position of the character on the board - on particular field.
      * Many characters can stand on the same field.
+     * At beginning set to initial position of character.
      */
-    private Field positionField;
+    private Field field;
 
     /**
      * Character Manager.

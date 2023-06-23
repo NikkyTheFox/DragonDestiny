@@ -26,10 +26,6 @@ export class SignupComponent {
       name: this.name,
       password: this.password
     }
-    //this part is 100% flirty, to be deleted later
-    if(this.login === "truskawka" || this.name === "daria" || this.name === "Daria"){
-      window.alert("No cześć słońce :)");
-    }
 
     this.userService.registerUser(user).subscribe((data: any)=>{
         this.dataService.loginData = data;

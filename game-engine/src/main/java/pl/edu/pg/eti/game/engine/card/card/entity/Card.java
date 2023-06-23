@@ -65,7 +65,6 @@ public class Card {
      * List of games the card belongs to.
      * One card can belong to many game engines (game boxes).
      */
-    //@JsonBackReference
     @ManyToMany(mappedBy = "cardDeck")
     private List<Game> games = new ArrayList<>();
 
