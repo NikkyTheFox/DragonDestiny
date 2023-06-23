@@ -1,4 +1,0 @@
-to fetch and display objects, make sure that .js file has EXACLTY the same name as api reference
-e.g.
-    for /api/playedCharacters; it is NOT randomName;
-        it is playedCharacters

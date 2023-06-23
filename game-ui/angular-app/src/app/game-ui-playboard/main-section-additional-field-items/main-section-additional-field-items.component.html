@@ -1,4 +1,8 @@
-<div class="items-container">
-  miejsce na karty posiadane przez granego bohatera
-  <p>array from game engine?</p>
+<div class="items-list">
+ <div *ngFor="let item of itemsList; let i = index" class="tile">
+   <div class="item-name">Name: {{cardNameList[i]}}</div>
+   <div class="item-desc">Description: {{cardDescList[i]}}</div>
+   <div class="additional-strength">Additional Strength: {{item.additionalStrength}}</div>
+   <div class="additional-health">Additional Health: {{item.additionalHealth}}</div>
+ </div>
 </div>

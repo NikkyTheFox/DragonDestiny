@@ -6,6 +6,6 @@ import {Component, Input} from '@angular/core';
   styleUrls: ['./main-section.component.css']
 })
 export class MainSectionComponent {
-  @Input() gameId!: number;
-  @Input() playerId!: number;
+  @Input() gameId!: string;
+  @Input() playerLogin!: string;
 }

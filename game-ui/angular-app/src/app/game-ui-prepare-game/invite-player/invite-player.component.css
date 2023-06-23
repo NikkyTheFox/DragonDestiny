@@ -1,0 +1,18 @@
+.form-container {
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+}
+
+label{
+  display: block;
+}
+
+.invite-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

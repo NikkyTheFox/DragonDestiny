@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {GameCharacter} from "../../game-character";
+import {PlayedGameCharacter} from "../../interfaces/game-played-game/played-game-character";
 
 @Component({
   selector: 'app-righthand-sidebar-character-info-statistics',
@@ -7,5 +7,5 @@ import {GameCharacter} from "../../game-character";
   styleUrls: ['./righthand-sidebar-character-info-statistics.component.css']
 })
 export class RighthandSidebarCharacterInfoStatisticsComponent {
-  @Input() character!: GameCharacter;
+  @Input() character!: PlayedGameCharacter;
 }

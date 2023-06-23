@@ -1,24 +1,6 @@
-app-component
-  login-component
-
-  your-games-component
-
-  main-component
-    header-component
-      left-section-component
-      middle-section-component
-      right-section-component
-    right-sidebar-component
-      cards-deck-component
-      character-info-component
-        character-portrait-component
-        character-statistics-component
-          statistic-component
-    main-section
-      board-component
-        row-component
-          field-component
-      additional-field-component
-        other-characters-component
-        items-component
-    footer-component
+TODO:
+- drawing proper cards
+- refreshing hand on a draw
+- roll a dice on backend, not frontend (**** you malina)
+- pawns and movement
+- isStarted flag

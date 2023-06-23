@@ -1,6 +1,6 @@
-import {Component, Input} from '@angular/core';
-import {AbstractCard} from "../../abstract-card";
-import {GameServiceService} from "../../game-service.service";
+import {Component, Input, SimpleChanges} from '@angular/core';
+import {GamePlayedGameService} from "../../services/game-played-game-service";
+import {PlayedGameCard} from "../../interfaces/game-played-game/played-game-card";
 
 @Component({
   selector: 'app-righthand-sidebar-cards-deck',
@@ -8,19 +8,24 @@ import {GameServiceService} from "../../game-service.service";
   styleUrls: ['./righthand-sidebar-cards-deck.component.css']
 })
 export class RighthandSidebarCardsDeckComponent {
-  @Input() gameId!: number;
-  deck: AbstractCard[];
+  @Input() gameId!: string;
+  @Input() playerLogin!: string;
+  deck: PlayedGameCard[];
   numberOfCardsInDeck: number;
 
-  constructor(private gameService: GameServiceService) {
+  constructor(private playedGameService: GamePlayedGameService) {
     this.deck = [];
     this.numberOfCardsInDeck = 0;
   }
 
-  ngOnInit(){
-    this.gameService.getCards(this.gameId).subscribe( (data: any) => {
+  ngOnChanges(changes: SimpleChanges){
+    this.playedGameService.getCardsDeck(this.gameId).subscribe( (data: any) => {
       this.deck = data.cardList;
       this.numberOfCardsInDeck = this.deck.length;
-    })
+    });
+  }
+
+  drawCard() { // FOR TESTS OF MOVING CARD TO HAND: ID=7 is first item card in deck
+    this.playedGameService.moveCardFromDeckToPlayerHand(this.gameId, 8, this.playerLogin).subscribe();
   }
 }

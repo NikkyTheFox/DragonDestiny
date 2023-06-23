@@ -1,7 +1,8 @@
-import {Component, Input} from '@angular/core';
-import {GameServiceService} from "../../game-service.service";
-import {Board} from "../../board";
-import {Field} from "../../field";
+import {Component, Input, SimpleChanges} from '@angular/core';
+import {GameEngineService} from "../../services/game-engine.service";
+import {Board} from "../../interfaces/game-engine/board";
+import {GamePlayedGameService} from "../../services/game-played-game-service";
+import {PlayedGame} from "../../interfaces/game-played-game/played-game";
 
 @Component({
   selector: 'app-main-section-board',
@@ -9,7 +10,7 @@ import {Field} from "../../field";
   styleUrls: ['./main-section-board.component.css']
 })
 export class MainSectionBoardComponent {
-  @Input() gameId!: number;
+  @Input() gameId!: string;
   // @ts-ignore
   board: Board = {
     id: 0,
@@ -18,25 +19,22 @@ export class MainSectionBoardComponent {
   };
   rowArray: number[];
   //fieldsList: Field[];
-  constructor(private gameService: GameServiceService) {
+  constructor(private gameEngineService: GameEngineService, private playedGameService: GamePlayedGameService) {
     this.rowArray = [];
     //this.fieldsList = [];
  }
 
-  ngOnInit() {
-    this.gameService.getGamesBoard(this.gameId).subscribe((data: Board) => {
-      this.board = data;
-      //console.log(this.board.id);
-      //console.log(this.board.ysize);
-      //console.log(this.board.xsize);
-      this.prepareRowArray();
-    });
+  ngOnChanges(changes: SimpleChanges) {
+    this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
+      this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
+        this.board = data;
+        this.prepareRowArray();
+      })
+    })
   }
 
   prepareRowArray(){
     this.rowArray = this.getRange(this.board.ysize);
-    //console.log("rowArray of board: " + this.board.id);
-    //console.log(this.rowArray);
   }
   getRange(size: number): number[] {
     return Array(size).fill(0).map((_, index) => index);
