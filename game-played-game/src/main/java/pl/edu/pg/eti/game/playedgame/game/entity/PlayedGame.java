@@ -35,6 +35,16 @@ public class PlayedGame {
     private String id;
 
     /**
+     * States whether the game started.
+     */
+    private Boolean isStarted = false;
+
+    /**
+     * Correspond to active round.
+     */
+    private Round activeRound;
+
+    /**
      * Players playing the game.
      */
     private List<Player> players = new ArrayList<>();
@@ -58,16 +68,6 @@ public class PlayedGame {
      * Characters available to play in the game - not those chosen by users!
      */
     private List<Character> charactersInGame = new ArrayList<>();
-
-    /**
-     * States whether the game started.
-     */
-    private Boolean isStarted = false;
-
-    /**
-     * Correspond to active round.
-     */
-    private Round activeRound;
 
     /**
      * Rounds in the game already performed. One round contains move of all players.

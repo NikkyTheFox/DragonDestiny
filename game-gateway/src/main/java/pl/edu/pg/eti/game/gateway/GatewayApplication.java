@@ -36,6 +36,8 @@ public class GatewayApplication {
                         .path("/api/playedgames",
                                 "/api/playedgames/{playedGameId}",
                                 "/api/playedgames/{playedGameId}/start",
+                                "/api/playedgames/{playedGameId}/round",
+                                "/api/playedgames/{playedGameId}/round/next",
                                 "/api/playedgames/{playedGameId}/board",
                                 "/api/playedgames/{playedGameId}/board/fields",
                                 "/api/playedgames/{playedGameId}/board/fields/{fieldId}",

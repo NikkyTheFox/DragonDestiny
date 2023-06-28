@@ -9,6 +9,7 @@ import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import pl.edu.pg.eti.game.playedgame.round.Round;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +83,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                         .findFirst());
     }
 
+    default Round findActiveRound(String gameId) {
+        return findById(gameId)
+                .map(PlayedGame::getActiveRound)
+                .get();
+    }
 
     default PlayedBoard findBoard(String gameId) {
         return findById(gameId)

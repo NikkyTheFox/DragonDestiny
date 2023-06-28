@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.game.playedgame.round;
 
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Round {
 
     private List<Player> players = new ArrayList<>();
 
+
     /**
      * Round Manager.
      */
@@ -32,7 +34,5 @@ public class Round {
     public void setRoundManager(RoundManager roundManager) {
         this.roundManager = roundManager;
     }
-
-
 
 }

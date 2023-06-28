@@ -119,6 +119,13 @@ public class PlayedGameService {
         return Optional.of(board);
     }
 
+    public Optional<Round> findActiveRound(String gameId) {
+        Round round = playedGameRepository.findActiveRound(gameId);
+        if (round == null)
+            return Optional.empty();
+        return Optional.of(round);
+    }
+
     public List<Field> findFields(String gameId) {
         List<Field> list = playedGameRepository.findFieldsOnBoard(gameId);
         return list;
@@ -142,12 +149,27 @@ public class PlayedGameService {
     public PlayedGame startGame(PlayedGame game) {
         Round round = new Round();
         round.setRoundManager(new RoundManager());
+        round.getRoundManager().setId(round, 1);
         List<Player> players = game.getPlayers();
         Collections.shuffle(players);
         round.getRoundManager().setPlayers(round, players);
         Player startingPlayer = players.get(0);
         round.getRoundManager().setActivePlayer(round, startingPlayer);
         game.getGameManager().startGame(game, round);
+        return playedGameRepository.save(game);
+    }
+
+    public PlayedGame nextRound(PlayedGame game, Round round) {
+        round.getRoundManager().setId(round, round.getId() + 1);
+        Integer id = round.getPlayers().indexOf(round.getActivePlayer());
+        Player nextPlayer;
+        if (id + 1 < round.getPlayers().size()) {
+            nextPlayer = round.getPlayers().get(id + 1);
+        } else {
+            nextPlayer = round.getPlayers().get(0);
+        }
+        round.getRoundManager().setActivePlayer(round, nextPlayer);
+        game.getGameManager().setRound(game, round);
         return playedGameRepository.save(game);
     }
 

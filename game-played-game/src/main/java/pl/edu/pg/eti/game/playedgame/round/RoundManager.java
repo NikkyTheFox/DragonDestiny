@@ -16,4 +16,9 @@ public class RoundManager extends Round {
         return round;
     }
 
+    public Round setId(Round round, Integer id) {
+        round.setId(id);
+        return round;
+    }
+
 }

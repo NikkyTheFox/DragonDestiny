@@ -99,6 +99,11 @@ public class GameManager extends PlayedGame {
         return game;
     }
 
+    public PlayedGame setRound(PlayedGame game, Round round) {
+        game.setActiveRound(round);
+        return game;
+    }
+
     public PlayedGame setBoard(PlayedGame game, PlayedBoard board) {
         game.setBoard(board);
         return game;

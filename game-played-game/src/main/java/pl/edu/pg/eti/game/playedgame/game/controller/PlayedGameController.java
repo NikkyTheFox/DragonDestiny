@@ -30,6 +30,7 @@ import pl.edu.pg.eti.game.playedgame.player.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import pl.edu.pg.eti.game.playedgame.player.service.PlayerService;
+import pl.edu.pg.eti.game.playedgame.round.Round;
 
 import java.util.Optional;
 
@@ -142,6 +143,46 @@ public class PlayedGameController {
             return ResponseEntity.notFound().build();
         playedGameService.deleteById(playedGameId);
         return ResponseEntity.ok().build();
+    }
+
+    // ROUND -----------------------------------------------------------------------------------------------------------
+
+    /**
+     * Call to get active round in played game.
+     *
+     * @param playedGameId
+     * @return
+     */
+    @GetMapping("{playedGameId}/round")
+    public ResponseEntity<Round> getActiveRound(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        Optional<Round> round = playedGameService.findActiveRound(playedGameId);
+        if (round.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().body(round.get());
+    }
+
+    /**
+     * Call to set next round in played game.
+     * Increases ID of round and sets next player from the list as active player.
+     *
+     * @param playedGameId
+     * @return
+     */
+    @PutMapping("{playedGameId}/round/next")
+    public ResponseEntity<Round> setNextRound(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
+        if (game.isEmpty())
+            return ResponseEntity.notFound().build();
+        Optional<Round> round = playedGameService.findActiveRound(playedGameId);
+        if (round.isEmpty()) { // create first round
+            playedGameService.startGame(game.get());
+            return ResponseEntity.ok().body(game.get().getActiveRound());
+        } // get next round
+        playedGameService.nextRound(game.get(), round.get());
+        return ResponseEntity.ok().body(game.get().getActiveRound());
     }
 
     // BOARD + FIELDS --------------------------------------------------------------------------------------------------
