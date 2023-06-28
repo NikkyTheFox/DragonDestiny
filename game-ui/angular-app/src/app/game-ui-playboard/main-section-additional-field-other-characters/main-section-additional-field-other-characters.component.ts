@@ -14,13 +14,14 @@ export class MainSectionAdditionalFieldOtherCharactersComponent {
   @Input() playerLogin!: string;
   playersCharacter: PlayedGameCharacter = {
     id: 0,
-    initialHealth: 0,
     initialStrength: 0,
-    additionalStrength: 0,
-    additionalHealth: 0,
-    field: null,
-    positionField: null
-  };
+    initialHealth: 0,
+    receivedStrength: 0,
+    receivedHealth: 0,
+    cardsStrength: 0,
+    cardsHealth: 0,
+    field: null
+  }
   otherCharacters: PlayedGameCharacter[];
   allCharacters: PlayedGameCharacter[];
   characterNames: string[];

@@ -2,6 +2,7 @@ import {PlayedGameCharacter} from "./played-game-character";
 import {PlayedGameCard} from "./played-game-card";
 import {PlayedGameBoard} from "./played-game-board";
 import {PlayedGamePlayer} from "./played-game-player";
+import {PlayedGameRound} from "./played-game-round";
 
 export interface PlayedGame {
   id: string;
@@ -10,4 +11,6 @@ export interface PlayedGame {
   cardDeck: PlayedGameCard[];
   usedCardDeck: PlayedGameCard[];
   charactersInGame: PlayedGameCharacter[];
+  isStarted: boolean;
+  activeRound: PlayedGameRound;
 }

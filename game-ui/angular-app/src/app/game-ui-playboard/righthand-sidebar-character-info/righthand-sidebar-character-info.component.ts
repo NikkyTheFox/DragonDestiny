@@ -14,10 +14,11 @@ export class RighthandSidebarCharacterInfoComponent {
     id: 0,
     initialStrength: 0,
     initialHealth: 0,
-    additionalHealth: 0,
-    additionalStrength: 0,
-    field: null,
-    positionField: null
+    receivedStrength: 0,
+    receivedHealth: 0,
+    cardsStrength: 0,
+    cardsHealth: 0,
+    field: null
   }
 
   constructor(private playedGameService: GamePlayedGameService) {

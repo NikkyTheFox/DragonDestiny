@@ -10,7 +10,7 @@ import {PlayedGameCard} from "../interfaces/game-played-game/played-game-card";
 import {PlayedGameEnemyCard} from "../interfaces/game-played-game/played-game-enemy-card";
 import {PlayedGameBoard} from "../interfaces/game-played-game/played-game-board";
 import {Field} from "../interfaces/game-engine/field";
-import {GameFieldOption} from "../interfaces/game-played-game/game-field-option";
+import {GameFieldOption} from "../interfaces/game-field-option";
 
 
 @Injectable({
@@ -33,6 +33,10 @@ export class GamePlayedGameService {
 
   initializeGame(baseGameId: number): Observable<PlayedGame> {
     return this.http.post<PlayedGame>(`${environment.apiUrl}/playedgames/${baseGameId}`, null);
+  }
+
+  startGame(playedGameId: string): Observable<PlayedGame>{
+    return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/start`, null);
   }
 
   deleteGame(playedGameId: string):Observable<string> {
@@ -147,6 +151,9 @@ export class GamePlayedGameService {
 
       // FIGHT
 
+  rollDice(playedGameId: string, playerLogin: string):Observable<number> {
+    return this.http.get<number>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/dice`);
+  }
   handleFightWithEnemyCard(playedGameId: string, playerLogin: string, playerRoll: number, enemyCardId: number, enemyRoll: number):Observable<Boolean>{
     return this.http.put<Boolean>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
   }

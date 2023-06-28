@@ -4,8 +4,9 @@ export interface PlayedGameCharacter {
   id: number;
   initialStrength: number;
   initialHealth: number;
-  additionalStrength: number;
-  additionalHealth: number;
+  receivedStrength: number;
+  receivedHealth: number;
+  cardsStrength: number;
+  cardsHealth: number
   field: Field | null;
-  positionField: Field | null;
 }

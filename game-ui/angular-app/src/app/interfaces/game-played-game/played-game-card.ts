@@ -1,4 +1,4 @@
-import {CardType} from "./game-card-type";
+import {CardType} from "../game-card-type";
 
 export interface PlayedGameCard {
   id: number;
