@@ -1,17 +1,19 @@
     use xd;
-    -- Testing:
-     drop table if exists players;
-     create table players(
-         id int identity(1,1) primary key,
-         name varchar(6969)
-     );
-     insert into players values ('Adam');
-     GO
+    DROP TABLE IF EXISTS games_characters;
+    DROP TABLE IF EXISTS games_cards;
+    DROP TABLE IF EXISTS item_cards;
+    DROP TABLE IF EXISTS enemy_cards;
+    DROP TABLE IF EXISTS cards;
+    DROP TABLE IF EXISTS characters;
+    DROP TABLE IF EXISTS fields;
+    DROP TABLE IF EXISTS boards;
+    DROP TABLE IF EXISTS games;
 
 
     -- GAME:
     drop table if exists games;
-    create table games(
+    create table games
+    (
         game_id int identity(1, 1) primary key,
         board_id int
     )
@@ -19,12 +21,14 @@
     -- BOARDS + FIELDS:
     drop table if exists fields;
     drop table if exists boards;
-    create table boards(
+    create table boards
+    (
         board_id int identity(1, 1) primary key,
         x_size int,
         y_size int
     )
-    create table fields(
+    create table fields
+    (
         field_id int identity(1, 1) primary key,
         field_type varchar(50) ,
         x_position int,
@@ -57,7 +61,9 @@
     ('TAKE_TWO_CARDS', 0, 1, 1);
 
     insert into fields (field_type, x_position, y_position) values
-    ('LOSE_ONE_ROUND', 0, 1);
+        ('LOSE_ONE_ROUND', 0, 1);
+    insert into fields (field_type, x_position, y_position) values
+        ('LOSE_ONE_ROUND', 0, 1);
 
     insert into games values
     (1) -- board id 1
@@ -66,14 +72,15 @@
     drop table if exists item_cards;
     drop table if exists enemy_cards;
     drop table if exists cards;
+    drop table if exists games_cards;
 
     create table cards
     (
         id int identity(1, 1) primary key,
         name varchar(50),
         description varchar(250),
-        card_type varchar(50),
-        game_id int
+        card_type varchar(50)
+      --  game_id int
     )
     create table item_cards
     (
@@ -88,29 +95,45 @@
         initial_strength int
     )
 
-    insert into cards values
-    ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD', 1)
-    insert into enemy_cards values
-    (1, 3, 10);
+    create table games_cards
+    (
+        game_id int,
+        card_id int
+    )
 
     insert into cards values
-    ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD', 1)
+        ('enemy card1', 'some description of enemy 1', 'ENEMY_CARD')
     insert into enemy_cards values
-    (2, 12, 6);
+        (1, 3, 10);
+    insert into games_cards
+        SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
     insert into cards values
-    ('item card 1', 'some description of item 1', 'ITEM_CARD', 1)
+        ('enemy card2', 'some description of enemy 2', 'ENEMY_CARD')
+    insert into enemy_cards values
+        (2, 12, 6);
+    insert into games_cards
+    SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+    insert into cards values
+        ('item card 1', 'some description of item 1', 'ITEM_CARD')
     insert into item_cards values
-    (3, 10, 10);
+        (3, 10, 10);
+    insert into games_cards
+    SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
     insert into cards (name, description, card_type) values
         ('eeeee', 'some description of enemy 1', 'ENEMY_CARD')
     insert into enemy_cards values
         (4, 12, 10);
 
+    select * from cards;
+    select * from games;
+    select * from games_cards;
 
     -- CHARACTERS:
     drop table if exists characters;
+    drop table if exists games_characters;
 
     create table characters
     (
@@ -119,14 +142,29 @@
         profession varchar(200),
         story varchar(1000),
         initial_strength int,
-        initial_health int,
-        game_id int
+        initial_health int
+    )
+    create table games_characters
+    (
+        game_id int,
+        character_id int
     )
 
     insert into characters values
-    ('Harry Potter', 'Wizard', 'There was a wizard called Harry Potter. End of story', 10, 4, 1),
-    ('Frodo Baggins', 'Hobbit', 'Very cool hobbit. Saved the Middle Earth. End of story', 10, 9, 1),
-    ('Winnie the Pooh', 'Bear', 'Nice bear. End of story', 10, 1, 1)
+    ('Harry Potter', 'Wizard', 'There was a wizard called Harry Potter. End of story', 10, 4)
+
+    insert into games_characters
+    SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))
+
+    insert into characters values
+    ('Frodo Baggins', 'Hobbit', 'Very cool hobbit. Saved the Middle Earth. End of story', 10, 9)
+    insert into games_characters
+    SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))
+
+    insert into characters values
+    ('Winnie the Pooh', 'Bear', 'Nice bear. End of story', 10, 1)
+    insert into games_characters
+    SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('characters'))
 
 
 

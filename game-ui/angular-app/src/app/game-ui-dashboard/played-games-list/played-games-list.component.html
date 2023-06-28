@@ -1,0 +1,3 @@
+<div *ngFor="let g of gameIdsList; let i = index" class="game-list">
+  {{i+1}}) Game ID: {{g.id}} <button (click)="chooseGame(g.id)">Continue</button> <button>Preview</button>
+</div>

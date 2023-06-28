@@ -1,0 +1,13 @@
+22.06.2023
+    NEW:
+- joining game
+- "starting" game
+- inviting
+- choosing character and marking it as "selected"
+- dynamic list of players(characters) in game
+- dynamic list of player's items
+- place for dice rolls
+- HP and Strength shown as initial+additional
+
+    Bugs found:
+- after adding an item to players hand, strenght is not increased; Players stats not increased by items?

@@ -7,17 +7,24 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="played_game" />
-        <module name="game_engine" />
-        <module name="config_server" />
-        <module name="Gateway" />
-        <module name="eureka" />
-        <module name="player" />
+        <module name="game-config-server" />
+        <module name="game-played-game" />
+        <module name="game-user" />
+        <module name="game-discovery" />
+        <module name="game-gateway" />
+        <module name="game-engine" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="config_server" target="17" />
+      <module name="eureka" target="17" />
       <module name="game" target="17" />
+      <module name="game-user (1)" target="17" />
+      <module name="game_engine" target="17" />
+      <module name="Gateway" target="17" />
       <module name="played_character" target="17" />
+      <module name="played_game" target="17" />
+      <module name="user" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -25,10 +32,17 @@
       <module name="Gateway" options="-parameters" />
       <module name="config_server" options="-parameters" />
       <module name="eureka" options="-parameters" />
+      <module name="game-config-server" options="-parameters" />
+      <module name="game-discovery" options="-parameters" />
+      <module name="game-engine" options="-parameters" />
+      <module name="game-gateway" options="-parameters" />
+      <module name="game-played-game" options="-parameters" />
+      <module name="game-user" options="-parameters" />
+      <module name="game-user (1)" options="-parameters" />
       <module name="game_engine" options="-parameters" />
       <module name="played_character" options="-parameters" />
       <module name="played_game" options="-parameters" />
-      <module name="player" options="-parameters" />
+      <module name="user" options="-parameters" />
     </option>
   </component>
 </project>
