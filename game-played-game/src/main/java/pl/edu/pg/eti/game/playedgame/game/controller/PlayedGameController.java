@@ -658,7 +658,7 @@ public class PlayedGameController {
      * @return random card
      */
 //    @PutMapping("{playedGameId}/players/{playerLogin}/drawCard")
-    @PutMapping("{playedGameId}/cards/deck/draw")
+    @GetMapping("{playedGameId}/cards/deck/draw")
     public ResponseEntity<Card> drawRandomCard(@PathVariable(name = "playedGameId") String playedGameId) {
         // find game
         Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
