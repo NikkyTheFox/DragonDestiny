@@ -38,6 +38,11 @@ public class Player {
     private Integer fightRoll = 0;
 
     /**
+     * Number of turns the player is blocked for (cannot make a move).
+     */
+    private Integer blockedTurns = 0;
+
+    /**
      * Character chosen by the player.
      * Many players can play the same type of character.
      */

@@ -189,4 +189,15 @@ public class PlayerManager extends Player {
         return player;
     }
 
+    /**
+     * Method to set number of turns player is blocked for.
+     *
+     * @param player
+     * @param num
+     * @return
+     */
+    public Player setBlockedTurns(Player player, Integer num) {
+        player.setBlockedTurns(num);
+        return player;
+    }
 }

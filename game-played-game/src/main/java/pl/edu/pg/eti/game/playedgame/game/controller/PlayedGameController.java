@@ -692,6 +692,28 @@ public class PlayedGameController {
     }
 
     /**
+     * Call to block player for given number of turns.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @param blockedNum
+     * @return
+     */
+    @PutMapping("{playedGameId}/players/{playerLogin}/blocked/{blockedNum}")
+    public ResponseEntity<Player> blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "blockedNum") Integer blockedNum) {
+        // find game
+        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
+        if (gameRequest.isEmpty())
+            return ResponseEntity.notFound().build();
+        // find player
+        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
+        if (player.isEmpty())
+            return ResponseEntity.notFound().build();
+        playedGameService.blockTurnsOfPlayer(gameRequest.get(), player.get(), blockedNum);
+        return ResponseEntity.ok().body(player.get());
+    }
+
+    /**
      * Call to draw random card from card deck of the game.
      * Does not remove the card from card deck.
      *
@@ -714,6 +736,7 @@ public class PlayedGameController {
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok().body(card.get());
     }
+
 
     // FIGHT -----------------------------------------------------------------------------------------------------------
 

@@ -159,12 +159,32 @@ public class PlayedGameService {
         return playedGameRepository.save(game);
     }
 
+    /**
+     * Method to take next Round in game.
+     * Sets next player from list as active player (if player is not blocked).
+     *
+     * @param game
+     * @param round
+     * @return
+     */
     public PlayedGame nextRound(PlayedGame game, Round round) {
         round.getRoundManager().setId(round, round.getId() + 1);
-        Integer id = round.getPlayers().indexOf(round.getActivePlayer());
+        Player activePlayer = round.getActivePlayer();
+        if (activePlayer == null)
+            return null;
+        int id = round.getPlayers().indexOf(round.getPlayers().stream().filter(player -> player.getLogin().equals(activePlayer.getLogin())).findFirst().get());
         Player nextPlayer;
         if (id + 1 < round.getPlayers().size()) {
             nextPlayer = round.getPlayers().get(id + 1);
+            if (nextPlayer.getBlockedTurns() > 0) {
+                nextPlayer.getPlayerManager().setBlockedTurns(nextPlayer, nextPlayer.getBlockedTurns() - 1);
+                game = updatePlayer(game, nextPlayer);
+                if (id + 2 < round.getPlayers().size()) {
+                    nextPlayer = round.getPlayers().get(id + 2);
+                } else {
+                    nextPlayer = round.getPlayers().get(0);
+                }
+            }
         } else {
             nextPlayer = round.getPlayers().get(0);
         }
@@ -512,6 +532,19 @@ public class PlayedGameService {
         return randomId.nextInt(PlayedGameApplication.lowDiceBound, PlayedGameApplication.upDiceBound + 1);
     }
 
+    /**
+     * Method to block player for blockedNum of turns.
+     *
+     * @param game
+     * @param player
+     * @param blockedNum
+     * @return
+     */
+    public PlayedGame blockTurnsOfPlayer(PlayedGame game, Player player, Integer blockedNum) {
+        player.getPlayerManager().setBlockedTurns(player, blockedNum);
+        PlayedGame updatedGame = updatePlayer(game, player);
+        return playedGameRepository.save(updatedGame);
+    }
 
 }
 
