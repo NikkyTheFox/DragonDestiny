@@ -11,6 +11,7 @@ public enum FieldType {
     TAKE_TWO_CARDS,
     LOSE_ONE_ROUND,
     LOSE_TWO_ROUNDS,
-    BRIDGE_FIELD
+    BRIDGE_FIELD,
+    BOSS_FIELD
 
 }

@@ -11,6 +11,7 @@ public enum FieldOption {
     LOSE_ONE_ROUND,
     LOSE_TWO_ROUNDS,
     BRIDGE_FIELD,
+    BOSS_FIELD,
     FIGHT_WITH_PLAYER
 
 }
