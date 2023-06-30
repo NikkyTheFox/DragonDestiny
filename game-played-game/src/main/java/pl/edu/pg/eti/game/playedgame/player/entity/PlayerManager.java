@@ -15,7 +15,7 @@ public class PlayerManager extends Player {
 
     /**
      * Method to calculate total Health points of player.
-     * Sum of initial health + additional health points (can be negative) + health points from cards.
+     * Sum of initial health + received health points (can be negative) + health points from cards.
      *
      * @return totalHealth
      */
@@ -176,6 +176,16 @@ public class PlayerManager extends Player {
      */
     public Player setCharacter(Player player, Character character) {
         player.setCharacter(character);
+        return player;
+    }
+
+    /**
+     * Method to set position of character to the player.
+     *
+     * @param field
+     */
+    public Player setPosition(Player player, Character character, Field field) {
+        player.getCharacter().getCharacterManager().setPositionField(character, field);
         return player;
     }
 

@@ -30,4 +30,16 @@ public class EnemyCardManager extends EnemyCard {
         return enemyCard;
     }
 
+    /**
+     * Method to set received health points.
+     *
+     * @param enemyCard
+     * @param val
+     * @return
+     */
+    public EnemyCard setReceivedHealth(EnemyCard enemyCard, Integer val) {
+        enemyCard.setReceivedHealth(val);
+        return enemyCard;
+    }
+
 }

@@ -11,8 +11,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import pl.edu.pg.eti.game.playedgame.round.Round;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * MongoRepository interface with domain type PlayedGame and ObjectId as id
@@ -73,6 +75,19 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
                 .flatMap(cardList -> cardList.stream()
                         .filter(card -> card.getId().equals(cardId))
                         .findFirst());
+    }
+
+    default List<ItemCard> findHealthCardsInPlayer(String gameId, String playerLogin) {
+        return findById(gameId)
+                .map(PlayedGame::getPlayers)
+                .flatMap(playerList -> playerList.stream()
+                        .filter(player -> player.getLogin().equals(playerLogin))
+                        .findFirst()
+                        .map(Player::getCardsOnHand))
+                .stream()
+                .flatMap(itemCards -> itemCards.stream()
+                        .filter(card -> card.getHealth().compareTo(0) > 0))
+                .collect(Collectors.toList());
     }
 
     default Optional<Character> findCharacterInCharacters(String gameId, Integer characterId) {

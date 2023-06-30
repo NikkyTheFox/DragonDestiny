@@ -9,6 +9,8 @@ import pl.edu.pg.eti.game.playedgame.character.entity.Character;
 import pl.edu.pg.eti.game.playedgame.field.FieldOption;
 import pl.edu.pg.eti.game.playedgame.field.FieldOptionList;
 import pl.edu.pg.eti.game.playedgame.field.entity.Field;
+import pl.edu.pg.eti.game.playedgame.field.entity.FieldType;
+import pl.edu.pg.eti.game.playedgame.game.controller.FightResult;
 import pl.edu.pg.eti.game.playedgame.game.entity.GameManager;
 import pl.edu.pg.eti.game.playedgame.game.entity.PlayedGame;
 import pl.edu.pg.eti.game.playedgame.game.repository.PlayedGameRepository;
@@ -78,19 +80,19 @@ public class PlayedGameService {
         playedGameRepository.findById(id).orElseThrow(() -> new RuntimeException("No game found"));
         playedGameRepository.deleteById(id);
     }
-    public Optional<Card> findCardInCardDeck2(String gameId, Integer id) {
+    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
         return playedGameRepository.findCardByIdInCardDeck(gameId, id);
     }
 
-    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
-        Optional<PlayedGame> game = findPlayedGame(gameId);
-        for (Card c : game.get().getCardDeck()) {
-            if (c.getId().equals(id)) {
-                return Optional.of(c);
-            }
-        }
-        return Optional.empty();
-    }
+//    public Optional<Card> findCardInCardDeck(String gameId, Integer id) {
+//        Optional<PlayedGame> game = findPlayedGame(gameId);
+//        for (Card c : game.get().getCardDeck()) {
+//            if (c.getId().equals(id)) {
+//                return Optional.of(c);
+//            }
+//        }
+//        return Optional.empty();
+//    }
 
     public Optional<Card> findCardInUsedDeck(String gameId, Integer id) {
         return playedGameRepository.findCardByIdInUsedDeck(gameId, id);
@@ -137,6 +139,10 @@ public class PlayedGameService {
 
     public Optional<Player> findDifferentPlayerByField(String gameId, String playerId, Integer fieldId) {
         return playedGameRepository.findDifferentPlayerByField(gameId, playerId, fieldId);
+    }
+
+    public List<ItemCard> findHealthCardsInPlayer(String gameId, String playerId) {
+        return playedGameRepository.findHealthCardsInPlayer(gameId, playerId);
     }
 
     /**
@@ -397,9 +403,9 @@ public class PlayedGameService {
     public FieldOptionList checkField(PlayedGame game, Player player, Field field) {
         FieldOptionList list = new FieldOptionList();
         list.getPossibleOptions().add(FieldOption.valueOf(field.getType().toString()));
-        System.out.println("IN7");
+        if (field.getType() == FieldType.BOSS_FIELD)
+            list.getPossibleOptions().add(FieldOption.BRIDGE_FIELD);
         Optional<Player> enemy = findDifferentPlayerByField(game.getId(), player.getLogin(), field.getId());
-        System.out.println("IN8");
         if (enemy.isEmpty())
             return list;
         list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
@@ -421,7 +427,7 @@ public class PlayedGameService {
     }
 
     /**
-     * Method to calculate fight result between Player and Enemy from card or from field.
+     * Method to calculate fight result between Player and Enemy from card.
      *
      * @param game
      * @param player
@@ -430,19 +436,66 @@ public class PlayedGameService {
      * @param enemyRoll
      * @return
      */
-    public boolean calculateFight(PlayedGame game, Player player, EnemyCard enemy, Integer playerRoll, Integer enemyRoll) {
+    public FightResult calculateFight(PlayedGame game, Player player, EnemyCard enemy, Integer playerRoll, Integer enemyRoll) {
+        FightResult fightResult = new FightResult();
         Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
         System.out.println("PLAYER " + playerResult);
         Integer enemyResult = enemy.getCardManager().calculateTotalStrength(enemy) + enemyRoll;
         System.out.println("ENEMY " + enemyResult);
         if (playerResult >= enemyResult) {
-            return true;
+            decreaseHealth(game, player, enemy, -1);
+            fightResult.setAttackerWon(true);
+            if (enemy.getCardManager().calculateTotalHealth(enemy) <= 0)
+                fightResult.setEnemyKilled(true);
+            //return true;
+        } else {
+            decreaseHealth(game, player, -1);
+            fightResult.setAttackerWon(false);
+            if (player.getPlayerManager().calculateTotalHealth(player) <= 0)
+                fightResult.setPlayerDead(true);
+            //return false;
         }
-        return false;
+        return fightResult;
+    }
+
+    /**
+     * Method to calculate fight result between Player and Enemy from field.
+     *
+     * @param game
+     * @param player
+     * @param field
+     * @param enemy
+     * @param playerRoll
+     * @param enemyRoll
+     * @return
+     */
+    public FightResult calculateFight(PlayedGame game, Player player, Field field, EnemyCard enemy, Integer playerRoll, Integer enemyRoll) {
+        FightResult fightResult = new FightResult();
+        Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
+        System.out.println("PLAYER " + playerResult);
+        Integer enemyResult = enemy.getCardManager().calculateTotalStrength(enemy) + enemyRoll;
+        System.out.println("ENEMY " + enemyResult);
+        if (playerResult >= enemyResult) { // PLAYER WON
+            decreaseHealth(game, player, field, enemy, -1);
+            fightResult.setAttackerWon(true);
+            if (enemy.getCardManager().calculateTotalHealth(enemy) <= 0) {
+                fightResult.setEnemyKilled(true);
+                resetFieldEnemy(game, player, field, enemy);
+                if (field.getType() == FieldType.BOSS_FIELD)
+                    fightResult.setGameWon(true);
+            }
+        } else { // PLAYER LOST
+            decreaseHealth(game, player, -1);
+            fightResult.setAttackerWon(false);
+            if (player.getPlayerManager().calculateTotalHealth(player) <= 0)
+                fightResult.setPlayerDead(true);
+        }
+        return fightResult;
     }
 
     /**
      * Method to calculate fight result between Player and Player.
+     * Enemy is attacker, player is victim.
      *
      * @param game
      * @param player
@@ -451,15 +504,41 @@ public class PlayedGameService {
      * @param enemyRoll
      * @return
      */
-    public boolean calculateFight(PlayedGame game, Player player, Player enemy, Integer playerRoll, Integer enemyRoll) {
+    public FightResult calculateFight(PlayedGame game, Player player, Player enemy, Integer playerRoll, Integer enemyRoll) {
+        FightResult fightResult = new FightResult();
         Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
         System.out.println("PLAYER " + playerResult);
         Integer enemyResult = enemy.getPlayerManager().calculateTotalStrength(enemy) + enemyRoll;
         System.out.println("ENEMY PLAYER " + enemyResult);
-        if (playerResult >= enemyResult) {
-            return true;
+        setPlayerFightRoll(game, player, 0);
+        setPlayerFightRoll(game, enemy, 0);
+        if (playerResult >= enemyResult) { // PLAYER WON
+            fightResult.setAttackerWon(false);
+            fightResult.setWonPlayer(player.getLogin());
+            fightResult.setLostPlayer(enemy.getLogin());
+            Optional<ItemCard> card = enemy.getCardsOnHand().stream().filter(itemCard -> itemCard.getCardManager().calculateHealth(itemCard) > 0).findFirst();
+            if (card.isEmpty()) { // no health cards
+                decreaseHealth(game, enemy, -1);
+                if (enemy.getPlayerManager().calculateTotalHealth(enemy) <= 0)
+                    fightResult.setEnemyKilled(true);
+            } else {
+                fightResult.setChooseCardFromEnemyPlayer(true);
+            }
         }
-        return false;
+        else { // ATTACKER (ENEMY) WON
+            fightResult.setAttackerWon(true);
+            fightResult.setWonPlayer(enemy.getLogin());
+            fightResult.setLostPlayer(player.getLogin());
+            Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getCardManager().calculateHealth(itemCard) > 0).findFirst();
+            if (card.isEmpty()) { // no health cards
+                decreaseHealth(game, player, -1);
+                if (player.getPlayerManager().calculateTotalHealth(player) <= 0)
+                    fightResult.setPlayerDead(true);
+            } else {
+                fightResult.setChooseCardFromEnemyPlayer(true);
+            }
+        }
+        return fightResult;
     }
 
     /**
@@ -518,7 +597,27 @@ public class PlayedGameService {
     public PlayedGame decreaseHealth(PlayedGame game, Player player, Field field, EnemyCard enemyCard, Integer val) {
         EnemyCard updatedEnemy = enemyCard.getCardManager().addHealth(enemyCard, val);
         Field updatedField = field.getFieldManager().setEnemy(field, updatedEnemy);
+        System.out.println("Set enemy on field " + field.getEnemy().getReceivedHealth());
+        Player updatedPlayer = player.getPlayerManager().setPosition(player, player.getCharacter(), updatedField);
         PlayedGame updatedGame = updateField(game, updatedField);
+        updatedGame = updatePlayer(updatedGame, updatedPlayer);
+        return playedGameRepository.save(updatedGame);
+    }
+
+    /**
+     * Method to reset enemy from field to its initial health points.
+     *
+     * @param game
+     * @param player
+     * @param enemyCard
+     * @return
+     */
+    public PlayedGame resetFieldEnemy(PlayedGame game, Player player, Field field, EnemyCard enemyCard) {
+        EnemyCard updatedEnemy = enemyCard.getCardManager().setReceivedHealth(enemyCard, 0);
+        Field updatedField = field.getFieldManager().setEnemy(field, updatedEnemy);
+        Player updatedPlayer = player.getPlayerManager().setPosition(player, player.getCharacter(), updatedField);
+        PlayedGame updatedGame = updateField(game, updatedField);
+        updatedGame = updatePlayer(updatedGame, updatedPlayer);
         return playedGameRepository.save(updatedGame);
     }
 

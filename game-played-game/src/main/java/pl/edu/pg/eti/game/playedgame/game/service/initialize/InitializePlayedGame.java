@@ -114,6 +114,9 @@ public class InitializePlayedGame {
         for (Field c : fieldResponseEntity.getBody().getFieldList()) {
             c.setFieldManager(new FieldManager());
             playedBoard.addFieldsInBoard(c);
+            if (c.getEnemy() != null) {
+                c.getEnemy().setCardManager(new EnemyCardManager());
+            }
         }
         playedGame.getGameManager().setBoard(playedGame, playedBoard);
 
