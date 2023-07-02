@@ -1,0 +1,22 @@
+mvn clean package
+mvn package -DskipTests
+mvn clean package -DskipTests
+
+java -jar .\target\game-discovery-0.0.1-SNAPSHOT.jar
+docker build -t game_discovery:latest .
+docker run -p 8761:8761 game_discovery:latest
+
+
+java -jar .\target\game-config-server-0.0.1-SNAPSHOT.jar
+java -jar .\target\game-user-0.0.1-SNAPSHOT.jar
+java -jar .\target\game-gateway-0.0.1-SNAPSHOT.jar
+java -jar .\target\game-engine-0.0.1-SNAPSHOT.jar
+java -jar .\target\game-played-game-0.0.1-SNAPSHOT.jar
+
+
+npm install
+npm run dev
+
+
+cd ../docker-deployment
+docker-compose up

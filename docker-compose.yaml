@@ -1,0 +1,10 @@
+version: '3.1'
+
+services:
+  game_discovery_service:
+    build:
+      context: ./game-discovery
+      dockerfile: Dockerfile
+    image: game_discovery:latest
+    ports:
+      - "8761:8761"

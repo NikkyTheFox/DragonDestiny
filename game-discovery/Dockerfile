@@ -1,3 +1,4 @@
 FROM openjdk:17
-COPY .\target\Gateway-0.0.1-SNAPSHOT.jar gateway.jar
-CMD ["java","-jar","gateway.jar"]
+COPY target/game-discovery-0.0.1-SNAPSHOT.jar discovery.jar
+EXPOSE 8761
+CMD ["java","-jar","discovery.jar"]
