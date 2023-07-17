@@ -1,0 +1,8 @@
+<div class="items-list">
+ <div *ngFor="let item of itemsList; let i = index" class="tile">
+   <div class="item-name">Name: {{cardNameList[i]}}</div>
+   <div class="item-desc">Description: {{cardDescList[i]}}</div>
+   <div class="additional-strength">Additional Strength: {{item.strength}}</div>
+   <div class="additional-health">Additional Health: {{item.health}}</div>
+ </div>
+</div>

@@ -1,0 +1,6 @@
+TODO:
+- drawing proper cards
+- refreshing hand on a draw
+- roll a dice on backend, not frontend (**** you malina)
+- pawns and movement
+- isStarted flag
