@@ -1,0 +1,16 @@
+<div class="character-list">
+  <div *ngFor="let character of charactersToDisplay" class="tile">
+    <h3>{{character.name}}</h3>
+    <p>{{character.profession}}</p>
+    <p>S: {{character.initialStrength}} HP: {{character.initialHealth}}</p>
+    <div class="story">{{character.story}}</div>
+    <div *ngIf="!isSelectedFlag">
+      <button class="select-button" type="button" (click)="select(character)">Select</button>
+    </div>
+    <div *ngIf="isSelectedFlag">
+      <div class="character-select-confirmation">Selected</div>
+    </div>
+  </div>
+</div>
+
+

@@ -1,0 +1,12 @@
+.other-characters-container{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  flex: 2;
+}
+
+.other-characters-list{
+  text-align: left;
+  font-size: 15px;
+}

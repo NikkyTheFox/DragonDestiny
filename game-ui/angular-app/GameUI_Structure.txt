@@ -1,0 +1,47 @@
+[ COMPONENT ] app { ROOT }
+
+  [ DIRECTORY ] game-ui-header
+   [ COMPONENT ] header
+    [ COMPONENT ] header-left-section
+    [ COMPONENT ] header-middle-section
+    [ COMPONENT ] header-right-section
+
+  [ DIRECTORY ] game-ui-login
+  [ COMPONENT ] login-in
+  [ COMPONENT ] signup
+
+  [ DIRECTORY ]game-ui-dashboard
+  [ COMPONENT ] game-ui-dashboard
+    [ COMPONENT ] played-games-list
+    [ COMPONENT ] game-ui-dashboard-sidebar
+    [ COMPONENT ] create-game
+    [ COMPONENT ] join-game                       // new TODO
+
+  [ DIRECTORY ] game-ui-prepare-game
+  [ COMPONENT ] prepare-game
+    [ COMPONENT ] select-character
+    [ COMPONENT ] invite-player                       // TEST for many players
+    [ COMPONENT ] start-game                       // To implement isStarted flag once created in back TODO
+
+
+  [ DIRECTORY ] game-ui-playboard                         // where game is actually playable
+  [ COMPONENT ] main
+    [ COMPONENT ] righthand-sidebar
+      [ COMPONENT ] righthand-sidebar-game-control
+        [ COMPONENT ] righthand-sidebar-game-control-dice-roll             // to send data to backend TODO
+        [ COMPONENT ] righthand-sidebar-game-control-confirm-move?         // to talk about TODO
+      [ COMPONENT ] righthand-sidebar-cards-deck
+      [ COMPONENT ] righthand-sidebar-character-info
+        [ COMPONENT ] righthand-sidebar-character-info-portrait
+        [ COMPONENT ] righthand-sidebar-character-info-statistics
+          [ COMPONENT ] righthand-sidebar-character-info-statistic-stat
+    [ COMPONENT ] main-section
+      [ COMPONENT ] main-section-board
+        [ COMPONENT ] main-section-board-row
+          [ COMPONENT ] main-section-board-field
+      [ COMPONENT ] main-section-additional-field
+        [ COMPONENT ] main-section-additional-field-other-characters
+        [ COMPONENT ] main-section-additional-field-items
+
+  [ DIRECTORY ] game-ui-footer
+  [ COMPONENT ] footer
