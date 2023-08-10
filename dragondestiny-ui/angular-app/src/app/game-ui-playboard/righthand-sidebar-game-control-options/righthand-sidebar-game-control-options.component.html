@@ -1,0 +1,24 @@
+<div class="control-buttons-container">
+  <div *ngIf="(fieldTypeTakeOneCardFlag || fieldTypeTakeTwoCardsFlag) && numberOfCardsToBeDrawn > 0">
+    <button (click)="drawCard()">Take A Card {{numberOfCardsToBeDrawn}}</button>
+  </div>
+
+  <div *ngIf="(fieldTypeLoseTwoRoundFlag || fieldTypeLoseTwoRoundFlag) && numberOfTurnsToBeLost > 0">
+    <button (click)="confirmTurnLoss()">Confirm loss of {{numberOfTurnsToBeLost}} rounds</button>
+  </div>
+
+  <div *ngIf="fieldTypeBridgeFieldFlag">
+    <button (click)="goToBossRoom()">Go To The Boss Room</button>
+  </div>
+
+  <div *ngIf="enemyOnFieldFlag">
+    <button (click)="attackEnemyOnField()">Attack Enemy {{enemyName}} On Field</button>
+  </div>
+
+  <div *ngIf="playerOnFieldFlag">
+    <div *ngFor="let character of charactersOnField">
+      <button>Attack {{character.name}}</button>
+    </div>
+  </div>
+
+</div>

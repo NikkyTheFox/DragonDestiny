@@ -26,8 +26,18 @@
         <option value="$PROJECT_DIR$/game-user/pom.xml" />
         <option value="$PROJECT_DIR$/game-discovery/pom.xml" />
         <option value="$PROJECT_DIR$/game-ui/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-discovery/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-engine/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-played-game/pom.xml" />
+        <option value="$PROJECT_DIR$/dragondestiny-user/pom.xml" />
       </list>
     </option>
+  </component>
+  <component name="PWA">
+    <option name="enabled" value="true" />
+    <option name="wasEnabledAtLeastOnce" value="true" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="corretto-17" project-jdk-type="JavaSDK" />
 </project>

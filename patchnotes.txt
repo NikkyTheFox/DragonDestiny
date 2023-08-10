@@ -1,0 +1,45 @@
+07.07.2023
+BACKEND:
+  PlayedGameRepository:
+    - findPlayersByField() method to retrieve an OPTIONAL LIST of players on a given field
+  PlayedGameService:
+    - findCharactersInUse() method to retrieve an OPTIONAL LIST of characters used in given game
+    - findPlayersByField() method to retrieve an OPTIONAL LIST of players on a given field
+  PlayedGameController:
+    - GET getCharactersInUse() request to retrieve a list of characters controlled by all players in game
+    - GET getPlayersOnField() request to retrieve a list of players on a given field
+    - GET checkPossibleNewPositions() request to retrieve FieldList to which a player can move to after a dice roll
+
+  FRONTEND:
+    - corresponding requests in services
+    - fetch only characters in use (do not filter in frontend) while displaying other characters in additional field
+
+03.07.2023
+    NEW:
+- pawn grid for each field showing only pawns that are on a given field
+- summed up all stats that should be shown under character portrait (initial + received + cards)
+- summed up all stats that should be shown in other-characters list (initial + received + cards)
+- a player cannot join game that isStarted
+- starting a game send startGame to backend
+- dice roll from backend
+- fields that player can move to are button based after a dice roll
+- player's character can move to a chosen field
+
+    IDEAS:
+- check if all players have chosen a character before game starts moved from frontend to backend
+- move getPossibleFields() from frontend to backend as a function that returns ids of fields a character can move to after rolling a dice
+- prevent multiple dice rolls in backend
+
+22.06.2023
+    NEW:
+- joining game
+- "starting" game
+- inviting
+- choosing character and marking it as "selected"
+- dynamic list of players(characters) in game
+- dynamic list of player's items
+- place for dice rolls
+- HP and Strength shown as initial+additional
+
+    Bugs found:
+- after adding an item to players hand, strength is not increased; Players stats not increased by items? || fixed
