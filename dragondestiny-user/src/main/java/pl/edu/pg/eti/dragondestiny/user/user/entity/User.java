@@ -48,7 +48,7 @@ public class User {
     /**
      * List of played games of that user.
      */
-    @Transient
+    //@Transient
     @ManyToMany(mappedBy = "userList")
     private List<Game> playedGames = new ArrayList<>();
 
