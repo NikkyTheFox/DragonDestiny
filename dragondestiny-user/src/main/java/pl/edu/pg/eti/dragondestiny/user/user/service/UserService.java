@@ -1,14 +1,19 @@
 
 package pl.edu.pg.eti.dragondestiny.user.user.service;
 
+import org.modelmapper.ModelMapper;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.service.GameService;
+import pl.edu.pg.eti.dragondestiny.user.user.dto.UserDTO;
+import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
+import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
 import pl.edu.pg.eti.dragondestiny.user.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,6 +76,19 @@ public class UserService {
     public List<User> findUsers() {
 
         return userRepository.findAll();
+    }
+
+    /**
+     * Retrieves all users.
+     *
+     * @return A structure containing list of users.
+     */
+    public Optional<UserList> getUsers(){
+        List<User> userList = findUsers();
+        if(userList.isEmpty()){
+            return Optional.empty();
+        }
+        return Optional.of(new UserList(userList));
     }
 
     /**
@@ -207,5 +225,21 @@ public class UserService {
         gameService.save(game.get());
         save(user.get());
         return user;
+    }
+
+    /**
+     * Converts UserList into UserListDTO.
+     *
+     * @param modelMapper Mapper allowing conversion,
+     * @param userList A structure containing list of users.
+     * @return A DTO.
+     */
+    public UserListDTO convertUserListToDTO(ModelMapper modelMapper, UserList userList){
+        List<UserDTO> userDTOList = new ArrayList<>();
+        userList.getUserList().forEach(user -> {
+            UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+            userDTOList.add(userDTO);
+        });
+        return new UserListDTO(userDTOList);
     }
 }

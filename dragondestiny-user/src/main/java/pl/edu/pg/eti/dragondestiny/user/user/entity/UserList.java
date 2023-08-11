@@ -18,6 +18,6 @@ public class UserList {
     /**
      * A list of users.
      */
-    private List<UserDTO> userList;
+    private List<User> userList;
 
 }

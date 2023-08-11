@@ -7,6 +7,7 @@ import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.service.GameService;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
+import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.UserLogin;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserRegisteredDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
@@ -70,15 +71,9 @@ public class UserController {
      */
     @GetMapping()
     public ResponseEntity<UserListDTO> getUsers() {
-        List<User> userList = userService.findUsers();
-        if(userList.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(
-                new UserListDTO(userList.stream()
-                        .map(user -> modelMapper.map(user, UserDTO.class))
-                        .collect(Collectors.toList()))
-        );
+        Optional<UserList> userList = userService.getUsers();
+        return userList.map(list -> ResponseEntity.ok().body(userService.convertUserListToDTO(modelMapper, list)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -194,11 +189,9 @@ public class UserController {
      */
     @GetMapping("/games")
     public ResponseEntity<GameListDTO> getGames(){
-        List<Game> gameList = gameService.findGames();
-        if(gameList.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, new GameList(gameList)));
+        Optional<GameList> gameList = gameService.getGames();
+        return gameList.map(list -> ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, list)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

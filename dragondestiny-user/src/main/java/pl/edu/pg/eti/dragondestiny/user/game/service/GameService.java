@@ -63,6 +63,14 @@ public class GameService {
         return gameRepository.findAllByUserList(user);
     }
 
+    public Optional<GameList> getGames(){
+        List<Game> gameList = findGames();
+        if(gameList.isEmpty()){
+            return Optional.empty();
+        }
+        return Optional.of(new GameList(gameList));
+    }
+
     /**
      * Adds new game to the database.
      *
