@@ -63,6 +63,11 @@ public class GameService {
         return gameRepository.findAllByUserList(user);
     }
 
+    /**
+     * Retrieves all games.
+     *
+     * @return A structure containing list of games.
+     */
     public Optional<GameList> getGames(){
         List<Game> gameList = findGames();
         if(gameList.isEmpty()){
