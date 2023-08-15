@@ -1,5 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
@@ -50,6 +54,10 @@ public class FieldController {
      * @return A structure containing a list of fields.
      */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields() {
         Optional<FieldList> fieldList = fieldService.getFields();
         return fieldList.map(list -> ResponseEntity.ok().body(fieldService.convertFieldListToDTO(modelMapper, list)))
@@ -63,6 +71,11 @@ public class FieldController {
      * @return A retrieved field.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Field not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable(name = "id") Integer fieldId) {
         Optional<Field> field = fieldService.findField(fieldId);
         return field.map(value -> ResponseEntity.ok().body(modelMapper.map(value, FieldDTO.class)))
@@ -76,6 +89,11 @@ public class FieldController {
      * @return An enemy card from a field.
      */
     @GetMapping("/{id}/enemy")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Enemy on field not found", content = @Content)})
     public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable(name = "id") Integer fieldId) {
         Optional<EnemyCard> enemyCard = fieldService.getFieldEnemy(fieldId);
         return enemyCard.map(card -> ResponseEntity.ok().body(modelMapper.map(card, EnemyCardDTO.class)))

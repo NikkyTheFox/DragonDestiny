@@ -1,5 +1,10 @@
 package pl.edu.pg.eti.dragondestiny.engine.character.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
@@ -48,6 +53,10 @@ public class CharacterController {
      * @return A structure containing list of characters.
      */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<CharacterListDTO> getCharacters() {
         Optional<CharacterList> characterList = characterService.getCharacters();
         return characterList.map(list -> ResponseEntity.ok().body(characterService.convertCharacterListToDTO(modelMapper, list)))
@@ -61,6 +70,11 @@ public class CharacterController {
      * @return A retrieved character.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Character not found", content = @Content)})
     public ResponseEntity<CharacterDTO> getCharacter(@PathVariable(name = "id") Integer id) {
         Optional<Character> character = characterService.findCharacter(id);
         return character.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CharacterDTO.class)))

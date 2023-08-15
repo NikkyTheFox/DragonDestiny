@@ -1,5 +1,10 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.card.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pl.edu.pg.eti.dragondestiny.engine.board.dto.BoardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
@@ -57,6 +62,11 @@ public class GameCardController {
      * @return A structure containing list of cards.
      */
     @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<CardListDTO> getCards(@PathVariable("gameId") Integer gameId) {
         Optional<CardList> cardList = gameCardService.getGameCards(gameId);
         return cardList.map(list -> ResponseEntity.ok().body(gameCardService.convertCardListToDTO(modelMapper, list)))
@@ -68,9 +78,14 @@ public class GameCardController {
      *
      * @param gameId An identifier of a game.
      * @param cardId An identifier of a card.
-     * @return Retrieved card.
+     * @return A retrieved card.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Card in game not found", content = @Content)})
     public ResponseEntity<CardDTO> getCard(@PathVariable("gameId") Integer gameId, @PathVariable(name = "id") Integer cardId) {
         Optional<Card> card = gameCardService.getGameCard(gameId, cardId);
         return card.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CardDTO.class)))
@@ -84,6 +99,11 @@ public class GameCardController {
      * @return A structure containing list of enemy cards.
      */
     @GetMapping("/enemy")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<EnemyCardListDTO> getEnemyCards(@PathVariable("gameId") Integer gameId) {
         Optional<EnemyCardList> enemyCardList = gameCardService.getGameEnemyCards(gameId);
         return enemyCardList.map(cardList -> ResponseEntity.ok().body(gameCardService.convertEnemyCardListToDTO(modelMapper, cardList)))
@@ -97,6 +117,11 @@ public class GameCardController {
      * @return A structure containing list of item cards.
      */
     @GetMapping("/item")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getItemCards(@PathVariable("gameId") Integer gameId) {
         Optional<ItemCardList> itemCardList = gameCardService.getGameItemCards(gameId);
         return itemCardList.map(cardList -> ResponseEntity.ok().body(gameCardService.convertItemCardListToDTO(modelMapper, cardList)))

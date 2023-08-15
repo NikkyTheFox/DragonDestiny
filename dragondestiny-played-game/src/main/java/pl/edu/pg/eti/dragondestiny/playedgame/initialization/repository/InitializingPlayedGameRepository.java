@@ -1,9 +1,11 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCardList;
@@ -35,16 +37,20 @@ public class InitializingPlayedGameRepository {
      * @param gameEngineGameId An identifier of the game in the game engine.
      * @return The game meant to be retrieved.
      */
-    public GameEngineGameDTO getGameById(Integer gameEngineGameId){
-        ResponseEntity<GameEngineGameDTO> gameEngineGameDTOResponseEntity = client.get()
-                .uri("http://GAME-ENGINE/api/games/{gameId}", gameEngineGameId)
-                .retrieve()
-                .toEntity(GameEngineGameDTO.class)
-                .block();
-        if(gameEngineGameDTOResponseEntity == null) {
+    public GameEngineGameDTO getGameById(Integer gameEngineGameId) {
+        try {
+            ResponseEntity<GameEngineGameDTO> gameEngineGameDTOResponseEntity = client.get()
+                    .uri("http://GAME-ENGINE/api/games/{gameId}", gameEngineGameId)
+                    .retrieve()
+                    .toEntity(GameEngineGameDTO.class)
+                    .block();
+            if(gameEngineGameDTOResponseEntity == null) {
+                return null;
+            }
+            return gameEngineGameDTOResponseEntity.getBody();
+        } catch (WebClientResponseException ex) {
             return null;
         }
-        return gameEngineGameDTOResponseEntity.getBody();
     }
 
     /**

@@ -3,7 +3,7 @@ package pl.edu.pg.eti.dragondestiny.engine.board.dto;
 import lombok.Data;
 
 /**
- * DTO allows to hide implementation from the client.
+ * Data Transfer Object of Board instance.
  */
 @Data
 public class BoardDTO {
@@ -16,11 +16,10 @@ public class BoardDTO {
     /**
      * Size of board (number of fields) in x dimension.
      */
-    private Integer xSize;
+    private Integer xsize;
 
     /**
      * Size of board (number of fields) in y dimension.
      */
-    private Integer ySize;
-
+    private Integer ysize;
 }

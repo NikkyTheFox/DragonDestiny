@@ -1,5 +1,10 @@
 package pl.edu.pg.eti.dragondestiny.engine.game.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import pl.edu.pg.eti.dragondestiny.engine.board.dto.BoardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
 import pl.edu.pg.eti.dragondestiny.engine.game.dto.GameDTO;
@@ -45,11 +50,15 @@ public class GameController {
     }
 
     /**
-     * Retrieve all games.
+     * Retrieve all game engines.
      *
      * @return A structure containing list of games.
      */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GameListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<GameListDTO> getGames() {
         Optional<GameList> gameList = gameService.getGames();
         return gameList.map(list -> ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, list)))
@@ -63,6 +72,11 @@ public class GameController {
      * @return A retrieved game.
      */
     @GetMapping("/{gameId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = GameDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<GameDTO> getGame(@PathVariable(name = "gameId") Integer gameId) {
         Optional<Game> game = gameService.findGame(gameId);
         return game.map(value -> ResponseEntity.ok().body(modelMapper.map(value, GameDTO.class)))
@@ -76,6 +90,11 @@ public class GameController {
      * @return A retrieved board.
      */
     @GetMapping("/{gameId}/board")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = BoardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Board in game not found", content = @Content)})
     public ResponseEntity<BoardDTO> getGameBoard(@PathVariable(name = "gameId") Integer gameId) {
         Optional<Board> board = gameService.getGameBoard(gameId);
         return board.map(value -> ResponseEntity.ok().body(modelMapper.map(value, BoardDTO.class)))

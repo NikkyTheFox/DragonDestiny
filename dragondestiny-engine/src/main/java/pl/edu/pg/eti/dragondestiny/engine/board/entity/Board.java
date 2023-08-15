@@ -49,13 +49,13 @@ public class Board {
      * Number of fields in x-dimension.
      */
     @Column(name = "x_size")
-    private Integer xSize;
+    private Integer xsize;
 
     /**
      * Number of fields in y-dimension.
      */
     @Column(name = "y_size")
-    private Integer ySize;
+    private Integer ysize;
 
     /**
      * List of fields in the board.

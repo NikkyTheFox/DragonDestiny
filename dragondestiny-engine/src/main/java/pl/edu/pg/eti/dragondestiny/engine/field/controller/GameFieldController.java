@@ -1,5 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
@@ -54,6 +58,11 @@ public class GameFieldController {
      * @return A structure containing list of fields.
      */
     @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields(@PathVariable("gameId") Integer gameId) {
         Optional<FieldList> fieldList = gameFieldService.getGameFields(gameId);
         return fieldList.map(list -> ResponseEntity.ok().body(gameFieldService.convertFieldListToDTO(modelMapper, list)))
@@ -64,10 +73,15 @@ public class GameFieldController {
      * Retrieves field by its ID from the board that belongs to the game specified by ID.
      *
      * @param gameId An identifier of a game.
-     * @param fieldId An identifier of a field to be retrieved.
+     * @param fieldId An identifier of a field.
      * @return A retrieved field.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Field on board in game not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable("gameId") Integer gameId, @PathVariable("id") Integer fieldId) {
         Optional<Field> field = gameFieldService.getGameField(gameId, fieldId);
         return field.map(value -> ResponseEntity.ok().body(modelMapper.map(value, FieldDTO.class)))
@@ -78,10 +92,15 @@ public class GameFieldController {
      * Retrieves enemy from the field specified by ID and by game's ID.
      *
      * @param gameId An identifier of a game.
-     * @param fieldId An identifier of a field to be checked.
+     * @param fieldId An identifier of a field.
      * @return A retrieved enemy card.
      */
     @GetMapping("/{id}/enemy")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Enemy on field on board in game not found", content = @Content)})
     public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable("gameId") Integer gameId, @PathVariable(name = "id") Integer fieldId) {
         Optional<EnemyCard> enemyCard = gameFieldService.getGameFieldEnemy(gameId, fieldId);
         return enemyCard.map(card -> ResponseEntity.ok().body(modelMapper.map(card, EnemyCardDTO.class)))

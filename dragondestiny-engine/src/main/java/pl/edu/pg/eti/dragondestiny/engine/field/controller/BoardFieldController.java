@@ -1,7 +1,12 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
+import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.field.entity.Field;
@@ -51,10 +56,15 @@ public class BoardFieldController {
     /**
      * Retrieves all fields from the specified board.
      *
-     * @param boardId A board identifier.
+     * @param boardId An identifier of board.
      * @return A structure containing list of fields.
      */
     @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Board not found", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields(@PathVariable("boardId") Integer boardId) {
         Optional<FieldList> fieldList = boardFieldService.getFields(boardId);
         return fieldList.map(list -> ResponseEntity.ok().body(boardFieldService.convertFieldListToDTO(modelMapper, list)))
@@ -64,11 +74,16 @@ public class BoardFieldController {
     /**
      * Retrieves field specified by ID from given board.
      *
-     * @param boardId A board identifier.
+     * @param boardId An identifier of board.
      * @param fieldId An identifier of field.
      * @return A retrieved field.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Field on board not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable("boardId") Integer boardId, @PathVariable("id") Integer fieldId) {
         Optional<Field> field = boardFieldService.getField(boardId, fieldId);
         return field.map(value -> ResponseEntity.ok().body(modelMapper.map(value, FieldDTO.class)))
@@ -78,11 +93,16 @@ public class BoardFieldController {
     /**
      * Retrieves enemy from the field given by ID and board's ID.
      *
-     * @param boardId An identifier of a board on which a field exists.
-     * @param fieldId An identifier of a field to be checked.
+     * @param boardId An identifier of a board.
+     * @param fieldId An identifier of a field.
      * @return An enemy card from the field.
      */
     @GetMapping("/{id}/enemy")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Enemy on field on board not found", content = @Content)})
     public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable("boardId") Integer boardId, @PathVariable(name = "id") Integer fieldId) {
         Optional<EnemyCard> enemyCard = boardFieldService.getFieldEnemy(boardId, fieldId);
         return enemyCard.map(card -> ResponseEntity.ok().body(modelMapper.map(card, EnemyCardDTO.class)))

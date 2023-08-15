@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * DTO allows to hide implementation from the client.
+ * Data Transfer Object of List of Card DTOs.
  */
 @Data
 @AllArgsConstructor

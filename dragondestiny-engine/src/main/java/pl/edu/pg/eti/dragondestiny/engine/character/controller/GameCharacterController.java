@@ -1,5 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.engine.character.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
@@ -52,6 +56,11 @@ public class GameCharacterController {
      * @return A structure containing list of characters.
     */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<CharacterListDTO> getCharacters(@PathVariable("gameId") Integer gameId) {
        Optional<CharacterList> characterList = gameCharacterService.getGameCharacters(gameId);
         return characterList.map(list -> ResponseEntity.ok().body(gameCharacterService.convertCharacterListToDTO(modelMapper, list)))
@@ -66,6 +75,11 @@ public class GameCharacterController {
      * @return Retrieved character.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Character in game not found", content = @Content)})
     public ResponseEntity<CharacterDTO> getCharacter(@PathVariable(name = "gameId") Integer gameId, @PathVariable(name = "id") Integer characterId) {
         Optional<Character> character = gameCharacterService.getGameCharacter(gameId, characterId);
         return character.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CharacterDTO.class)))

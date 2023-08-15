@@ -1,5 +1,10 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.card.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pl.edu.pg.eti.dragondestiny.engine.board.dto.BoardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
@@ -69,6 +74,10 @@ public class CardController {
      * @return A structure containing a list of cards.
      */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<CardListDTO> getCards() {
         Optional<CardList> cardList = cardService.getCards();
         return cardList.map(list -> ResponseEntity.ok().body(cardService.convertCardListToDTO(modelMapper, list)))
@@ -82,6 +91,11 @@ public class CardController {
      * @return A retrieved card.
      */
     @GetMapping("/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Card not found", content = @Content)})
     public ResponseEntity<CardDTO> getCard(@PathVariable(name = "id") Integer id) {
         Optional<Card> card = cardService.findCard(id);
         return card.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CardDTO.class)))
@@ -94,6 +108,10 @@ public class CardController {
      * @return A structure containing a list of enemy cards.
      */
     @GetMapping("/enemy")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<EnemyCardListDTO> getEnemyCards() {
         Optional<EnemyCardList> enemyCardList = enemyCardService.getEnemyCards();
         return enemyCardList.map(cardList -> ResponseEntity.ok().body(enemyCardService.convertEnemyCardListToDTO(modelMapper, cardList)))
@@ -106,6 +124,10 @@ public class CardController {
      * @return A structure containing a list of item cards.
      */
     @GetMapping("/item")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getItemCards() {
         Optional<ItemCardList> itemCardList = itemCardService.getItemCards();
         if(itemCardList.isEmpty()){

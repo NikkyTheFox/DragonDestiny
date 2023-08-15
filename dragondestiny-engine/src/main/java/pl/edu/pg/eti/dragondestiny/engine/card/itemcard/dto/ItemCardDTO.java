@@ -4,7 +4,7 @@ import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import lombok.Data;
 
 /**
- * DTO allows to hide implementation from the client.
+ * Data Transfer Object of Item Card instance.
  */
 @Data
 public class ItemCardDTO extends CardDTO {

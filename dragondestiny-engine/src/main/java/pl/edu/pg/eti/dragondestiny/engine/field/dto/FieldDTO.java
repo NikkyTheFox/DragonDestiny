@@ -5,7 +5,7 @@ import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import lombok.Data;
 
 /**
- * DTO allows to hide implementation from the client.
+ * Data Transfer Object of Field instance.
  */
 @Data
 public class FieldDTO {

@@ -1,5 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.user.user.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import pl.edu.pg.eti.dragondestiny.user.game.dto.GameListDTO;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
@@ -70,6 +74,10 @@ public class UserController {
      * @return A structure containing a list of users.
      */
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<UserListDTO> getUsers() {
         Optional<UserList> userList = userService.getUsers();
         return userList.map(list -> ResponseEntity.ok().body(userService.convertUserListToDTO(modelMapper, list)))
@@ -83,6 +91,11 @@ public class UserController {
      * @return A retrieved user.
      */
     @GetMapping("/{login}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> getUserByLogin(@PathVariable(name = "login") String userLogin) {
         Optional<User> user = userService.findUser(userLogin);
         return user.map(value -> ResponseEntity.ok().body(modelMapper.map(value, UserDTO.class)))
@@ -96,6 +109,11 @@ public class UserController {
      * @return A retrieved user.
      */
     @PutMapping("/login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> findUserByLoginAndPassword(@Valid @RequestBody UserLogin loginUserRequest) {
         Optional<User> user = userService.findUser(loginUserRequest.getLogin(), loginUserRequest.getPassword());
         return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
@@ -109,6 +127,10 @@ public class UserController {
      * @return A registered user.
      */
     @PutMapping("/register")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserRegistered userToRegister) {
         Optional<User> user = userService.registerUser(modelMapper.map(userToRegister, User.class));
         return user.map(value -> ResponseEntity.ok().body(modelMapper.map(value, UserDTO.class)))
@@ -122,6 +144,11 @@ public class UserController {
      * @return A structure containing list of games.
      */
     @GetMapping("/{login}/games")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = GameListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<GameListDTO> findGames(@PathVariable(name = "login") String userLogin) {
         Optional<GameList> gameList = userService.findGames(userLogin);
         return gameList.map(list -> ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, list)))
@@ -136,6 +163,11 @@ public class UserController {
      * @return An updated user.
      */
     @PutMapping("/{login}/edit")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> updateUser(@PathVariable(name = "login") String userLogin, @RequestBody UserRegisteredDTO updatedUser) {
         Optional<User> user = userService.updateUser(userLogin, modelMapper.map(updatedUser, User.class));
         return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
@@ -150,6 +182,11 @@ public class UserController {
      * @return An updated user.
      */
     @PutMapping("/{login}/addGame/{gameId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = UserDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> addGameToUser(@PathVariable(name = "login") String userLogin, @PathVariable(name = "gameId") String gameId) {
         Optional<User> user = userService.addGameToUser(userLogin, gameId);
         return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
@@ -163,6 +200,11 @@ public class UserController {
      * @return A confirmation of deletion.
      */
     @DeleteMapping("/{login}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Boolean.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<Boolean> deleteUser(@PathVariable(name = "login") String userLogin) {
         Optional<Boolean> optionalBoolean = userService.deleteUser(userLogin);
         return optionalBoolean.map(aBoolean -> ResponseEntity.ok().body(aBoolean))
@@ -173,8 +215,13 @@ public class UserController {
      * Adds game to the database.
      *
      * @param gameId An identifier of a game to be added.
+     * @return A confirmation of addition.
      */
     @PutMapping("/games/{gameId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Boolean.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<Boolean> addGame(@PathVariable(name = "gameId") String gameId){
         Game game = new Game();
         game.setId(gameId);
@@ -188,6 +235,11 @@ public class UserController {
      * @return A structure containing list of games.
      */
     @GetMapping("/games")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = GameListDTO.class)) }),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Games not found", content = @Content)})
     public ResponseEntity<GameListDTO> getGames(){
         Optional<GameList> gameList = gameService.getGames();
         return gameList.map(list -> ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, list)))

@@ -4,7 +4,7 @@ import lombok.Data;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
 
 /**
- * DTO allows to hide implementation from the client.
+ * Data Transfer Object of Character instance.
  */
 @Data
 public class CharacterDTO {

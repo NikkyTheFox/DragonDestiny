@@ -56,7 +56,7 @@ public class InitializingPlayedGameService {
     public Optional<PlayedGame> initialize(Integer gameEngineGameId) {
         // GET GAME:
         GameEngineGameDTO playedGameResponse = initializingPlayedGameRepository.getGameById(gameEngineGameId);
-        if(playedGameResponse == null){
+        if(playedGameResponse == null) {
             return Optional.empty();
         }
 
