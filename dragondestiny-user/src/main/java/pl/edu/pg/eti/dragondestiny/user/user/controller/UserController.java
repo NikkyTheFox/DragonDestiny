@@ -11,11 +11,9 @@ import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.service.GameService;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
-import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
-import pl.edu.pg.eti.dragondestiny.user.user.entity.UserLogin;
+import pl.edu.pg.eti.dragondestiny.user.user.dto.UserLoginDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserRegisteredDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
-import pl.edu.pg.eti.dragondestiny.user.user.entity.UserRegistered;
 import pl.edu.pg.eti.dragondestiny.user.user.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents REST controller, allows to handle requests to get users' data.
@@ -79,9 +75,7 @@ public class UserController {
                     schema = @Schema(implementation = UserListDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<UserListDTO> getUsers() {
-        Optional<UserList> userList = userService.getUsers();
-        return userList.map(list -> ResponseEntity.ok().body(userService.convertUserListToDTO(modelMapper, list)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok().body(userService.convertUserListToDTO(modelMapper, userService.getUsers()));
     }
 
     /**
@@ -114,7 +108,7 @@ public class UserController {
                     schema = @Schema(implementation = UserDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
-    public ResponseEntity<UserDTO> findUserByLoginAndPassword(@Valid @RequestBody UserLogin loginUserRequest) {
+    public ResponseEntity<UserDTO> findUserByLoginAndPassword(@Valid @RequestBody UserLoginDTO loginUserRequest) {
         Optional<User> user = userService.findUser(loginUserRequest.getLogin(), loginUserRequest.getPassword());
         return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -131,7 +125,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserRegistered userToRegister) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserRegisteredDTO userToRegister) {
         Optional<User> user = userService.registerUser(modelMapper.map(userToRegister, User.class));
         return user.map(value -> ResponseEntity.ok().body(modelMapper.map(value, UserDTO.class)))
                 .orElseGet(() -> ResponseEntity.badRequest().build());

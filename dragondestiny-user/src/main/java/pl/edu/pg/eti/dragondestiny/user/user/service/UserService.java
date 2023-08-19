@@ -69,26 +69,16 @@ public class UserService {
     }
 
     /**
-     * Returns all users found.
-     *
-     * @return A list of retrieved users.
-     */
-    public List<User> findUsers() {
-
-        return userRepository.findAll();
-    }
-
-    /**
      * Retrieves all users.
      *
      * @return A structure containing list of users.
      */
-    public Optional<UserList> getUsers(){
-        List<User> userList = findUsers();
+    public UserList getUsers() {
+        List<User> userList = userRepository.findAll();
         if(userList.isEmpty()){
-            return Optional.empty();
+            return new UserList();
         }
-        return Optional.of(new UserList(userList));
+        return new UserList(userList);
     }
 
     /**
@@ -116,14 +106,14 @@ public class UserService {
     }
 
     /**
-     * Adds new user to the database.
+     * Adds new user to the database unless already one exists with the same login.
      *
      * @param userRegistered A structure containing user's data.
      * @return Newly created user.
      */
-    public Optional<User> registerUser(User userRegistered){
+    public Optional<User> registerUser(User userRegistered) {
         Optional<User> user = findUser(userRegistered.getLogin());
-        if(user.isPresent()){
+        if(user.isPresent()) {
             return Optional.empty();
         }
         save(userRegistered);
@@ -136,7 +126,7 @@ public class UserService {
      * @param updatedUser A structure with new data for user's details.
      * @param userToUpdate A user to be updated with new data.
      */
-    public void update(User updatedUser, User userToUpdate) {
+    private void update(User updatedUser, User userToUpdate) {
         if(updatedUser.getLogin() != null){
             // update login to new value
             userToUpdate.setLogin(updatedUser.getLogin());
@@ -204,6 +194,8 @@ public class UserService {
      */
     public Optional<GameList> findGames(String userLogin){
         Optional<User> user = findUser(userLogin);
+        if (user.isEmpty())
+            return Optional.empty();
         return user.map(value -> new GameList(gameService.findGames(value)));
     }
 
@@ -214,7 +206,7 @@ public class UserService {
      * @param gameId An identifier of a game.
      * @return Updated user.
      */
-    public Optional<User> addGameToUser(String userLogin, String gameId){
+    public Optional<User> addGameToUser(String userLogin, String gameId) {
         Optional<User> user = findUser(userLogin);
         Optional<Game> game = gameService.findGame(gameId);
         if(user.isEmpty() || game.isEmpty()){
@@ -234,7 +226,7 @@ public class UserService {
      * @param userList A structure containing list of users.
      * @return A DTO.
      */
-    public UserListDTO convertUserListToDTO(ModelMapper modelMapper, UserList userList){
+    public UserListDTO convertUserListToDTO(ModelMapper modelMapper, UserList userList) {
         List<UserDTO> userDTOList = new ArrayList<>();
         userList.getUserList().forEach(user -> {
             UserDTO userDTO = modelMapper.map(user, UserDTO.class);

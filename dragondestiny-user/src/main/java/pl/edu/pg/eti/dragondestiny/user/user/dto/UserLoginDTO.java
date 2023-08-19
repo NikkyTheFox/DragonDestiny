@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.dragondestiny.user.user.entity;
+package pl.edu.pg.eti.dragondestiny.user.user.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.Data;
  * A structure containing only user's login and password.
  */
 @Data
-public class UserLogin {
+public class UserLoginDTO {
 
     /**
      * User's login.
