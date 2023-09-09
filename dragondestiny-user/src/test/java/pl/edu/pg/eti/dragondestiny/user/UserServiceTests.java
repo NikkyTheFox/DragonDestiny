@@ -1,13 +1,18 @@
 package pl.edu.pg.eti.dragondestiny.user;
 
+import junitparams.Parameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runners.Parameterized;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.service.GameService;
+import pl.edu.pg.eti.dragondestiny.user.user.dto.UserDTO;
+import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
 import pl.edu.pg.eti.dragondestiny.user.user.repository.UserRepository;
@@ -71,40 +76,70 @@ public class UserServiceTests {
         when(userRepositoryMock.findUserByLoginAndPassword("login2", "pass2")).thenReturn(Optional.of(user2));
         when(userRepositoryMock.findUserByLoginAndPassword("login3", "pass3")).thenReturn(Optional.of(user3));
 
-        when(gameServiceMock.findGames(user1)).thenReturn(user1.getPlayedGames());
-        when(gameServiceMock.findGames(user2)).thenReturn(user2.getPlayedGames());
-        when(gameServiceMock.findGames(user3)).thenReturn(user3.getPlayedGames());
+        when(gameServiceMock.getGames(user1)).thenReturn(Optional.of(new GameList(user1.getPlayedGames())));
+        when(gameServiceMock.getGames(user2)).thenReturn(Optional.of(new GameList(user2.getPlayedGames())));
+        when(gameServiceMock.getGames(user3)).thenReturn(Optional.of(new GameList(user3.getPlayedGames())));
 
-        when(gameServiceMock.findGame("game1")).thenReturn(Optional.of(game1));
-        when(gameServiceMock.findGame("game2")).thenReturn(Optional.of(game2));
+        when(gameServiceMock.getGame("game1")).thenReturn(Optional.of(game1));
+        when(gameServiceMock.getGame("game2")).thenReturn(Optional.of(game2));
 
 
     }
     @Test
-    public void testFindUserByLogin() {
+    public void testGetUserByLoginExisting() {
         // Arrange
-        Optional<User> userToFind = userList.stream().filter(user -> user.getLogin().equals("login1")).findFirst();
+        String login = "login1";
+        Optional<User> userToFind = userList.stream().filter(user -> user.getLogin().equals(login)).findFirst();
 
         // Act
-        Optional<User> userFound = userService.findUser("login1");
-
-        // Assert
-        assertEquals(userFound.get(), userToFind.get());
-    }
-
-    @Test
-    public void testFindUserByLoginAndPassword() throws Exception {
-        // Arrange
-        Optional<User> userToFind = userList.stream().filter(user -> user.getLogin().equals("login1") && user.getPassword().equals("pass1")).findFirst();
-        if (userToFind.isEmpty())
-            throw new Exception("Not found user in list");
-
-        // Act
-        Optional<User> userFound = userService.findUser("login1", "pass1");
+        Optional<User> userFound = userService.getUser(login);
 
         // Assert
         assertTrue(userFound.isPresent());
         assertEquals(userFound.get(), userToFind.get());
+    }
+
+    @Test
+    public void testGetUserByLoginNonExisting() {
+        // Arrange
+        String login = "nonExitingLogin";
+
+        // Act
+        Optional<User> userFound2 = userService.getUser(login);
+
+        // Assert
+        assertTrue(userFound2.isEmpty());
+    }
+
+    @Test
+    public void testFindUserByLoginAndPasswordExisting() throws Exception {
+        // Arrange
+        String login = "login1";
+        String password = "pass1";
+        Optional<User> userToFind = userList.stream().filter(user -> user.getLogin().equals(login) &&
+                user.getPassword().equals(password)).findFirst();
+        if (userToFind.isEmpty())
+            throw new Exception("Not found user in list");
+
+        // Act
+        Optional<User> userFound = userService.getUser(login, password);
+
+        // Assert
+        assertTrue(userFound.isPresent());
+        assertEquals(userFound.get(), userToFind.get());
+    }
+
+    @Test
+    public void testFindUserByLoginAndPasswordNonExisting() throws Exception {
+        // Arrange
+        String login = "login2";
+        String password = "wrongPass";
+
+        // Act
+        Optional<User> userFound = userService.getUser(login, password);
+
+        // Assert
+        assertTrue(userFound.isEmpty());
     }
 
     @Test
@@ -126,16 +161,34 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testDeleteUser() {
+    public void testDeleteUserExisting() {
         // Arrange
-        Optional<User> userToDelete = userList.stream().filter(user -> user.getLogin().equals("login2")).findFirst();
+        String login = "login2";
+        String login2 = "nonExistingLogin";
 
         // Act
-        userService.deleteUser("login2");
+        Optional<Boolean> response = userService.deleteUser(login);
+        Optional<Boolean> response2 = userService.deleteUser(login2);
 
         // Assert
-        Optional<User> userFound = userService.findUser("login2");
-        verify(userRepositoryMock, times(1)).deleteById("login2");
+        assertTrue(response.isPresent());
+        assertEquals(Boolean.TRUE, response.get());
+        verify(userRepositoryMock, times(1)).deleteById(login);
+        assertTrue(response2.isEmpty());
+        verify(userRepositoryMock, times(0)).deleteById(login2);
+    }
+
+    @Test
+    public void testDeleteUserNonExisting() {
+        // Arrange
+        String login = "nonExistingLogin";
+
+        // Act
+        Optional<Boolean> response = userService.deleteUser(login);
+
+        // Assert
+        assertTrue(response.isEmpty());
+        verify(userRepositoryMock, times(0)).deleteById(login);
     }
 
     @Test
@@ -169,7 +222,7 @@ public class UserServiceTests {
     @Test
     public void testUpdateUserExisting() {
         // Arrange
-        User userToUpdate = new User("login2", "someWeekPass", "Anakin", new ArrayList<>());
+        User userToUpdate = new User("login2", "someWeakPass", "Anakin", new ArrayList<>());
 
         // Act
         Optional<User> updatedUser = userService.updateUser(userToUpdate.getLogin(), userToUpdate);
@@ -177,7 +230,7 @@ public class UserServiceTests {
         // Assert
         assertTrue(updatedUser.isPresent());
         assertEquals(userToUpdate, updatedUser.get());
-        verify(userRepositoryMock, times(1)).save(userToUpdate); // verify method was called 1 time
+        verify(userRepositoryMock, times(1)).save(userToUpdate);
     }
 
     @Test
@@ -190,7 +243,7 @@ public class UserServiceTests {
 
         // Assert
         assertTrue(updatedUser.isEmpty());
-        verify(userRepositoryMock, times(0)).save(userToUpdate); // verify method was called 0 times
+        verify(userRepositoryMock, times(0)).save(userToUpdate);
     }
 
     @Test
@@ -205,21 +258,20 @@ public class UserServiceTests {
         // Assert
         assertTrue(gameListFound.isPresent());
         assertEquals(new GameList(userToFind.get().getPlayedGames()), gameListFound.get());
-        verify(gameServiceMock, times(1)).findGames(userToFind.get()); // verify method was called 1 time
+        verify(gameServiceMock, times(1)).getGames(userToFind.get());
     }
 
     @Test
     public void testFindGamesOfNotExistingUser() {
         // Arrange
         String login = "NonExistingUser";
-        Optional<User> userToFind = userList.stream().filter(user -> user.getLogin().equals(login)).findFirst();
 
         // Act
         Optional<GameList> gameListFound = userService.findGames(login);
 
         // Assert
         assertTrue(gameListFound.isEmpty());
-        verify(gameServiceMock, times(0)).findGames(null); // verify method was called 0 times
+        verify(gameServiceMock, times(0)).getGames(null); // verify method was called 0 times
     }
 
     @Test
@@ -227,7 +279,7 @@ public class UserServiceTests {
         // Arrange
         String login = "login1";
         Game gameToAdd = new Game("IdOfSomeCoolGame", new ArrayList<>());
-        when(gameServiceMock.findGame("IdOfSomeCoolGame")).thenReturn(Optional.of(gameToAdd));
+        when(gameServiceMock.getGame("IdOfSomeCoolGame")).thenReturn(Optional.of(gameToAdd));
 
         // Act
         Optional<User> updatedUser = userService.addGameToUser(login, gameToAdd.getId());
@@ -243,7 +295,7 @@ public class UserServiceTests {
         // Arrange
         String login = "NonExistingLogin";
         Game gameToAdd = new Game("IdOfSomeCoolGame", new ArrayList<>());
-        when(gameServiceMock.findGame("IdOfSomeCoolGame")).thenReturn(Optional.of(gameToAdd));
+        when(gameServiceMock.getGame("IdOfSomeCoolGame")).thenReturn(Optional.of(gameToAdd));
 
         // Act
         Optional<User> updatedUser = userService.addGameToUser(login, gameToAdd.getId());
@@ -252,5 +304,36 @@ public class UserServiceTests {
         assertTrue(updatedUser.isEmpty());
         verify(gameServiceMock, times(0)).save(gameToAdd);
     }
+
+    @Test
+    public void testAddGameToUserGameNotExisting() {
+        // Arrange
+        String login = "NonExistingLogin";
+        Game gameToAdd = new Game("NonExistingGameId", new ArrayList<>());
+        when(gameServiceMock.getGame("NonExistingGameId")).thenReturn(Optional.empty());
+
+        // Act
+        Optional<User> updatedUser = userService.addGameToUser(login, gameToAdd.getId());
+
+        // Assert
+        assertTrue(updatedUser.isEmpty());
+        verify(gameServiceMock, times(0)).save(gameToAdd);
+    }
+
+    @Test
+    public void testConvertUserListToDTO() {
+        // Arrange
+        ModelMapper modelMapper = new ModelMapper();
+        UserList userListToConvert = new UserList(userList);
+
+        // Act
+        UserListDTO userListDTO = userService.convertUserListToDTO(modelMapper, userListToConvert);
+
+        // Assert
+        for (int d = 0; d < userListDTO.getUserList().size(); d++) {
+            assertTrue(userListDTO.getUserList().get(d).getClass() == UserDTO.class);
+        }
+    }
+
 
 }

@@ -37,19 +37,9 @@ public class GameService {
      * @param gameId An identifier of a game to be retrieved.
      * @return A retrieved game.
      */
-    public Optional<Game> findGame(String gameId) {
+    public Optional<Game> getGame(String gameId) {
 
         return gameRepository.findById(gameId);
-    }
-
-    /**
-     * Returns all games found.
-     *
-     * @return A list of retrieved games
-     */
-    public List<Game> findGames() {
-
-        return gameRepository.findAll();
     }
 
     /**
@@ -58,7 +48,7 @@ public class GameService {
      * @param user A user whose game list is to be retrieved.
      * @return A list of retrieved games.
      */
-    public List<Game> findGames(User user) {
+    public Optional<GameList> getGames(User user) {
 
         return gameRepository.findAllByUserList(user);
     }
@@ -68,9 +58,9 @@ public class GameService {
      *
      * @return A structure containing list of games.
      */
-    public Optional<GameList> getGames(){
-        List<Game> gameList = findGames();
-        if(gameList.isEmpty()){
+    public Optional<GameList> getGames() {
+        List<Game> gameList = gameRepository.findAll();
+        if (gameList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new GameList(gameList));

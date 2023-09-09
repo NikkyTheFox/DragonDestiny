@@ -14,6 +14,7 @@ import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserLoginDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserRegisteredDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
+import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
 import pl.edu.pg.eti.dragondestiny.user.user.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,10 @@ public class UserController {
                     schema = @Schema(implementation = UserListDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<UserListDTO> getUsers() {
-        return ResponseEntity.ok().body(userService.convertUserListToDTO(modelMapper, userService.getUsers()));
+        UserList u = userService.getUsers();
+        UserListDTO u2 = userService.convertUserListToDTO(modelMapper, u);
+        return ResponseEntity.ok().body(u2
+                );
     }
 
     /**
@@ -91,7 +95,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> getUserByLogin(@PathVariable(name = "login") String userLogin) {
-        Optional<User> user = userService.findUser(userLogin);
+        Optional<User> user = userService.getUser(userLogin);
         return user.map(value -> ResponseEntity.ok().body(modelMapper.map(value, UserDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -102,14 +106,14 @@ public class UserController {
      * @param loginUserRequest A structure containing login and password.
      * @return A retrieved user.
      */
-    @PutMapping("/login")
+    @GetMapping("/login")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserDTO.class)) }),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
     public ResponseEntity<UserDTO> findUserByLoginAndPassword(@Valid @RequestBody UserLoginDTO loginUserRequest) {
-        Optional<User> user = userService.findUser(loginUserRequest.getLogin(), loginUserRequest.getPassword());
+        Optional<User> user = userService.getUser(loginUserRequest.getLogin(), loginUserRequest.getPassword());
         return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -160,12 +164,11 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)})
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<UserDTO> updateUser(@PathVariable(name = "login") String userLogin, @RequestBody UserRegisteredDTO updatedUser) {
-        Optional<User> user = userService.updateUser(userLogin, modelMapper.map(updatedUser, User.class));
-        return user.map(u -> ResponseEntity.ok().body(modelMapper.map(u, UserDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            Optional<User> user = userService.updateUser(userLogin, modelMapper.map(updatedUser, User.class));
+            return user.map(value -> ResponseEntity.ok().body(modelMapper.map(value, UserDTO.class)))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     /**

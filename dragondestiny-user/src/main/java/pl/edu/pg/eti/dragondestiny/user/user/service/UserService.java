@@ -51,7 +51,7 @@ public class UserService {
      * @param userLogin An identifier of a user.
      * @return A retrieved user.
      */
-    public Optional<User> findUser(String userLogin) {
+    public Optional<User> getUser(String userLogin) {
 
         return userRepository.findById(userLogin);
     }
@@ -63,7 +63,7 @@ public class UserService {
      * @param password A password of a user to be retrieved.
      * @return A retrieved user.
      */
-    public Optional<User> findUser(String userLogin, String password) {
+    public Optional<User> getUser(String userLogin, String password) {
 
         return userRepository.findUserByLoginAndPassword(userLogin, password);
     }
@@ -75,7 +75,7 @@ public class UserService {
      */
     public UserList getUsers() {
         List<User> userList = userRepository.findAll();
-        if(userList.isEmpty()){
+        if (userList.isEmpty()) {
             return new UserList();
         }
         return new UserList(userList);
@@ -97,8 +97,8 @@ public class UserService {
      * @param userLogin An identifier of a user to be deleted.
      */
     public Optional<Boolean> deleteUser(String userLogin) {
-        Optional<User> user = findUser(userLogin);
-        if(user.isEmpty()){
+        Optional<User> user = getUser(userLogin);
+        if (user.isEmpty()) {
             return Optional.empty();
         }
         userRepository.deleteById(userLogin);
@@ -112,8 +112,8 @@ public class UserService {
      * @return Newly created user.
      */
     public Optional<User> registerUser(User userRegistered) {
-        Optional<User> user = findUser(userRegistered.getLogin());
-        if(user.isPresent()) {
+        Optional<User> user = getUser(userRegistered.getLogin());
+        if (user.isPresent()) {
             return Optional.empty();
         }
         save(userRegistered);
@@ -140,19 +140,6 @@ public class UserService {
             // update password to new value
             userToUpdate.setPassword(updatedUser.getPassword());
         }
-        /*if (!updatedUser.getPlayedGames().isEmpty()) {
-            userToUpdate.getPlayedGames().addAll(updatedUser.getPlayedGames());
-            System.out.println("GAMES 12 ");
-            userToUpdate.getPlayedGames().forEach(System.out::println);
-        }
-        else {
-            userToUpdate.getPlayedGames().addAll(updatedUser.getPlayedGames());
-            System.out.println("GAMES 22 ");
-            userToUpdate.getPlayedGames().forEach(System.out::println);
-        }
-        System.out.println("GAMES AFTER ");
-        userToUpdate.getPlayedGames().forEach(System.out::println);
-        */
         userRepository.save(userToUpdate);
     }
 
@@ -163,27 +150,13 @@ public class UserService {
      * @param updatedUser A structure with new data.
      * @return An updated user.
      */
-    public Optional<User> updateUser(String userLogin, User updatedUser){
-        Optional<User> userToUpdate = findUser(userLogin);
-        if(userToUpdate.isEmpty()){
+    public Optional<User> updateUser(String userLogin, User updatedUser) {
+        Optional<User> userToUpdate = getUser(userLogin);
+        if (userToUpdate.isEmpty()) {
             return Optional.empty();
         }
         update(updatedUser, userToUpdate.get());
         return userToUpdate;
-    }
-
-    // ???????????????
-    public User updateGamesList(User user, String gameId) {
-
-        Game game = new Game();
-        game.setId(gameId);
-        game.getUserList().add(user);
-        user.getPlayedGames().add(game);
-
-        for (Game g : user.getPlayedGames())
-            System.out.println(g.getId());
-
-        return userRepository.save(user);
     }
 
     /**
@@ -193,10 +166,10 @@ public class UserService {
      * @return A structure containing list of games.
      */
     public Optional<GameList> findGames(String userLogin){
-        Optional<User> user = findUser(userLogin);
+        Optional<User> user = getUser(userLogin);
         if (user.isEmpty())
             return Optional.empty();
-        return user.map(value -> new GameList(gameService.findGames(value)));
+        return gameService.getGames(user.get());
     }
 
     /**
@@ -207,9 +180,9 @@ public class UserService {
      * @return Updated user.
      */
     public Optional<User> addGameToUser(String userLogin, String gameId) {
-        Optional<User> user = findUser(userLogin);
-        Optional<Game> game = gameService.findGame(gameId);
-        if(user.isEmpty() || game.isEmpty()){
+        Optional<User> user = getUser(userLogin);
+        Optional<Game> game = gameService.getGame(gameId);
+        if (user.isEmpty() || game.isEmpty()) {
             return Optional.empty();
         }
         user.get().addGame(game.get());
