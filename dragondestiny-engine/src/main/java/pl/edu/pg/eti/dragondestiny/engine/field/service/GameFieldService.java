@@ -53,7 +53,7 @@ public class GameFieldService {
         if(board.isEmpty()){
             return Optional.empty();
         }
-        List<Field> fieldList = fieldService.findFields(board.get());
+        List<Field> fieldList = fieldService.getFieldsByBoard(board.get());
         return Optional.of(new FieldList(fieldList));
     }
 
@@ -69,7 +69,7 @@ public class GameFieldService {
         if(board.isEmpty()){
             return Optional.empty();
         }
-        return fieldService.findField(board.get(), fieldId);
+        return fieldService.getField(board.get(), fieldId);
     }
 
     /**

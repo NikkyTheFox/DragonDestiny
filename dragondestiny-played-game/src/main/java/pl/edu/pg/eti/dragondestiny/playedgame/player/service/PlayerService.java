@@ -34,7 +34,7 @@ public class PlayerService {
      */
     public Optional<Player> findByLogin(String playerLogin) {
         Player player = playerRepository.findByLogin(playerLogin);
-        if(player != null){
+        if (player != null) {
             System.out.println("FOUND PLAYER: " + player.getLogin());
             return Optional.of(player);
         }

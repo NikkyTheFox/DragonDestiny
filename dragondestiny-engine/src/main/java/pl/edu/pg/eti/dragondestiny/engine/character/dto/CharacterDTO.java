@@ -1,12 +1,16 @@
 package pl.edu.pg.eti.dragondestiny.engine.character.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
 
 /**
  * Data Transfer Object of Character instance.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CharacterDTO {
 
     /**

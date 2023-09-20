@@ -1,11 +1,15 @@
 package pl.edu.pg.eti.dragondestiny.engine.board.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Data Transfer Object of Board instance.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BoardDTO {
 
     /**

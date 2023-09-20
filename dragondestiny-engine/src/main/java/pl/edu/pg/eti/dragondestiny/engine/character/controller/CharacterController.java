@@ -4,16 +4,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardListDTO;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.CharacterList;
 import pl.edu.pg.eti.dragondestiny.engine.character.service.CharacterService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -39,7 +41,7 @@ public class CharacterController {
      * Autowired constructor - beans are injected automatically.
      *
      * @param characterService Service with methods for data manipulation and retrieval.
-     * @param modelMapper Mapper allowing conversion from objects to DTOs.
+     * @param modelMapper      Mapper allowing conversion from objects to DTOs.
      */
     @Autowired
     public CharacterController(CharacterService characterService, ModelMapper modelMapper) {
@@ -54,8 +56,8 @@ public class CharacterController {
      */
     @GetMapping()
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<CharacterListDTO> getCharacters() {
         Optional<CharacterList> characterList = characterService.getCharacters();
@@ -71,12 +73,12 @@ public class CharacterController {
      */
     @GetMapping("/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Character not found", content = @Content)})
     public ResponseEntity<CharacterDTO> getCharacter(@PathVariable(name = "id") Integer id) {
-        Optional<Character> character = characterService.findCharacter(id);
+        Optional<Character> character = characterService.getCharacterById(id);
         return character.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CharacterDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

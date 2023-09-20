@@ -1,14 +1,14 @@
 package pl.edu.pg.eti.dragondestiny.engine;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCard;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GameEngineConfig {

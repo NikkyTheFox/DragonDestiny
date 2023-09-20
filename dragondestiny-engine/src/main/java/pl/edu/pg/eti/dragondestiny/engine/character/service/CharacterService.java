@@ -1,14 +1,14 @@
 package pl.edu.pg.eti.dragondestiny.engine.character.service;
 
 import org.modelmapper.ModelMapper;
-import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterDTO;
-import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
-import pl.edu.pg.eti.dragondestiny.engine.character.entity.CharacterList;
-import pl.edu.pg.eti.dragondestiny.engine.character.repository.CharacterRepository;
-import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
-import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterDTO;
+import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
+import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
+import pl.edu.pg.eti.dragondestiny.engine.character.entity.CharacterList;
+import pl.edu.pg.eti.dragondestiny.engine.character.repository.CharacterRepository;
+import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class CharacterService {
      * @param characterRepository Repository with methods for retrieval of data from database.
      */
     @Autowired
-    public CharacterService(CharacterRepository characterRepository){
+    public CharacterService(CharacterRepository characterRepository) {
 
         this.characterRepository = characterRepository;
     }
@@ -42,19 +42,9 @@ public class CharacterService {
      * @param id An identifier of a character to be retrieved.
      * @return A retrieved character.
      */
-    public Optional<Character> findCharacter(Integer id) {
+    public Optional<Character> getCharacterById(Integer id) {
 
         return characterRepository.findById(id);
-    }
-
-    /**
-     * Returns all characters found.
-     *
-     * @return A list of characters.
-     */
-    public List<Character> findCharacters() {
-
-        return characterRepository.findAll();
     }
 
     /**
@@ -63,7 +53,7 @@ public class CharacterService {
      * @param game A game to find characters from.
      * @return A list of characters in game of ID gameId.
      */
-    public List<Character> findCharacters(Game game) {
+    public List<Character> getCharactersByGame(Game game) {
 
         return characterRepository.findAllByGames(game);
     }
@@ -71,11 +61,12 @@ public class CharacterService {
     /**
      * Returns character of ID characterId found in particular game.
      *
-     * @param game A game to find character from.
+     * @param game        A game to find character from.
      * @param characterId An identifier of character.
      * @return A retrieved character.
      */
-    public Optional<Character> findCharacter(Game game, Integer characterId) {
+    public Optional<Character> getCharacterByGame(Game game, Integer characterId) {
+        
         return characterRepository.findByGamesAndId(game, characterId);
     }
 
@@ -84,9 +75,9 @@ public class CharacterService {
      *
      * @return A structure containing list of characters.
      */
-    public Optional<CharacterList> getCharacters(){
-        List<Character> characterList = findCharacters();
-        if(characterList.isEmpty()){
+    public Optional<CharacterList> getCharacters() {
+        List<Character> characterList = characterRepository.findAll();
+        if (characterList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new CharacterList(characterList));
@@ -95,11 +86,11 @@ public class CharacterService {
     /**
      * Converts CharacterList into CharacterListDTO.
      *
-     * @param modelMapper Allows conversion from object to DTO.
+     * @param modelMapper   Allows conversion from object to DTO.
      * @param characterList A structure containing list of characters.
      * @return A DTO.
      */
-    public CharacterListDTO convertCharacterListToDTO(ModelMapper modelMapper, CharacterList characterList){
+    public CharacterListDTO convertCharacterListToDTO(ModelMapper modelMapper, CharacterList characterList) {
         List<CharacterDTO> characterDTOList = new ArrayList<>();
         characterList.getCharacterList().forEach(character -> {
             CharacterDTO characterDTO = modelMapper.map(character, CharacterDTO.class);

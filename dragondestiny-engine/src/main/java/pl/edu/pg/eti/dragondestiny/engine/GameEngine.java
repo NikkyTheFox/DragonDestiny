@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Import;
 
 /**
  * GAME ENGINE - represents a box, version of playable game.
@@ -14,11 +13,11 @@ import org.springframework.context.annotation.Import;
 @ConfigurationProperties("played-game")
 @SpringBootApplication
 @OpenAPIDefinition(info = @Info(title = "Dragon Destiny Game Engine API", version = "v1", description =
-		"Used to retrieve all information about game such as board, cards and characters"))
+        "Used to retrieve all information about game such as board, cards and characters"))
 public class GameEngine {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GameEngine.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GameEngine.class, args);
+    }
 
 }

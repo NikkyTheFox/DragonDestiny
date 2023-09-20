@@ -1,26 +1,11 @@
 package pl.edu.pg.eti.dragondestiny.engine.game.entity;
 
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.GenerationType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import lombok.AccessLevel;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;

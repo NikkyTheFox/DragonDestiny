@@ -1,9 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.repository;
 
-import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
-import pl.edu.pg.eti.dragondestiny.engine.field.entity.Field;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
+import pl.edu.pg.eti.dragondestiny.engine.field.entity.Field;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public interface FieldRepository extends JpaRepository<Field, Integer> {
     /**
      * Retrieves field by board and fieldId - one field from provided board.
      *
-     * @param board A board to get field from.
+     * @param board   A board to get field from.
      * @param fieldId An identifier of a field to be retrieved.
      * @return A field on board.
      */

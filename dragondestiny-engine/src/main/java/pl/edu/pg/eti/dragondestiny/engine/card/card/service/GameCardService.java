@@ -46,10 +46,10 @@ public class GameCardService {
     /**
      * Autowired constructor - beans are injected automatically.
      *
-     * @param cardService Service for data retrieval and manipulation.
+     * @param cardService      Service for data retrieval and manipulation.
      * @param enemyCardService Service for data retrieval and manipulation.
-     * @param itemCardService Service for data retrieval and manipulation.
-     * @param gameService Service for data retrieval and manipulation.
+     * @param itemCardService  Service for data retrieval and manipulation.
+     * @param gameService      Service for data retrieval and manipulation.
      */
     @Autowired
     public GameCardService(CardService cardService, EnemyCardService enemyCardService, ItemCardService itemCardService, GameService gameService) {
@@ -65,13 +65,13 @@ public class GameCardService {
      * @param gameId An identifier of a game.
      * @return A structure containing list of cards.
      */
-    public Optional<CardList> getGameCards(Integer gameId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<CardList> getGameCards(Integer gameId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        List<Card> cardList = cardService.findCards(game.get());
-        if(cardList.isEmpty()){
+        List<Card> cardList = cardService.getCardByGame(game.get());
+        if (cardList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new CardList(cardList));
@@ -84,12 +84,12 @@ public class GameCardService {
      * @param cardId An identifier of a card.
      * @return A retrieved card.
      */
-    public Optional<Card> getGameCard(Integer gameId, Integer cardId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<Card> getGameCard(Integer gameId, Integer cardId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        return cardService.findCard(game.get(), cardId);
+        return cardService.getCardByGame(game.get(), cardId);
     }
 
     /**
@@ -98,13 +98,13 @@ public class GameCardService {
      * @param gameId An identifier of a game.
      * @return A structure containing list of enemy cards.
      */
-    public Optional<EnemyCardList> getGameEnemyCards(Integer gameId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<EnemyCardList> getGameEnemyCards(Integer gameId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        List<EnemyCard> enemyCardList = enemyCardService.findEnemyCards(game.get());
-        if(enemyCardList.isEmpty()){
+        List<EnemyCard> enemyCardList = enemyCardService.getEnemyCardsByGame(game.get());
+        if (enemyCardList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new EnemyCardList(enemyCardList));
@@ -116,13 +116,13 @@ public class GameCardService {
      * @param gameId An identifier of a game.
      * @return A structure containing list of item cards.
      */
-    public Optional<ItemCardList> getGameItemCards(Integer gameId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<ItemCardList> getGameItemCards(Integer gameId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        List<ItemCard> itemCardList = itemCardService.findItemCards(game.get());
-        if(itemCardList.isEmpty()){
+        List<ItemCard> itemCardList = itemCardService.getItemCardsByGame(game.get());
+        if (itemCardList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new ItemCardList(itemCardList));
@@ -132,32 +132,32 @@ public class GameCardService {
      * Converts CardList into CardListDTO.
      *
      * @param modelMapper Mapper allowing conversion.
-     * @param cardList A structure containing list of cards.
+     * @param cardList    A structure containing list of cards.
      * @return A DTO.
      */
-    public CardListDTO convertCardListToDTO(ModelMapper modelMapper, CardList cardList){
+    public CardListDTO convertCardListToDTO(ModelMapper modelMapper, CardList cardList) {
         return cardService.convertCardListToDTO(modelMapper, cardList);
     }
 
     /**
      * Converts EnemyCardList into EnemyCardListDTO.
      *
-     * @param modelMapper Mapper allowing conversion.
+     * @param modelMapper   Mapper allowing conversion.
      * @param enemyCardList A structure containing list of enemy cards.
      * @return A DTO.
      */
-    public EnemyCardListDTO convertEnemyCardListToDTO(ModelMapper modelMapper, EnemyCardList enemyCardList){
+    public EnemyCardListDTO convertEnemyCardListToDTO(ModelMapper modelMapper, EnemyCardList enemyCardList) {
         return enemyCardService.convertEnemyCardListToDTO(modelMapper, enemyCardList);
     }
 
     /**
      * Converts ItemCardList into ItemCardListDTO.
      *
-     * @param modelMapper Mapper allowing conversion.
+     * @param modelMapper  Mapper allowing conversion.
      * @param itemCardList A structure containing list of item cards.
      * @return A DTO.
      */
-    public ItemCardListDTO convertItemCardListToDTO(ModelMapper modelMapper, ItemCardList itemCardList){
+    public ItemCardListDTO convertItemCardListToDTO(ModelMapper modelMapper, ItemCardList itemCardList) {
         return itemCardService.convertItemCardListToDTO(modelMapper, itemCardList);
     }
 }

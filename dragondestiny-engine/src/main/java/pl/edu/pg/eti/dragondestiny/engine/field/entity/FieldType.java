@@ -12,5 +12,5 @@ public enum FieldType {
     LOSE_TWO_ROUNDS,
     BRIDGE_FIELD,
     BOSS_FIELD
-
+ 
 }

@@ -57,7 +57,8 @@ public class FieldController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
                     schema = @Schema(implementation = FieldListDTO.class)) }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No fields found", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields() {
         Optional<FieldList> fieldList = fieldService.getFields();
         return fieldList.map(list -> ResponseEntity.ok().body(fieldService.convertFieldListToDTO(modelMapper, list)))
@@ -77,7 +78,7 @@ public class FieldController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable(name = "id") Integer fieldId) {
-        Optional<Field> field = fieldService.findField(fieldId);
+        Optional<Field> field = fieldService.getField(fieldId);
         return field.map(value -> ResponseEntity.ok().body(modelMapper.map(value, FieldDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

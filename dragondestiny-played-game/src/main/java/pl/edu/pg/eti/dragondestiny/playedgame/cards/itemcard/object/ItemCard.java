@@ -8,7 +8,7 @@ import lombok.*;
  * Can be in deck, used deck or in hand of a player.
  */
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode

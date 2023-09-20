@@ -1,11 +1,15 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.card.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Data Transfer Object of Card instance.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CardDTO {
 
     /**

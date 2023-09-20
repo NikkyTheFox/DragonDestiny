@@ -108,7 +108,7 @@ public class Player implements HealthCalculable {
      * Increases strength points from trophies and remove trophies from player.
      */
     public void moveAndIncreaseTrophies() {
-        if(getTrophies().size() >= PlayedGameProperties.numberOfTrophiesToGetPoint){
+        if (getTrophies().size() >= PlayedGameProperties.numberOfTrophiesToGetPoint) {
             addStrength(PlayedGameProperties.trophiesPointIncrease);
             removeCardsFromTrophies(PlayedGameProperties.numberOfTrophiesToGetPoint);
         }

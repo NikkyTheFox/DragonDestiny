@@ -37,7 +37,7 @@ public class BoardFieldService {
      * @param fieldService Service for data retrieval and manipulation.
      */
     @Autowired
-    public BoardFieldService(BoardService boardService, FieldService fieldService){
+    public BoardFieldService(BoardService boardService, FieldService fieldService) {
         this.boardService = boardService;
         this.fieldService = fieldService;
     }
@@ -48,13 +48,13 @@ public class BoardFieldService {
      * @param boardId A board identifier.
      * @return A structure containing list of fields.
      */
-    public Optional<FieldList> getFields(Integer boardId){
-        Optional<Board> board = boardService.findBoard(boardId);
-        if(board.isEmpty()){
+    public Optional<FieldList> getFields(Integer boardId) {
+        Optional<Board> board = boardService.getBoard(boardId);
+        if (board.isEmpty()) {
             return Optional.empty();
         }
-        List<Field> fieldList = fieldService.findFields(board.get());
-        if(fieldList.isEmpty()){
+        List<Field> fieldList = fieldService.getFieldsByBoard(board.get());
+        if (fieldList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new FieldList(fieldList));
@@ -67,12 +67,12 @@ public class BoardFieldService {
      * @param fieldId An identifier of a field.
      * @return A retrieved field.
      */
-    public Optional<Field> getField(Integer boardId, Integer fieldId){
-        Optional<Board> board = boardService.findBoard(boardId);
-        if(board.isEmpty()){
+    public Optional<Field> getField(Integer boardId, Integer fieldId) {
+        Optional<Board> board = boardService.getBoard(boardId);
+        if (board.isEmpty()) {
             return Optional.empty();
         }
-        return fieldService.findField(board.get(), fieldId);
+        return fieldService.getField(board.get(), fieldId);
     }
 
     /**
@@ -82,13 +82,13 @@ public class BoardFieldService {
      * @param fieldId An identifier of a field.
      * @return An enemy card.
      */
-    public Optional<EnemyCard> getFieldEnemy(Integer boardId, Integer fieldId){
-        Optional<Board> board = boardService.findBoard(boardId);
-        if(board.isEmpty()){
+    public Optional<EnemyCard> getFieldEnemy(Integer boardId, Integer fieldId) {
+        Optional<Board> board = boardService.getBoard(boardId);
+        if (board.isEmpty()) {
             return Optional.empty();
         }
-        Optional<Field> field = fieldService.findField(board.get(), fieldId);
-        if(field.isEmpty()){
+        Optional<Field> field = fieldService.getField(board.get(), fieldId);
+        if (field.isEmpty()) {
             return Optional.empty();
         }
         return fieldService.getFieldEnemy(field.get().getId());
@@ -98,10 +98,10 @@ public class BoardFieldService {
      * Converts FieldList into FieldListDTO
      *
      * @param modelMapper Mapper allowing conversion.
-     * @param fieldList A structure containing list of fields.
+     * @param fieldList   A structure containing list of fields.
      * @return A DTO.
      */
-    public FieldListDTO convertFieldListToDTO(ModelMapper modelMapper, FieldList fieldList){
+    public FieldListDTO convertFieldListToDTO(ModelMapper modelMapper, FieldList fieldList) {
         return fieldService.convertFieldListToDTO(modelMapper, fieldList);
     }
 }

@@ -56,7 +56,7 @@ public class InitializingPlayedGameService {
     public Optional<PlayedGame> initialize(Integer gameEngineGameId) {
         // GET GAME:
         GameEngineGameDTO playedGameResponse = initializingPlayedGameRepository.getGameById(gameEngineGameId);
-        if(playedGameResponse == null) {
+        if (playedGameResponse == null) {
             return Optional.empty();
         }
 
@@ -69,7 +69,7 @@ public class InitializingPlayedGameService {
 
         // GET CARDS:
         EnemyCardList enemyCardList = initializingPlayedGameRepository.getGameEnemyCards(gameEngineGameId);
-        if(enemyCardList == null){
+        if (enemyCardList == null) {
             return Optional.empty();
         }
         for (EnemyCard c : enemyCardList.getEnemyCardList()) {
@@ -79,7 +79,7 @@ public class InitializingPlayedGameService {
         }
 
         ItemCardList itemCardList = initializingPlayedGameRepository.getGameItemCards(gameEngineGameId);
-        if(itemCardList == null){
+        if (itemCardList == null) {
             return Optional.empty();
         }
         for (ItemCard c : itemCardList.getItemCardList()) {
@@ -89,7 +89,7 @@ public class InitializingPlayedGameService {
 
         // GET CHARACTERS:
         CharacterList characterList = initializingPlayedGameRepository.getGameCharacters(gameEngineGameId);
-        if(characterList == null){
+        if (characterList == null) {
             return Optional.empty();
         }
         for (Character c : characterList.getCharacterList()) {
@@ -100,19 +100,19 @@ public class InitializingPlayedGameService {
 
         // GET BOARD:
         PlayedBoard playedBoard = initializingPlayedGameRepository.getGamePlayedBoard(gameEngineGameId);
-        if(playedBoard == null){
+        if (playedBoard == null) {
             return Optional.empty();
         }
 
         // GET FIELDS:
         FieldList fieldList = initializingPlayedGameRepository.getGameFieldList(gameEngineGameId);
-        if(fieldList == null){
+        if (fieldList == null) {
             return Optional.empty();
         }
         for (Field c : fieldList.getFieldList()) {
-            if(c.getEnemy() != null){
-                c.getEnemy().setCardType(CardType.ENEMY_CARD);
-                c.getEnemy().setHealth(c.getEnemy().getInitialHealth());
+            if (c.getEnemyCardList().getEnemyCardList().size() > 0) {
+                c.getEnemyCardList().getEnemyCardList().get(0).setCardType(CardType.ENEMY_CARD);
+                c.getEnemyCardList().getEnemyCardList().get(0).setHealth(c.getEnemyCardList().getEnemyCardList().get(0).getInitialHealth());
             }
             playedBoard.addFieldsInBoard(c);
         }

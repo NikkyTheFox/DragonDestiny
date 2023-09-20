@@ -46,7 +46,7 @@ public class GameCardController {
     /**
      * Autowired constructor - beans are injected automatically.
      *
-     * @param modelMapper Mapper allowing conversion from objects to DTOs.
+     * @param modelMapper     Mapper allowing conversion from objects to DTOs.
      * @param gameCardService Service for data retrieval and manipulation.
      */
     @Autowired
@@ -63,8 +63,8 @@ public class GameCardController {
      */
     @GetMapping
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<CardListDTO> getCards(@PathVariable("gameId") Integer gameId) {
@@ -82,8 +82,8 @@ public class GameCardController {
      */
     @GetMapping("/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card in game not found", content = @Content)})
     public ResponseEntity<CardDTO> getCard(@PathVariable("gameId") Integer gameId, @PathVariable(name = "id") Integer cardId) {
@@ -100,8 +100,8 @@ public class GameCardController {
      */
     @GetMapping("/enemy")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<EnemyCardListDTO> getEnemyCards(@PathVariable("gameId") Integer gameId) {
@@ -118,8 +118,8 @@ public class GameCardController {
      */
     @GetMapping("/item")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Game not found", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getItemCards(@PathVariable("gameId") Integer gameId) {

@@ -26,7 +26,7 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     /**
      * Method to retrieve card by game and cardId - one card from all in particular game.
      *
-     * @param game A game to find card from.
+     * @param game   A game to find card from.
      * @param cardId The ID of card to find.
      * @return A card in game.
      */

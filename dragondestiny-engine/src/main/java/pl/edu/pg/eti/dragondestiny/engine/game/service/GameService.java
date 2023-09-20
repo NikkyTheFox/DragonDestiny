@@ -35,7 +35,7 @@ public class GameService {
      * Autowired constructor - beans are injected automatically.
      *
      * @param gameRepository Repository for data retrieval.
-     * @param boardService Service for data retrieval and manipulation.
+     * @param boardService   Service for data retrieval and manipulation.
      */
     @Autowired
     public GameService(GameRepository gameRepository, BoardService boardService) {
@@ -50,19 +50,9 @@ public class GameService {
      * @param gameId An identifier of a game to be retrieved.
      * @return A retrieved game.
      */
-    public Optional<Game> findGame(Integer gameId) {
+    public Optional<Game> getGame(Integer gameId) {
 
         return gameRepository.findById(gameId);
-    }
-
-    /**
-     * Returns all games found.
-     *
-     * @return A list of games.
-     */
-    public List<Game> findGames() {
-
-        return gameRepository.findAll();
     }
 
     /**
@@ -70,9 +60,9 @@ public class GameService {
      *
      * @return A structure containing list of games.
      */
-    public Optional<GameList> getGames(){
-        List<Game> gameList = findGames();
-        if(gameList.isEmpty()){
+    public Optional<GameList> getGames() {
+        List<Game> gameList = gameRepository.findAll();
+        if (gameList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new GameList(gameList));
@@ -84,12 +74,12 @@ public class GameService {
      * @param gameId An identifier of a game.
      * @return A board.
      */
-    public Optional<Board> getGameBoard(Integer gameId){
-        Optional<Game> game = findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<Board> getGameBoard(Integer gameId) {
+        Optional<Game> game = gameRepository.findById(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        return boardService.findBoard(game.get());
+        return boardService.getBoardByGame(game.get());
 
     }
 
@@ -97,10 +87,10 @@ public class GameService {
      * Converts GameList into GameListDTO.
      *
      * @param modelMapper Mapper allowing conversion.
-     * @param gameList A structure containing list of games.
+     * @param gameList    A structure containing list of games.
      * @return A DTO.
      */
-    public GameListDTO convertGameListToDTO(ModelMapper modelMapper, GameList gameList){
+    public GameListDTO convertGameListToDTO(ModelMapper modelMapper, GameList gameList) {
         List<GameDTO> gameDTOList = new ArrayList<>();
         gameList.getGameList().forEach(game -> {
             GameDTO gameDTO = modelMapper.map(game, GameDTO.class);

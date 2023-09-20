@@ -9,8 +9,11 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Corresponds to fields on played board.
@@ -44,7 +47,7 @@ public class Field implements Serializable {
     private Integer yPosition = 0;
 
     /**
-     * Enemy Card corresponding to enemy on that field.
+     * Enemy Card List corresponding to enemy cards on that field.
      */
-    private EnemyCard enemy;
+    private EnemyCardList enemyCardList;
 }

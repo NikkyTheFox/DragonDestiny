@@ -1,10 +1,10 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.itemcard.repository;
 
 
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCard;
-import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCard;
+import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 
 import java.util.List;
 

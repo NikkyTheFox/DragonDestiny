@@ -1,17 +1,11 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.engine.character.entity.Character;
-import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import lombok.AccessLevel;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;

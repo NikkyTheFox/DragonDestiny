@@ -2,7 +2,6 @@ package pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardDTO;
 
 import java.util.List;
 

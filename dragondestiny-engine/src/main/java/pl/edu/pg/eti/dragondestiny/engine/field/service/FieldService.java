@@ -43,19 +43,9 @@ public class FieldService {
      * @param id An identifier of a field to be retrieved.
      * @return A retrieved field.
      */
-    public Optional<Field> findField(Integer id) {
+    public Optional<Field> getField(Integer id) {
 
         return fieldRepository.findById(id);
-    }
-
-    /**
-     * Returns all fields found.
-     *
-     * @return A list of fields.
-     */
-    public List<Field> findFields() {
-
-        return fieldRepository.findAll();
     }
 
     /**
@@ -64,7 +54,7 @@ public class FieldService {
      * @param board A board to get all fields from.
      * @return A list of fields on board.
      */
-    public List<Field> findFields(Board board) {
+    public List<Field> getFieldsByBoard(Board board) {
 
         return fieldRepository.findAllByBoard(board);
     }
@@ -76,7 +66,7 @@ public class FieldService {
      * @param fieldId An identifier of a field.
      * @return A retrieved field.
      */
-    public Optional<Field> findField(Board board, Integer fieldId) {
+    public Optional<Field> getField(Board board, Integer fieldId) {
         return fieldRepository.findByBoardAndId(board, fieldId);
     }
 
@@ -85,9 +75,9 @@ public class FieldService {
      *
      * @return A structure containing list of fields.
      */
-    public Optional<FieldList> getFields(){
-        List<Field> fieldList = findFields();
-        if(fieldList.isEmpty()){
+    public Optional<FieldList> getFields() {
+        List<Field> fieldList = fieldRepository.findAll();
+        if (fieldList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new FieldList(fieldList));
@@ -100,7 +90,7 @@ public class FieldService {
      * @return An enemy card.
      */
     public Optional<EnemyCard> getFieldEnemy(Integer fieldId){
-        Optional<Field> field = findField(fieldId);
+        Optional<Field> field = getField(fieldId);
         if(field.isEmpty() || field.get().getEnemy() == null){
             return Optional.empty();
         }
@@ -122,5 +112,4 @@ public class FieldService {
         });
         return new FieldListDTO(fieldDTOList);
     }
-
 }

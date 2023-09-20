@@ -2,6 +2,7 @@ package pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,5 +16,5 @@ public class EnemyCardList {
     /**
      * A list of enemy cards.
      */
-    private List<EnemyCard> enemyCardList;
+    private List<EnemyCard> enemyCardList = new ArrayList<>();
 }

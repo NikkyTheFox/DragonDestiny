@@ -1,14 +1,14 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.itemcard.service;
 
 import org.modelmapper.ModelMapper;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardDTO;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardListDTO;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCardList;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.repository.ItemCardRepository;
-import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCard;
-import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardDTO;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardListDTO;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCard;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCardList;
+import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.repository.ItemCardRepository;
+import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,22 +37,12 @@ public class ItemCardService {
     }
 
     /**
-     * Returns all item cards found.
-     *
-     * @return A list of item cards.
-     */
-    public List<ItemCard> findItemCards() {
-
-        return itemCardRepository.findAll();
-    }
-
-    /**
      * Returns all item cards in particular game.
      *
      * @param game A game to find cards from.
      * @return A list of item cards.
      */
-    public List<ItemCard> findItemCards(Game game) {
+    public List<ItemCard> getItemCardsByGame(Game game) {
 
         return itemCardRepository.findAllByGames(game);
     }
@@ -62,9 +52,9 @@ public class ItemCardService {
      *
      * @return A structure containing list of item cards.
      */
-    public Optional<ItemCardList> getItemCards(){
-        List<ItemCard> itemCardList = findItemCards();
-        if(itemCardList.isEmpty()){
+    public Optional<ItemCardList> getItemCards() {
+        List<ItemCard> itemCardList = itemCardRepository.findAll();
+        if (itemCardList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new ItemCardList(itemCardList));
@@ -73,11 +63,11 @@ public class ItemCardService {
     /**
      * Converts ItemCardList into ItemCardListDTO.
      *
-     * @param modelMapper Mapper allowing conversion.
+     * @param modelMapper  Mapper allowing conversion.
      * @param itemCardList A structure containing list of item cards.
      * @return A DTO.
      */
-    public ItemCardListDTO convertItemCardListToDTO(ModelMapper modelMapper, ItemCardList itemCardList){
+    public ItemCardListDTO convertItemCardListToDTO(ModelMapper modelMapper, ItemCardList itemCardList) {
         List<ItemCardDTO> itemCardDTOList = new ArrayList<>();
         itemCardList.getItemCardList().forEach(itemCard -> {
             ItemCardDTO itemCardDTO = modelMapper.map(itemCard, ItemCardDTO.class);

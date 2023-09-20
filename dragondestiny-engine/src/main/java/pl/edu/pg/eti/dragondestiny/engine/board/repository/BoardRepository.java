@@ -1,9 +1,9 @@
 package pl.edu.pg.eti.dragondestiny.engine.board.repository;
 
-import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
-import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pl.edu.pg.eti.dragondestiny.engine.board.entity.Board;
+import pl.edu.pg.eti.dragondestiny.engine.game.entity.Game;
 
 import java.util.Optional;
 

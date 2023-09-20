@@ -72,7 +72,7 @@ public class PlayedGame {
     private List<Character> charactersInGame = new ArrayList<>();
 
     /**
-     * Rounds in the game already performed. One round contains move of all players.
+     * Rounds in the game already performed.
      */
     @JsonIgnore
     private List<Round> rounds = new ArrayList<>();
@@ -116,7 +116,7 @@ public class PlayedGame {
         OptionalInt index = IntStream.range(0, this.getCardDeck().size())
                 .filter(i -> Objects.equals(this.getCardDeck().get(i).getId(), card.getId()))
                 .findFirst();
-        if(index.isPresent()){
+        if (index.isPresent()) {
             this.getCardDeck().remove(index.getAsInt());
         }
     }
@@ -139,7 +139,7 @@ public class PlayedGame {
         OptionalInt index = IntStream.range(0, this.getUsedCardDeck().size())
                 .filter(i -> Objects.equals(this.getUsedCardDeck().get(i).getId(), card.getId()))
                 .findFirst();
-        if(index.isPresent()){
+        if (index.isPresent()) {
             this.getUsedCardDeck().remove(index.getAsInt());
         }
     }

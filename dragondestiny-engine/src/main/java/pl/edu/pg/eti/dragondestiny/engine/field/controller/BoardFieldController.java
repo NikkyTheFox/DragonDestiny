@@ -4,14 +4,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
-import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
-import pl.edu.pg.eti.dragondestiny.engine.character.dto.CharacterListDTO;
-import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
-import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldListDTO;
-import pl.edu.pg.eti.dragondestiny.engine.field.entity.Field;
-import pl.edu.pg.eti.dragondestiny.engine.field.entity.FieldList;
-import pl.edu.pg.eti.dragondestiny.engine.field.service.BoardFieldService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
+import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCard;
+import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldDTO;
+import pl.edu.pg.eti.dragondestiny.engine.field.dto.FieldListDTO;
+import pl.edu.pg.eti.dragondestiny.engine.field.entity.Field;
+import pl.edu.pg.eti.dragondestiny.engine.field.entity.FieldList;
+import pl.edu.pg.eti.dragondestiny.engine.field.service.BoardFieldService;
 
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class BoardFieldController {
     /**
      * Autowired constructor - beans are injected automatically.
      *
-     * @param modelMapper Mapper for conversion from objects to DTOs.
+     * @param modelMapper       Mapper for conversion from objects to DTOs.
      * @param boardFieldService Service for data retrieval and manipulation.
      */
     @Autowired
@@ -61,8 +60,8 @@ public class BoardFieldController {
      */
     @GetMapping
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FieldListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Board not found", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields(@PathVariable("boardId") Integer boardId) {
@@ -80,8 +79,8 @@ public class BoardFieldController {
      */
     @GetMapping("/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FieldDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field on board not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable("boardId") Integer boardId, @PathVariable("id") Integer fieldId) {
@@ -99,8 +98,8 @@ public class BoardFieldController {
      */
     @GetMapping("/{id}/enemy")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EnemyCardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Enemy on field on board not found", content = @Content)})
     public ResponseEntity<EnemyCardDTO> getFieldEnemy(@PathVariable("boardId") Integer boardId, @PathVariable(name = "id") Integer fieldId) {

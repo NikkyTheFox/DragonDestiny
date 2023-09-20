@@ -13,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.edu.pg.eti.dragondestiny.engine.game.dto.GameListDTO;
 
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class BoardController {
      * Autowired constructor - beans are injected automatically.
      *
      * @param boardService Service allowing manipulation of database objects.
-     * @param modelMapper Mapper to transform objects to DTOs.
+     * @param modelMapper  Mapper to transform objects to DTOs.
      */
     @Autowired
     public BoardController(BoardService boardService, ModelMapper modelMapper) {
@@ -54,8 +53,8 @@ public class BoardController {
      */
     @GetMapping()
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = BoardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = BoardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<BoardListDTO> getBoards() {
         Optional<BoardList> boardList = boardService.getBoards();
@@ -71,12 +70,12 @@ public class BoardController {
      */
     @GetMapping("/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = BoardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = BoardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Board not found", content = @Content)})
     public ResponseEntity<BoardDTO> getBoard(@PathVariable(name = "id") Integer id) {
-        Optional<Board> board = boardService.findBoard(id);
+        Optional<Board> board = boardService.getBoard(id);
         return board.map(value -> ResponseEntity.ok().body(modelMapper.map(value, BoardDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

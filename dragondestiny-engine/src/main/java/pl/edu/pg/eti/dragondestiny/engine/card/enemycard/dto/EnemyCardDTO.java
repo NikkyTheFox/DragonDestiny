@@ -1,12 +1,16 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto;
 
-import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 
 /**
  * Data Transfer Object of Enemy Card instance.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EnemyCardDTO extends CardDTO {
 
     /**

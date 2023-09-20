@@ -32,7 +32,7 @@ public class GameCharacterService {
      * Autowired constructor - beans are injected automatically.
      *
      * @param characterService Service for data retrieval and manipulation.
-     * @param gameService Service for data retrieval and manipulation.
+     * @param gameService      Service for data retrieval and manipulation.
      */
     @Autowired
     public GameCharacterService(CharacterService characterService, GameService gameService) {
@@ -46,13 +46,13 @@ public class GameCharacterService {
      * @param gameId An identifier of a game.
      * @return A structure containing list of characters.
      */
-    public Optional<CharacterList> getGameCharacters(Integer gameId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<CharacterList> getGameCharacters(Integer gameId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        List<Character> characterList = characterService.findCharacters(game.get());
-        if(characterList.isEmpty()){
+        List<Character> characterList = characterService.getCharactersByGame(game.get());
+        if (characterList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new CharacterList(characterList));
@@ -61,26 +61,26 @@ public class GameCharacterService {
     /**
      * Retrieves character specified by ID from the game.
      *
-     * @param gameId An identifier of a game.
+     * @param gameId      An identifier of a game.
      * @param characterId An identifier of a character to be retrieved.
      * @return A retrieved character.
      */
-    public Optional<Character> getGameCharacter(Integer gameId, Integer characterId){
-        Optional<Game> game = gameService.findGame(gameId);
-        if(game.isEmpty()){
+    public Optional<Character> getGameCharacter(Integer gameId, Integer characterId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isEmpty()) {
             return Optional.empty();
         }
-        return characterService.findCharacter(game.get(), characterId);
+        return characterService.getCharacterByGame(game.get(), characterId);
     }
 
     /**
      * Converts CharacterList into CharacterListDTO.
      *
-     * @param modelMapper Mapper allowing conversion.
+     * @param modelMapper   Mapper allowing conversion.
      * @param characterList A structure containing list of characters.
      * @return A DTO.
      */
-    public CharacterListDTO convertCharacterListToDTO(ModelMapper modelMapper, CharacterList characterList){
+    public CharacterListDTO convertCharacterListToDTO(ModelMapper modelMapper, CharacterList characterList) {
         return characterService.convertCharacterListToDTO(modelMapper, characterList);
     }
 }

@@ -4,22 +4,24 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import pl.edu.pg.eti.dragondestiny.engine.board.dto.BoardDTO;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.CardList;
+import pl.edu.pg.eti.dragondestiny.engine.card.card.service.CardService;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCardList;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.service.EnemyCardService;
-import pl.edu.pg.eti.dragondestiny.engine.card.card.service.CardService;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCardList;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.service.ItemCardService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -55,10 +57,10 @@ public class CardController {
     /**
      * Autowired constructor - beans are injected automatically.
      *
-     * @param cardService Service to communicate with the database.
+     * @param cardService      Service to communicate with the database.
      * @param enemyCardService Service to communicate with the database.
-     * @param itemCardService Service to communicate with the database.
-     * @param modelMapper Mapper for transforming objects to DTOs.
+     * @param itemCardService  Service to communicate with the database.
+     * @param modelMapper      Mapper for transforming objects to DTOs.
      */
     @Autowired
     public CardController(CardService cardService, EnemyCardService enemyCardService, ItemCardService itemCardService, ModelMapper modelMapper) {
@@ -75,8 +77,8 @@ public class CardController {
      */
     @GetMapping()
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<CardListDTO> getCards() {
         Optional<CardList> cardList = cardService.getCards();
@@ -92,12 +94,12 @@ public class CardController {
      */
     @GetMapping("/{id}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card not found", content = @Content)})
     public ResponseEntity<CardDTO> getCard(@PathVariable(name = "id") Integer id) {
-        Optional<Card> card = cardService.findCard(id);
+        Optional<Card> card = cardService.getCard(id);
         return card.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CardDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -109,8 +111,8 @@ public class CardController {
      */
     @GetMapping("/enemy")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<EnemyCardListDTO> getEnemyCards() {
         Optional<EnemyCardList> enemyCardList = enemyCardService.getEnemyCards();
@@ -125,15 +127,12 @@ public class CardController {
      */
     @GetMapping("/item")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getItemCards() {
         Optional<ItemCardList> itemCardList = itemCardService.getItemCards();
-        if(itemCardList.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        ItemCardListDTO itemCardListDTO = itemCardService.convertItemCardListToDTO(modelMapper, itemCardList.get());
-        return ResponseEntity.ok().body(itemCardListDTO);
+        return itemCardList.map(cardList -> ResponseEntity.ok().body(itemCardService.convertItemCardListToDTO(modelMapper, cardList)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

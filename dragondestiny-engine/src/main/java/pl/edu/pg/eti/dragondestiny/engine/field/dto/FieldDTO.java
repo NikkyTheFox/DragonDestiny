@@ -1,8 +1,8 @@
 package pl.edu.pg.eti.dragondestiny.engine.field.dto;
 
-import pl.edu.pg.eti.dragondestiny.engine.field.entity.FieldType;
-import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
 import lombok.Data;
+import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardDTO;
+import pl.edu.pg.eti.dragondestiny.engine.field.entity.FieldType;
 
 /**
  * Data Transfer Object of Field instance.

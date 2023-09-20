@@ -1,17 +1,12 @@
 package pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity;
 
-import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import lombok.AccessLevel;
-import lombok.ToString;
+import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
 
 /**
  * ItemCard extending Card.

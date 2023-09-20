@@ -44,7 +44,7 @@ public class InitializingPlayedGameRepository {
                     .retrieve()
                     .toEntity(GameEngineGameDTO.class)
                     .block();
-            if(gameEngineGameDTOResponseEntity == null) {
+            if (gameEngineGameDTOResponseEntity == null) {
                 return null;
             }
             return gameEngineGameDTOResponseEntity.getBody();
@@ -65,7 +65,7 @@ public class InitializingPlayedGameRepository {
                 .retrieve()
                 .toEntity(EnemyCardList.class)
                 .block();
-        if(enemyCardListResponseEntity == null) {
+        if (enemyCardListResponseEntity == null) {
             return null;
         }
         return enemyCardListResponseEntity.getBody();
@@ -83,7 +83,7 @@ public class InitializingPlayedGameRepository {
                 .retrieve()
                 .toEntity(ItemCardList.class)
                 .block();
-        if(itemCardListResponseEntity == null) {
+        if (itemCardListResponseEntity == null) {
             return null;
         }
         return itemCardListResponseEntity.getBody();
@@ -101,7 +101,7 @@ public class InitializingPlayedGameRepository {
                 .retrieve()
                 .toEntity(CharacterList.class)
                 .block();
-        if(characterListResponseEntity == null) {
+        if (characterListResponseEntity == null) {
             return null;
         }
         return characterListResponseEntity.getBody();
@@ -119,7 +119,7 @@ public class InitializingPlayedGameRepository {
                 .retrieve()
                 .toEntity(PlayedBoard.class)
                 .block();
-        if(playedBoardResponseEntity == null) {
+        if (playedBoardResponseEntity == null) {
             return null;
         }
         return playedBoardResponseEntity.getBody();
@@ -137,7 +137,7 @@ public class InitializingPlayedGameRepository {
                 .retrieve()
                 .toEntity(FieldList.class)
                 .block();
-        if(fieldListResponseEntity == null) {
+        if (fieldListResponseEntity == null) {
             return null;
         }
         return fieldListResponseEntity.getBody();

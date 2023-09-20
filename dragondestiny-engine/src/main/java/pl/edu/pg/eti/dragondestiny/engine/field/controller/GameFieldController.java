@@ -75,7 +75,7 @@ public class GameFieldController {
      * @param gameId An identifier of a game.
      * @param fieldId An identifier of a field.
      * @return A retrieved field.
-     */
+//     */
     @GetMapping("/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",

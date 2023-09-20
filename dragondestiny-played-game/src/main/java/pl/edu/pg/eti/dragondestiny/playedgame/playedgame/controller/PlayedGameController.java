@@ -6,20 +6,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.DTO.PlayedBoardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.DTO.CardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.DTO.CardListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.CardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.CardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.DTO.ItemCardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.DTO.ItemCardListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
@@ -27,10 +24,13 @@ import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCardList
 import pl.edu.pg.eti.dragondestiny.playedgame.character.DTO.CharacterDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.DTO.CharacterListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
+import pl.edu.pg.eti.dragondestiny.playedgame.character.object.CharacterList;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionListDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.*;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldList;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOptionList;
 import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.DTO.FightResultDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
 import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializingPlayedGameService;
@@ -45,9 +45,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.DTO.RoundDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
-import pl.edu.pg.eti.dragondestiny.playedgame.character.object.CharacterList;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
@@ -76,9 +73,9 @@ public class PlayedGameController {
     /**
      * A constructor for PlayedGameController with PlayedGameService, PlayerService and ModelMapper instances.
      *
-     * @param playedGameService A service to handle played game data.
+     * @param playedGameService             A service to handle played game data.
      * @param initializingPlayedGameService A service to initialize a game.
-     * @param modelMapper A mapper used to transform objects to DTOs.
+     * @param modelMapper                   A mapper used to transform objects to DTOs.
      */
     @Autowired
     public PlayedGameController(PlayedGameService playedGameService, InitializingPlayedGameService initializingPlayedGameService, ModelMapper modelMapper) {
@@ -92,20 +89,21 @@ public class PlayedGameController {
     public ResponseEntity<PlayerDTO> testGame(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         // find game
         Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
-        if(game.isEmpty()){
+        if (game.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         // find player
         Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
-        if(player.isEmpty()){
+        if (player.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-       // Player updatedPlayer = player.get().getPlayerManager().checkTrophies(player.get());
+        // Player updatedPlayer = player.get().getPlayerManager().checkTrophies(player.get());
         PlayerDTO playerDTO = modelMapper.map(player.get(), PlayerDTO.class);
         return ResponseEntity.ok().body(playerDTO);
     }
 
     // GAME ------------------------------------------------------
+
     /**
      * Retrieves a played game specified by its ID.
      *
@@ -115,8 +113,8 @@ public class PlayedGameController {
     @GetMapping("/{playedGameId}")
     @Tag(name = "Played Game")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> getGame(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -130,12 +128,12 @@ public class PlayedGameController {
      *
      * @return A list of all games.
      */
-   @GetMapping("")
-   @Tag(name = "Played Game")
-   @ApiResponses(value = {
-           @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                   schema = @Schema(implementation = PlayedGameListDTO.class)) }),
-           @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
+    @GetMapping("")
+    @Tag(name = "Played Game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameListDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<PlayedGameListDTO> getAllGames() {
         PlayedGameList playedGameList = new PlayedGameList(playedGameService.findPlayedGames());
         return ResponseEntity.ok().body(playedGameService.convertPlayedGameListToDTO(modelMapper, playedGameList));
@@ -150,8 +148,8 @@ public class PlayedGameController {
     @PutMapping("{gameId}")
     @Tag(name = "Played Game")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Game scenario not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> initializeGame(@PathVariable(name = "gameId") Integer gameId) {
@@ -169,8 +167,8 @@ public class PlayedGameController {
     @PutMapping("{playedGameId}/start")
     @Tag(name = "Played Game")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> startGame(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -192,13 +190,14 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<String> deleteGame(@PathVariable(name = "playedGameId") String playedGameId) {
-        if(playedGameService.delete(playedGameId)){
+        if (playedGameService.delete(playedGameId)) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
 
     // ROUND -----------------------------------------------------------------------------------------------------------
+
     /**
      * Retrieves data about currently ongoing (active) round.
      *
@@ -208,8 +207,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/round")
     @Tag(name = "Played Game - round")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = RoundDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<RoundDTO> getActiveRound(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -227,8 +226,8 @@ public class PlayedGameController {
     @PutMapping("{playedGameId}/round/next")
     @Tag(name = "Played Game - round")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = RoundDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<RoundDTO> setNextRound(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -248,8 +247,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/board")
     @Tag(name = "Played Game - board")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedBoardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedBoardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<PlayedBoardDTO> getBoard(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -267,8 +266,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/board/fields")
     @Tag(name = "Played Game - board")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FieldListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<FieldListDTO> getFields(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -281,14 +280,14 @@ public class PlayedGameController {
      * Retrieves data about a specified field in the game.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param fieldId An identifier of a field to be retrieved.
+     * @param fieldId      An identifier of a field to be retrieved.
      * @return A retrieved field.
      */
     @GetMapping("{playedGameId}/board/fields/{fieldId}")
     @Tag(name = "Played Game - board")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FieldDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field on board in played game not found", content = @Content)})
     public ResponseEntity<FieldDTO> getField(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "fieldId") Integer fieldId) {
@@ -308,8 +307,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/cards/deck")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<CardListDTO> getCardDeck(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -327,12 +326,12 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/cards/used")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<CardListDTO> getUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId) {
-       Optional<CardList> cardList = playedGameService.findUsedCardDeck(playedGameId);
+        Optional<CardList> cardList = playedGameService.findUsedCardDeck(playedGameId);
         return cardList.map(list -> ResponseEntity.ok().body(playedGameService.convertCardListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -341,14 +340,14 @@ public class PlayedGameController {
      * Retrieves a specified card from card deck.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A retrieved card.
      */
     @GetMapping("{playedGameId}/cards/deck/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card in played game not found", content = @Content)})
     public ResponseEntity<CardDTO> getCardFromCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
@@ -361,14 +360,14 @@ public class PlayedGameController {
      * Retrieves a specified card from used cards deck.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A retrieved card.
      */
     @GetMapping("{playedGameId}/cards/used/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card in played game not found", content = @Content)})
     public ResponseEntity<CardDTO> getCardFromUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
@@ -381,14 +380,14 @@ public class PlayedGameController {
      * Removes a specified card from the deck and add it to used cards deck.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param cardId An identifier of a card to be updated.
+     * @param cardId       An identifier of a card to be updated.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/cards/used/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> moveCardFromCardDeckToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
@@ -401,15 +400,15 @@ public class PlayedGameController {
      * Removes a specified card from given player's hand and add it to used cards deck.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player whose hand card is used.
-     * @param cardId An identifier of a card to be moved.
+     * @param playerLogin  An identifier of a player whose hand card is used.
+     * @param cardId       An identifier of a card to be moved.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/cards/used/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> moveCardFromPlayerHandToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
@@ -422,15 +421,15 @@ public class PlayedGameController {
      * Retrieves an item card from the deck and add it to a specified player's hand.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player who gets the card.
-     * @param cardId An identifier of a card to be moved to player's hand.
+     * @param playerLogin  An identifier of a player who gets the card.
+     * @param cardId       An identifier of a card to be moved to player's hand.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/cards/hand/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
@@ -443,15 +442,15 @@ public class PlayedGameController {
      * Moves defeated enemy to a specified player's trophies.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player who has earned a trophy.
-     * @param cardId An identifier of a defeated enemy.
+     * @param playerLogin  An identifier of a player who has earned a trophy.
+     * @param cardId       An identifier of a defeated enemy.
      * @return An updated game.
      */
     @PutMapping("/{playedGameId}/players/{playerLogin}/cards/trophies/{cardId}")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> moveCardToPlayersTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
@@ -469,8 +468,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/cards/deck/draw")
     @Tag(name = "Played Game - cards")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<CardDTO> drawRandomCard(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -490,8 +489,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/characters")
     @Tag(name = "Played Game - characters")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<CharacterListDTO> getAllCharacters(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -504,14 +503,14 @@ public class PlayedGameController {
      * Retrieves data about a specified character from the game.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param characterId An identifier of a character to be retrieved.
+     * @param characterId  An identifier of a character to be retrieved.
      * @return A retrieved character.
      */
     @GetMapping("{playedGameId}/characters/{characterId}")
     @Tag(name = "Played Game - characters")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Character in played game not found", content = @Content)})
     public ResponseEntity<CharacterDTO> getCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "characterId") Integer characterId) {
@@ -529,11 +528,11 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/characters/used")
     @Tag(name = "Played Game - characters")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    public ResponseEntity<CharacterListDTO> getCharactersInUse(@PathVariable(name = "playedGameId") String playedGameId){
+    public ResponseEntity<CharacterListDTO> getCharactersInUse(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<CharacterList> characterList = playedGameService.findCharactersInUse(playedGameId);
         return characterList.map(list -> ResponseEntity.ok().body(playedGameService.convertCharacterListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -548,11 +547,11 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/characters/free")
     @Tag(name = "Played Game - characters")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    public ResponseEntity<CharacterListDTO> getCharactersNotInUse(@PathVariable(name = "playedGameId") String playedGameId){
+    public ResponseEntity<CharacterListDTO> getCharactersNotInUse(@PathVariable(name = "playedGameId") String playedGameId) {
         Optional<CharacterList> characterList = playedGameService.findCharactersNotInUse(playedGameId);
         return characterList.map(list -> ResponseEntity.ok().body(playedGameService.convertCharacterListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -569,8 +568,8 @@ public class PlayedGameController {
     @GetMapping("{playedGameId}/players")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
     public ResponseEntity<PlayerListDTO> getPlayers(@PathVariable(name = "playedGameId") String playedGameId) {
@@ -583,14 +582,14 @@ public class PlayedGameController {
      * Retrieves data about a specified player from the game.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player to be retrieved.
+     * @param playerLogin  An identifier of a player to be retrieved.
      * @return A retrieved player.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<PlayerDTO> getPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -603,17 +602,17 @@ public class PlayedGameController {
      * Retrieves a list of players whose characters stand on the same field.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param fieldId An identifier of a field to be checked.
+     * @param fieldId      An identifier of a field to be checked.
      * @return A structure containing a list of players.
      */
     @GetMapping("{playedGameId}/players/field/{fieldId}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field on board in played game not found", content = @Content)})
-    public ResponseEntity<PlayerListDTO> getPlayersOnField(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "fieldId") Integer fieldId){
+    public ResponseEntity<PlayerListDTO> getPlayersOnField(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "fieldId") Integer fieldId) {
         Optional<PlayerList> playerList = playedGameService.findPlayersByField(playedGameId, fieldId);
         return playerList.map(list -> ResponseEntity.ok().body(playedGameService.convertPlayerListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -624,14 +623,14 @@ public class PlayedGameController {
      * Retrieves character of a specified player.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose character is to be retrieved.
+     * @param playerLogin  An identifier of a player whose character is to be retrieved.
      * @return A retrieved player's character.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/character")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CharacterDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CharacterDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Character of player in played game not found", content = @Content)})
     public ResponseEntity<CharacterDTO> getPlayersCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -644,14 +643,14 @@ public class PlayedGameController {
      * Retrieves a list of cards which belong to given player.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose hand cards are to be retrieved.
+     * @param playerLogin  An identifier of a player whose hand cards are to be retrieved.
      * @return A structure containing a list of item cards.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/cards/hand")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getCardsFromPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -664,14 +663,14 @@ public class PlayedGameController {
      * Retrieves hand cards of a specified player which increase health statistics.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose hand cards are to be checked.
+     * @param playerLogin  An identifier of a player whose hand cards are to be checked.
      * @return A structure containing a list of item cards.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/cards/hand/health")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getHealthCardsFromPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -684,14 +683,14 @@ public class PlayedGameController {
      * Retrieves hand cards of a specified player which increase strength statistics.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose hand cards are to be checked.
+     * @param playerLogin  An identifier of a player whose hand cards are to be checked.
      * @return A structure containing a list of item cards.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/cards/hand/strength")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<ItemCardListDTO> getStrengthCardsFromPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -704,15 +703,15 @@ public class PlayedGameController {
      * Retrieves a specified card from player's hand.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose hand cards are to be retrieved.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param playerLogin  An identifier of a player whose hand cards are to be retrieved.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A retrieved card.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/cards/hand/{cardId}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card in player's hand in played game not found", content = @Content)})
     public ResponseEntity<ItemCardDTO> getCardFromPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
@@ -725,14 +724,14 @@ public class PlayedGameController {
      * Retrieves all trophies (defeated enemy cards) from a specified player.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose trophies are to be retrieved.
+     * @param playerLogin  An identifier of a player whose trophies are to be retrieved.
      * @return A structure containing list of trophies (enemy cards).
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/cards/trophies")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<EnemyCardListDTO> getTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -745,14 +744,14 @@ public class PlayedGameController {
      * Adds a specified player to the given game.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player to be added to the game.
+     * @param playerLogin  An identifier of a player to be added to the game.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ItemCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player or played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> addPlayerToGameByLogin(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -765,15 +764,15 @@ public class PlayedGameController {
      * Assigns a specified character to given player.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player whose character is to be set.
-     * @param characterId An identifier of a character which is to be assigned to the player.
+     * @param playerLogin  An identifier of a player whose character is to be set.
+     * @param characterId  An identifier of a character which is to be assigned to the player.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/character/{characterId}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Character or player or played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> selectCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "characterId") Integer characterId) {
@@ -786,18 +785,18 @@ public class PlayedGameController {
      * Retrieves a list of fields to which a player can make a move after rolling a specified number from the dice.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose possible new positions are to be calculated.
-     * @param rollValue A number corresponding to the number rolled on a die.
+     * @param playerLogin  An identifier of a player whose possible new positions are to be calculated.
+     * @param rollValue    A number corresponding to the number rolled on a die.
      * @return A structure containing a list of fields.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/field/move/{rollValue}/fields")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<FieldListDTO> checkPossibleNewPositions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "rollValue") Integer rollValue){
+    public ResponseEntity<FieldListDTO> checkPossibleNewPositions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "rollValue") Integer rollValue) {
         Optional<FieldList> fieldList = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, rollValue);
         return fieldList.map(list -> ResponseEntity.ok().body(playedGameService.convertFieldListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -807,15 +806,15 @@ public class PlayedGameController {
      * Updates a specified player's position field.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player whose new position is to be set.
-     * @param fieldId An identifier of a field which is player's new position.
+     * @param playerLogin  An identifier of a player whose new position is to be set.
+     * @param fieldId      An identifier of a field which is player's new position.
      * @return An updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/field/{fieldId}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) {
@@ -828,17 +827,17 @@ public class PlayedGameController {
      * Checks possible actions for a player to take while standing on a given field.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose position field is to be checked.
+     * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing list of possible actions.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/field/options")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FieldOptionListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FieldOptionListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<FieldOptionListDTO> getPlayersPossibleActions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin){
+    public ResponseEntity<FieldOptionListDTO> getPlayersPossibleActions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         Optional<FieldOptionList> fieldOptionList = playedGameService.checkFieldOption(playedGameId, playerLogin);
         return fieldOptionList.map(optionList -> ResponseEntity.ok().body(new FieldOptionListDTO(optionList.getPossibleOptions())))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -848,17 +847,17 @@ public class PlayedGameController {
      * Checks with which enemy players there can be a fight arranged on a field a player stands on.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose position field is ot be checked.
+     * @param playerLogin  An identifier of a player whose position field is ot be checked.
      * @return A structure containing a list of players.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/field/options/players")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<PlayerListDTO> getPlayersToFightWith(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin){
+    public ResponseEntity<PlayerListDTO> getPlayersToFightWith(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         Optional<PlayerList> playerList = playedGameService.findDifferentPlayersByField(playedGameId, playerLogin);
         return playerList.map(list -> ResponseEntity.ok().body(playedGameService.convertPlayerListToDTO(modelMapper, list)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -868,17 +867,17 @@ public class PlayedGameController {
      * Checks with which enemy cards a player can fight arranged on a field a player stands on.
      *
      * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player whose position field is to be checked.
+     * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing a list of enemy cards.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/field/options/enemies")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = EnemyCardListDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EnemyCardListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<EnemyCardListDTO> getEnemiesToFightWith(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin){
+    public ResponseEntity<EnemyCardListDTO> getEnemiesToFightWith(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         Optional<EnemyCardList> enemyCardList = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
         return enemyCardList.map(cardList -> ResponseEntity.ok().body(playedGameService.convertEnemyCardListToDTO(modelMapper, cardList)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -887,16 +886,16 @@ public class PlayedGameController {
     /**
      * Blocks turns of a specified player for a given amount.
      *
-     * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player who is to be blocked.
+     * @param playedGameId      An identifier of a game to be updated.
+     * @param playerLogin       An identifier of a player who is to be blocked.
      * @param numOfTurnsToBlock The number representing number of turns to be blocked.
      * @return An updated player's data.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/block/{numOfTurnsToBlock}")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<PlayerDTO> blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
@@ -909,14 +908,14 @@ public class PlayedGameController {
      * Blocks turns of a player according to the field a player is standing on.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player to be blocked automatically.
+     * @param playerLogin  An identifier of a player to be blocked automatically.
      * @return An updated player's data.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/block")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayerDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<PlayerDTO> blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -931,14 +930,14 @@ public class PlayedGameController {
      * Simulates rolling a die by a specified player.
      *
      * @param playedGameId An identifier a game to retrieve data about.
-     * @param playerLogin An identifier a player who is rolling a die.
+     * @param playerLogin  An identifier a player who is rolling a die.
      * @return A number representing a number rolled on a die.
      */
     @GetMapping("{playedGameId}/players/{playerLogin}/roll")
     @Tag(name = "Played Game - actions")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = Integer.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Integer.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<Integer> rollDice(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -951,17 +950,17 @@ public class PlayedGameController {
      * Handles fight between a specified player and a specified enemy card.
      *
      * @param playedGameId An identifier of a game to be updated.
-     * @param playerLogin An identifier of a player participating in a fight.
-     * @param cardId An identifier of an enemy card participating in a fight.
-     * @param playerRoll A number that player has rolled on a die.
-     * @param enemyRoll A number that an enemy (server) has rolled on a die.
+     * @param playerLogin  An identifier of a player participating in a fight.
+     * @param cardId       An identifier of an enemy card participating in a fight.
+     * @param playerRoll   A number that player has rolled on a die.
+     * @param enemyRoll    A number that an enemy (server) has rolled on a die.
      * @return A result of a fight between a player and enemy card.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/fight/roll/{playerRoll}/enemy/{cardId}/roll/{enemyRoll}")
     @Tag(name = "Played Game - actions")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FightResultDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<FightResultDTO> handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
@@ -1006,22 +1005,22 @@ public class PlayedGameController {
     /**
      * Handles a fight between one specified player and another specified player.
      *
-     * @param playedGameId An identifier of a game to retrieve data about.
-     * @param playerLogin An identifier of a player (defender) participating in a fight.
-     * @param playerRoll A number that player (defender) has rolled on a die.
+     * @param playedGameId     An identifier of a game to retrieve data about.
+     * @param playerLogin      An identifier of a player (defender) participating in a fight.
+     * @param playerRoll       A number that player (defender) has rolled on a die.
      * @param enemyPlayerLogin An identifier of an enemy player (attacker) participating in a fight.
      * @return A result of a fight between attacking and defending player.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/fight/roll/{playerRoll}/player/{enemyPlayerLogin}")
     @Tag(name = "Played Game - actions")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = FightResultDTO.class)) }),
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity<FightResultDTO> handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
         Optional<PlayedGame> playerGame = playedGameService.setPlayerFightRoll(playedGameId, playerLogin, playerRoll);
-        if(playerGame.isEmpty()){
+        if (playerGame.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
