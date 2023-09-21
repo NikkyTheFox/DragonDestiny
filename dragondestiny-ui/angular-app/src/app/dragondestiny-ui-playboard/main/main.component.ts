@@ -18,7 +18,6 @@ export class MainComponent implements OnInit {
 
   ngOnInit(){
     if(!this.dataService.loginFlag) return;
-    console.log(this.dataService.chosenGame);
     this.gamePlayerStructure.gameId = this.dataService.chosenGame;
     this.gamePlayerStructure.playerLogin = this.dataService.loginData.login;
   }
