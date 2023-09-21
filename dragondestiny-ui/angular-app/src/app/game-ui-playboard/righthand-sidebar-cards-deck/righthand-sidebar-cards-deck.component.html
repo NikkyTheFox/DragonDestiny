@@ -1,8 +1,0 @@
-<div class="card-deck-container">
-  <p>Number of cards in deck: {{numberOfCardsInDeck}}</p>
-  <p>Cards in deck:</p>
-  <div *ngFor="let i of deck | slice:0:2"> <!-- show only first 2 cards from deck -->
-    <p>{{i.cardType}}</p>
-  </div>
-  <button class="button" type="button" (click)="drawCard()">Draw Card</button>
-</div>

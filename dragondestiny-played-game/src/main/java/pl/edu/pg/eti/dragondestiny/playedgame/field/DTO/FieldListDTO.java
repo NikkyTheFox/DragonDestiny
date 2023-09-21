@@ -15,5 +15,5 @@ public class FieldListDTO {
     /**
      * A list of fields.
      */
-    private List<FieldDTO> fieldDTOList;
+    private List<FieldDTO> fieldList;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "angular-app",
+  "name": "dragondestiny-ui",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -34,5 +34,31 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "typescript": "~5.0.2"
-  }
+  },
+  "developers": [
+    {
+      "name": "Daria Skarbek",
+      "email": "s184869@student.pg.edu.pl",
+      "roles": [
+        "architect",
+        "developer"
+      ]
+    },
+    {
+      "name": "Adam Pocheć",
+      "email": "s184713@student.pg.edu.pl",
+      "roles": [
+        "architect",
+        "developer"
+      ]
+    },
+    {
+      "name": "Igor Szemela",
+      "email": "s184859@student.pg.edu.pl",
+      "roles": [
+        "architect",
+        "developer"
+      ]
+    }
+  ]
 }

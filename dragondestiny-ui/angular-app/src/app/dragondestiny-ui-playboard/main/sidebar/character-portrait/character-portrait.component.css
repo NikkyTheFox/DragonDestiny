@@ -1,0 +1,13 @@
+.character-portrait {
+  border: 1px solid red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.character-portrait p {
+  padding-bottom: 10px;
+}
+
+.wrapper {
+  text-align: center;
+}

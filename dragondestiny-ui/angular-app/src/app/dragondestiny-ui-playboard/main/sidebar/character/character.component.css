@@ -1,0 +1,10 @@
+.character-container {
+  border: 1px solid black;
+  flex: 5;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: lightpink;
+}

@@ -1,0 +1,7 @@
+<div class="join-container">
+  <form (ngSubmit)="joinGame()">
+    <label for="gameid">GameID:</label>
+    <input id="gameid" type="text" [(ngModel)]="gameId" placeholder="Game Identifier">
+    <button type="submit">Join</button>
+  </form>
+</div>

@@ -15,5 +15,5 @@ public class EnemyCardListDTO {
     /**
      * A list of enemy cards DTOs.
      */
-    private List<EnemyCardDTO> enemyCardDTOList;
+    private List<EnemyCardDTO> enemyCardList;
 }

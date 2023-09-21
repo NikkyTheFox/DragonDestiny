@@ -1,0 +1,53 @@
+[ COMPONENT ] app { ROOT }
+
+  [ MODULE ] dragondestiny-ui-header
+   [ COMPONENT ] header
+    [ COMPONENT ] header-left
+    [ COMPONENT ] header-middle
+    [ COMPONENT ] header-right
+
+
+  [ MODULE ] dragondestiny-ui-login
+  [ COMPONENT ] login-in
+  [ COMPONENT ] signup
+
+
+  [ MODULE ] dragondestiny-ui-dashboard
+  [ COMPONENT ] game-ui-dashboard
+    [ COMPONENT ] create-game
+    [ COMPONENT ] dashboard-sidebar
+    [ COMPONENT ] join-game
+    [ COMPONENT ] played-games-list
+
+
+  [ MODULE ] dragondestiny-ui-prepare-game
+  [ COMPONENT ] prepare-game
+    [ COMPONENT ] invite-player                       // TEST for many players, after invite, TODO new game should appear as to join not to continue
+    [ COMPONENT ] select-character                    // character cards instead of text || LATER
+    [ COMPONENT ] start-game
+
+
+  [ MODULE ] dragondestiny-ui-playboard
+  [ COMPONENT ] main
+    [ COMPONENT ] game-screen
+      [ COMPONENT ] board
+        [ COMPONENT ] board-row
+          [ COMPONENT ] board-field
+            [ COMPONENT ] pawn                   // IS THIS NEEDED THO?? // TODO??? component to show the pawns of a players
+      [ COMPONENT ] context-bar
+        [ COMPONENT ] context-bar-characters
+        [ COMPONENT ] context-bar-items
+    [ COMPONENT ] sidebar
+          [ COMPONENT ] game-controls
+            [ COMPONENT ] controls-dice-roll
+            [ COMPONENT ] controls-options               // choose what to do after moving to a field TODO
+            [ COMPONENT ] controls-confirm               // end turn/move TODO
+          [ COMPONENT ] deck
+          [ COMPONENT ] character
+            [ COMPONENT ] character-portrait
+            [ COMPONENT ] character-statistics
+              [ COMPONENT ] character-statistic-stat
+
+
+  [ MODULE ] dragondestiny-ui-footer
+  [ COMPONENT ] footer

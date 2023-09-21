@@ -15,5 +15,5 @@ public class ItemCardListDTO {
     /**
      * A list of item cards.
      */
-    private List<ItemCardDTO> itemCardDTOList;
+    private List<ItemCardDTO> itemCardList;
 }
