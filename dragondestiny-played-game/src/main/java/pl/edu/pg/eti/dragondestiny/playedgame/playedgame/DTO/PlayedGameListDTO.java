@@ -15,5 +15,5 @@ public class PlayedGameListDTO {
     /**
      * A list of played games.
      */
-    private List<PlayedGameDTO> playedGameDTOList;
+    private List<PlayedGameDTO> playedGameList;
 }

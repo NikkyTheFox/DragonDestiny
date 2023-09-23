@@ -1,0 +1,8 @@
+.context-bar {
+  display: flex;
+  border: 1px solid red;
+}
+
+/*.context-bar-characters-container p {*/
+/*  text-align: center;*/
+/*}*/

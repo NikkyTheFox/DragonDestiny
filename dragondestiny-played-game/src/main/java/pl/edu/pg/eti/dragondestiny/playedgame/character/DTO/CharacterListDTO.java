@@ -15,5 +15,5 @@ public class CharacterListDTO {
     /**
      * A list of characters.
      */
-    private List<CharacterDTO> characterDTOList;
+    private List<CharacterDTO> characterList;
 }

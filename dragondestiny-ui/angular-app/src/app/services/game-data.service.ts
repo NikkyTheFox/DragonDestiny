@@ -1,24 +1,32 @@
 import { Injectable } from '@angular/core';
-import {GameUserShort} from "../interfaces/game-user/game-user-short";
-import {Field} from "../interfaces/game-engine/field";
+import { User } from '../interfaces/user/user/user';
+import { Field } from '../interfaces/game-engine/field/field';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameDataService {
 
-  loginData: GameUserShort = {
-    login: "",
-    name: "",
+  loginData: User = {
+    login: '',
+    name: '',
     playedGames: []
   }
 
   loginFlag: boolean = false;
 
-  chosenGame: string = "";
+  chosenGame: string = '';
 
   possibleFields: Field[];
   constructor() {
     this.possibleFields = [];
+  }
+
+  isAuthorized(){
+    return this.loginFlag;
+  }
+
+  getPlayerLogin(){
+    return this.loginData.login;
   }
 }

@@ -1,0 +1,8 @@
+<div>
+  <nav>
+    <a *ngIf="!dataService.isAuthorized()" routerLink="/login">Login</a>
+    <a *ngIf="!dataService.isAuthorized()" routerLink="/signup">Sign Up</a>
+    <a *ngIf="dataService.isAuthorized()" routerLink="/dashboard">Dashboard</a>
+    <a *ngIf="dataService.isAuthorized()" routerLink="/main">Game</a>
+  </nav>
+</div>
