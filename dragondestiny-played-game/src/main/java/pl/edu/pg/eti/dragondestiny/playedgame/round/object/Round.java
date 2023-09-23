@@ -1,11 +1,7 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.round.object;
 
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.AccessLevel;
+import lombok.*;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 
 import java.util.ArrayList;
@@ -34,6 +30,6 @@ public class Round {
     /**
      * List of players.
      */
-    private List<Player> players = new ArrayList<>();
+    private List<Player> playerList = new ArrayList<>();
 
 }

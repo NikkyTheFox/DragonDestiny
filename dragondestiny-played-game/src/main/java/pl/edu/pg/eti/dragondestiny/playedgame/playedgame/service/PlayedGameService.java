@@ -2,6 +2,7 @@ package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import pl.edu.pg.eti.dragondestiny.playedgame.PlayedGameProperties;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
@@ -76,6 +77,7 @@ public class PlayedGameService {
      * @return A retrieved played game.
      */
     public Optional<PlayedGame> findPlayedGame(String playedGameId) {
+
         return playedGameRepository.findById(playedGameId);
     }
 
@@ -85,6 +87,7 @@ public class PlayedGameService {
      * @return A list of all played games in the database.
      */
     public List<PlayedGame> findPlayedGames() {
+
         return playedGameRepository.findAll();
     }
 
@@ -95,6 +98,7 @@ public class PlayedGameService {
      * @return Saved played game.
      */
     public PlayedGame save(PlayedGame game) {
+
         return playedGameRepository.save(game);
     }
 
@@ -121,9 +125,13 @@ public class PlayedGameService {
      */
 
     public Optional<CardList> findCardDeck(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Card> cardList = playedGameRepository.findCardDeck(playedGameId);
         if (cardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new CardList());
         }
         return Optional.of(new CardList(cardList));
     }
@@ -135,9 +143,13 @@ public class PlayedGameService {
      * @return A structure containing a list of cards.
      */
     public Optional<CardList> findUsedCardDeck(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Card> cardList = playedGameRepository.findUsedCardDeck(playedGameId);
         if (cardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new CardList());
         }
         return Optional.of(new CardList(cardList));
     }
@@ -207,6 +219,11 @@ public class PlayedGameService {
      * @return A structure containing a list of item cards.
      */
     public Optional<ItemCardList> findPlayersHandCards(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        List<Player> players = playedGameRepository.findPlayerByLogin(playedGameId, playerLogin);
+        if (game.isEmpty() || players.isEmpty()) {
+            return Optional.empty();
+        }
         List<ItemCard> itemCardList = playedGameRepository.findCardsInPlayerHand(playedGameId, playerLogin);
         if (itemCardList.isEmpty()) {
             return Optional.empty();
@@ -222,9 +239,14 @@ public class PlayedGameService {
      * @return A structure containing a list of trophies (enemy cards).
      */
     public Optional<EnemyCardList> findPlayerTrophies(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        List<Player> players = playedGameRepository.findPlayerByLogin(playedGameId, playerLogin);
+        if (game.isEmpty() || players.isEmpty()) {
+            return Optional.empty();
+        }
         List<EnemyCard> enemyCardList = playedGameRepository.findPlayersTrophies(playedGameId, playerLogin);
         if (enemyCardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new EnemyCardList());
         }
         return Optional.of(new EnemyCardList(enemyCardList));
     }
@@ -236,9 +258,13 @@ public class PlayedGameService {
      * @return A structure containing list of characters.
      */
     public Optional<CharacterList> findCharacters(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Character> characterList = playedGameRepository.findCharacters(playedGameId);
         if (characterList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new CharacterList());
         }
         return Optional.of(new CharacterList(characterList));
     }
@@ -261,9 +287,13 @@ public class PlayedGameService {
      * @return A structure containing list of characters.
      */
     public Optional<CharacterList> findCharactersInUse(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
         if (playerList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new CharacterList());
         }
         List<Character> characterList = new ArrayList<>();
         playerList.forEach(player -> characterList.add(player.getCharacter()));
@@ -277,11 +307,12 @@ public class PlayedGameService {
      * @return A structure containing list of characters.
      */
     public Optional<CharacterList> findCharactersNotInUse(String playedGameId) {
-        List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         List<Character> characterList = playedGameRepository.findCharacters(playedGameId);
-        if (characterList.isEmpty()) {
+        if (game.isEmpty() || characterList.isEmpty()) {
             return Optional.empty();
         }
+        List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
         if (playerList.isEmpty()) {
             return Optional.of(new CharacterList(characterList));
         }
@@ -300,9 +331,14 @@ public class PlayedGameService {
      * @return A structure containing a list of enemy cards.
      */
     public Optional<EnemyCardList> findEnemyCardsOnField(String playedGameId, Integer fieldId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        List<Field> fields = playedGameRepository.findFieldOnBoard(playedGameId, fieldId);
+        if (game.isEmpty() || fields.isEmpty()) {
+            return Optional.empty();
+        }
         List<EnemyCard> enemyCardList = playedGameRepository.findEnemyOnField(playedGameId, fieldId);
         if (enemyCardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new EnemyCardList());
         }
         return Optional.of(new EnemyCardList(enemyCardList));
     }
@@ -315,8 +351,9 @@ public class PlayedGameService {
      * @return A structure containing a list of enemy cards.
      */
     public Optional<EnemyCardList> findEnemyCardOnPlayersField(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
+        if (game.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         return findEnemyCardsOnField(playedGameId, player.get().getCharacter().getField().getId());
@@ -330,6 +367,7 @@ public class PlayedGameService {
      * @return A retrieved field.
      */
     public Optional<Field> findField(String playedGameId, Integer fieldId) {
+
         return playedGameRepository.findFieldOnBoard(playedGameId, fieldId).stream().findFirst();
     }
 
@@ -340,6 +378,7 @@ public class PlayedGameService {
      * @return A retrieved board.
      */
     public Optional<PlayedBoard> findBoard(String playedGameId) {
+
         return playedGameRepository.findBoard(playedGameId).stream().findFirst();
     }
 
@@ -349,7 +388,14 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return Currently ongoing round.
      */
-    public Optional<Round> findActiveRound(String playedGameId) {
+    public Optional<Round> findActiveRound(String playedGameId) throws ServiceException {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
+        if (game.get().getActiveRound() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "The game does not have an active round started.");
+        }
         return playedGameRepository.findActiveRound(playedGameId).stream().findFirst();
     }
 
@@ -360,9 +406,13 @@ public class PlayedGameService {
      * @return A structure containing a list of fields.
      */
     public Optional<FieldList> findFields(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Field> fieldList = playedGameRepository.findFieldsOnBoard(playedGameId);
         if (fieldList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new FieldList());
         }
         return Optional.of(new FieldList(fieldList));
     }
@@ -374,9 +424,13 @@ public class PlayedGameService {
      * @return A structure containing a list of players.
      */
     public Optional<PlayerList> findPlayers(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
         List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
         if (playerList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new PlayerList());
         }
         return Optional.of(new PlayerList(playerList));
     }
@@ -389,8 +443,9 @@ public class PlayedGameService {
      * @return A structure containing a list of players.
      */
     public Optional<PlayerList> findPlayersByField(String playedGameId, Integer fieldId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         List<Player> playerList = playedGameRepository.findPlayersByField(playedGameId, fieldId);
-        if (playerList.isEmpty()) {
+        if (game.isEmpty() || playerList.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new PlayerList(playerList));
@@ -404,13 +459,14 @@ public class PlayedGameService {
      * @return A structure containing a list of players.
      */
     public Optional<PlayerList> findDifferentPlayersByField(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
+        if (game.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         List<Player> playerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.get().getCharacter().getField().getId());
         if (playerList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new PlayerList());
         }
         return Optional.of(new PlayerList(playerList));
     }
@@ -423,9 +479,14 @@ public class PlayedGameService {
      * @return A structure containing a list of item cards.
      */
     public Optional<ItemCardList> findHealthCardsInPlayer(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (game.isEmpty() || player.isEmpty()) {
+            return Optional.empty();
+        }
         List<ItemCard> itemCardList = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, playerLogin);
         if (itemCardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new ItemCardList());
         }
         return Optional.of(new ItemCardList(itemCardList));
     }
@@ -438,9 +499,14 @@ public class PlayedGameService {
      * @return A structure containing a list of item cards.
      */
     public Optional<ItemCardList> findStrengthCardsInPlayer(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (game.isEmpty() || player.isEmpty()) {
+            return Optional.empty();
+        }
         List<ItemCard> itemCardList = playedGameRepository.findStrengthCardsInPlayerHand(playedGameId, playerLogin);
         if (itemCardList.isEmpty()) {
-            return Optional.empty();
+            return Optional.of(new ItemCardList());
         }
         return Optional.of(new ItemCardList(itemCardList));
     }
@@ -452,20 +518,23 @@ public class PlayedGameService {
      * @param startBoolean A boolean to set if game is to be started
      * @return An updated game.
      */
-    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) {
+    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) throws ServiceException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         if (!startBoolean || playedGame.isEmpty()) {
             return Optional.empty();
         }
         PlayedGame game = playedGame.get();
+        if (game.getIsStarted()) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "The game is already started.");
+        }
         Round round = new Round();
         round.setId(1);
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) {
-            return Optional.empty();
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There must be at least one player in game to start.");
         }
         Collections.shuffle(players);
-        round.setPlayers(players);
+        round.setPlayerList(players);
         Player startingPlayer = players.get(0);
         round.setActivePlayer(startingPlayer);
         game.startGame(round);
@@ -488,23 +557,23 @@ public class PlayedGameService {
         Round round = game.getActiveRound();
         round.setId(round.getId() + 1);
         Player activePlayer = round.getActivePlayer();
-        Optional<Player> optionalPlayer = round.getPlayers().stream().filter(player ->
+        Optional<Player> optionalPlayer = round.getPlayerList().stream().filter(player ->
                 player.getLogin().equals(activePlayer.getLogin())
         ).findFirst();
         if (optionalPlayer.isEmpty()) {
             return Optional.empty();
         }
-        int id = round.getPlayers().indexOf(optionalPlayer.get());
+        int id = round.getPlayerList().indexOf(optionalPlayer.get());
         Player nextPlayer = null;
         boolean found = false;
         int lookedId = id;
         while (!found) {
-            if (lookedId + 1 < round.getPlayers().size()) {
+            if (lookedId + 1 < round.getPlayerList().size()) {
                 lookedId += 1;
             } else {
                 lookedId = 0;
             }
-            nextPlayer = round.getPlayers().get(lookedId);
+            nextPlayer = round.getPlayerList().get(lookedId);
             if (nextPlayer.getBlockedTurns() > 0) {
                 nextPlayer.setBlockedTurns(nextPlayer.getBlockedTurns() - 1);
                 updatePlayer(game, nextPlayer);
@@ -528,65 +597,12 @@ public class PlayedGameService {
     public Optional<PlayedGame> addPlayer(String playedGameId, String playerLogin) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = playerService.findByLogin(playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
+        if (playedGame.isEmpty() || player.isEmpty() || playedGame.get().getPlayers().contains(player.get())) {
             return Optional.empty();
         }
         playedGame.get().addPlayerToGame(player.get());
         playerService.addGame(playerLogin, playedGameId);
         return Optional.of(playedGameRepository.save(playedGame.get()));
-    }
-
-    /**
-     * Updates list of players with a specified updated player.
-     *
-     * @param game   The played game to perform actions on.
-     * @param player The player to be updated.
-     */
-    private void updatePlayer(PlayedGame game, Player player) {
-        List<Player> players = game.getPlayers();
-        OptionalInt index = IntStream.range(0, players.size())
-                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
-                .findFirst();
-        if (index.isPresent()) {
-            players.set(index.getAsInt(), player);
-            game.setPlayers(players);
-        }
-    }
-
-    /**
-     * Updates deck of cards with a specified updated card.
-     *
-     * @param game The played game to perform actions on.
-     * @param card The card to be updated in the card deck.
-     */
-    private void updateCardDeck(PlayedGame game, Card card) {
-        List<Card> cards = game.getCardDeck();
-        OptionalInt index = IntStream.range(0, cards.size())
-                .filter(i -> Objects.equals(cards.get(i).getId(), card.getId()))
-                .findFirst();
-        if (index.isPresent()) {
-            cards.set(index.getAsInt(), card);
-            game.setCardDeck(cards);
-        }
-    }
-
-    /**
-     * Updates board with a specified updated field.
-     *
-     * @param game  PlayedGame to perform operations on.
-     * @param field Field to be updated.
-     */
-    private void updateField(PlayedGame game, Field field) {
-        List<Field> fields = game.getBoard().getFieldsOnBoard();
-        OptionalInt index = IntStream.range(0, fields.size())
-                .filter(i -> Objects.equals(fields.get(i).getId(), field.getId()))
-                .findFirst();
-        if (index.isPresent()) {
-            fields.set(index.getAsInt(), field);
-            PlayedBoard board = new PlayedBoard();
-            board.setFieldsOnBoard(fields);
-            game.setBoard(board);
-        }
     }
 
     /**
@@ -667,15 +683,21 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card that is to be moved to a player hand.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) {
+    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) throws ServiceException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
-        if (playedGame.isEmpty() || player.isEmpty() || card.isEmpty() || !player.get().checkCardsOnHand()) {
+        if (playedGame.isEmpty() || player.isEmpty() || card.isEmpty()) {
             return Optional.empty();
+        }
+        if (!player.get().checkCardsOnHand()) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Player has no place on hand.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
+        if (player1.getCharacter() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Player has no character assigned.");
+        }
         Card card1 = card.get();
         player1.moveCardToPlayer(card1);
         playedGame1.removeCardFromDeck(card1);
@@ -730,20 +752,6 @@ public class PlayedGameService {
         playedGame1.addCardToUsedDeck(card);
         updatePlayer(playedGame1, player1);
         return Optional.of(playedGameRepository.save(playedGame1));
-    }
-
-    /**
-     * Check if Player has enough trophies to get Strength point. If so, increases Strength points and removes trophies from Player.
-     *
-     * @param game   The game to perform actions on.
-     * @param player The player whose trophies are to be checked.
-     */
-    private void checkTrophies(PlayedGame game, Player player) {
-        if (player.checkTrophies()) {
-            player.moveAndIncreaseTrophies();
-            updatePlayer(game, player);
-            playedGameRepository.save(game);
-        }
     }
 
     /**
@@ -1099,12 +1107,12 @@ public class PlayedGameService {
         if (player.isEmpty()) {
             return Optional.empty();
         }
-        /*Random random = new Random();
-        Integer toReturn = random.nextInt(PlayedGameApplication.lowDiceBound, PlayedGameApplication.upDiceBound + 1);
-        return Optional.of(toReturn)*/
+        Random random = new Random();
+        Integer toReturn = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        return Optional.of(toReturn);
 
         //FOR TEST PURPOSES:
-        return Optional.of(1);
+        //return Optional.of(1);
     }
 
     /**
@@ -1278,5 +1286,72 @@ public class PlayedGameService {
             playerDTOList.add(playerDTO);
         });
         return new PlayerListDTO(playerDTOList);
+    }
+
+    /**
+     * Check if Player has enough trophies to get Strength point. If so, increases Strength points and removes trophies from Player.
+     *
+     * @param game   The game to perform actions on.
+     * @param player The player whose trophies are to be checked.
+     */
+    private void checkTrophies(PlayedGame game, Player player) {
+        if (player.checkTrophies()) {
+            player.moveAndIncreaseTrophies();
+            updatePlayer(game, player);
+            playedGameRepository.save(game);
+        }
+    }
+
+    /**
+     * Updates list of players with a specified updated player.
+     *
+     * @param game   The played game to perform actions on.
+     * @param player The player to be updated.
+     */
+    private void updatePlayer(PlayedGame game, Player player) {
+        List<Player> players = game.getPlayers();
+        OptionalInt index = IntStream.range(0, players.size())
+                .filter(i -> Objects.equals(players.get(i).getLogin(), player.getLogin()))
+                .findFirst();
+        if (index.isPresent()) {
+            players.set(index.getAsInt(), player);
+            game.setPlayers(players);
+        }
+    }
+
+    /**
+     * Updates deck of cards with a specified updated card.
+     *
+     * @param game The played game to perform actions on.
+     * @param card The card to be updated in the card deck.
+     */
+    private void updateCardDeck(PlayedGame game, Card card) {
+        List<Card> cards = game.getCardDeck();
+        OptionalInt index = IntStream.range(0, cards.size())
+                .filter(i -> Objects.equals(cards.get(i).getId(), card.getId()))
+                .findFirst();
+        if (index.isPresent()) {
+            cards.set(index.getAsInt(), card);
+            game.setCardDeck(cards);
+        }
+    }
+
+    /**
+     * Updates board with a specified updated field.
+     *
+     * @param game  PlayedGame to perform operations on.
+     * @param field Field to be updated.
+     */
+    private void updateField(PlayedGame game, Field field) {
+        List<Field> fields = game.getBoard().getFieldsOnBoard();
+        OptionalInt index = IntStream.range(0, fields.size())
+                .filter(i -> Objects.equals(fields.get(i).getId(), field.getId()))
+                .findFirst();
+        if (index.isPresent()) {
+            fields.set(index.getAsInt(), field);
+            PlayedBoard board = new PlayedBoard();
+            board.setFieldsOnBoard(fields);
+            game.setBoard(board);
+        }
     }
 }

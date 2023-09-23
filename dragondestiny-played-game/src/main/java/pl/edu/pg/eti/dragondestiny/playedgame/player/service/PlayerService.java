@@ -35,17 +35,15 @@ public class PlayerService {
     public Optional<Player> findByLogin(String playerLogin) {
         Player player = playerRepository.findByLogin(playerLogin);
         if (player != null) {
-            System.out.println("FOUND PLAYER: " + player.getLogin());
             return Optional.of(player);
-        }
-        else
+        } else
             return Optional.empty();
     }
 
     /**
      * Adds specific game to given player's game history.
      *
-     * @param playerLogin An identifier of a player.
+     * @param playerLogin  An identifier of a player.
      * @param playedGameId An identifier of a game.
      */
     public void addGame(String playerLogin, String playedGameId) {

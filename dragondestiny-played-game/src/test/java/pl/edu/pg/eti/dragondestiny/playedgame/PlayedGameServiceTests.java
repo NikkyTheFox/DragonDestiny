@@ -22,6 +22,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldType;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
+import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.ServiceException;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.service.PlayerService;
@@ -103,7 +104,7 @@ public class PlayedGameServiceTests {
             f.setType(FieldType.LOSE_ONE_ROUND);
             board.getFieldsOnBoard().add(f);
         }
-        board.getFieldsOnBoard().get(0).setEnemyCard(new EnemyCardList(new ArrayList<>(List.of(enemyCard1))));
+        board.getFieldsOnBoard().get(0).setEnemyCard(enemyCard1);
         board.getFieldsOnBoard().add(fieldBridge);
         board.getFieldsOnBoard().add(fieldBoss);
 
@@ -162,7 +163,7 @@ public class PlayedGameServiceTests {
                 .thenAnswer(invocation -> {
                     int fieldId = invocation.getArgument(1);
                     if (fieldId == 1) {
-                        return playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemyCard().getEnemyCardList();
+                        return new ArrayList(Collections.singletonList(playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemyCard()));
                     }
                     return new ArrayList<>();
                 });
@@ -580,15 +581,12 @@ public class PlayedGameServiceTests {
     public void testFindEnemyCardsOnField() {
         // Arrange
         int fieldId = 1;
-        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
+        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardsOnField(playedGameId, fieldId);
         // Assert
         assertTrue(enemyCardListFound.isPresent());
-        assertEquals(enemyCardListToFind.getEnemyCardList().size(), enemyCardListFound.get().getEnemyCardList().size());
-        for (int d = 0; d < enemyCardListFound.get().getEnemyCardList().size(); d++) {
-            assertEquals(enemyCardListToFind.getEnemyCardList().get(d), enemyCardListFound.get().getEnemyCardList().get(d));
-        }
+        assertEquals(enemyCardListToFind, enemyCardListFound.get().getEnemyCardList().get(0));
     }
 
     @Test
@@ -598,22 +596,20 @@ public class PlayedGameServiceTests {
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardsOnField(playedGameId, fieldId);
         // Assert
-        assertTrue(enemyCardListFound.isEmpty());
+        assertTrue(enemyCardListFound.isPresent());
+        assertTrue(enemyCardListFound.get().getEnemyCardList().isEmpty());
     }
 
     @Test
     public void testFindEnemyCardsOnPlayersField() {
         // Arrange
         int fieldId = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getPositionField().getId();
-        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
+        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
         // Assert
         assertTrue(enemyCardListFound.isPresent());
-        assertEquals(enemyCardListToFind.getEnemyCardList().size(), enemyCardListFound.get().getEnemyCardList().size());
-        for (int d = 0; d < enemyCardListFound.get().getEnemyCardList().size(); d++) {
-            assertEquals(enemyCardListToFind.getEnemyCardList().get(d), enemyCardListFound.get().getEnemyCardList().get(d));
-        }
+        assertEquals(enemyCardListToFind, enemyCardListFound.get().getEnemyCardList().get(0));
     }
 
     @Test
@@ -843,7 +839,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGame() {
+    public void testStartGame() throws ServiceException {
         // Act
         Optional<PlayedGame> playedGameStarted = playedGameService.startGame(playedGameId, true);
         // Assert
@@ -855,7 +851,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGameNotFound() {
+    public void testStartGameNotFound() throws ServiceException {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -865,7 +861,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRound() {
+    public void testNextRound() throws ServiceException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -884,7 +880,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayer() {
+    public void testNextRoundBlockedPlayer() throws ServiceException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -907,7 +903,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayers() {
+    public void testNextRoundBlockedPlayers() throws ServiceException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -1034,7 +1030,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayer() {
+    public void testMoveCardFromCardDeckToPlayer() throws Exception {
         // Arrange
         int cardId = 20;
         // Act
@@ -1046,7 +1042,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayerTooManyCards() {
+    public void testMoveCardFromCardDeckToPlayerTooManyCards() throws ServiceException {
         // Arrange
         int cardId = 20;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1054,14 +1050,12 @@ public class PlayedGameServiceTests {
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act and Assert
+        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayerNotFound() {
+    public void testMoveCardFromCardDeckToPlayerNotFound() throws Exception {
         // Arrange
         int cardId = 142124;
         // Act

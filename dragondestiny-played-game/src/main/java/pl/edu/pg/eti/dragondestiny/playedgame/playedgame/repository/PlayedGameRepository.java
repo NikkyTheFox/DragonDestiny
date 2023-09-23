@@ -1,17 +1,17 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository;
 
 import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list of cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$cardDeck'}",
             "{$project: {_id: 0, card: '$cardDeck'}}",
             "{$replaceRoot: {newRoot: '$card'}}"
@@ -48,7 +48,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list of cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$usedCardDeck'}",
             "{$project: {_id: 0, card: '$usedCardDeck'}}",
             "{$replaceRoot: {newRoot: '$card'}}"
@@ -59,11 +59,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves specified card from the used cards deck.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A list containing retrieved card.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$usedCardDeck'}",
             "{$match: {'usedCardDeck._id': ?1}}",
             "{$project: {_id: 0, card: '$usedCardDeck'}}",
@@ -75,11 +75,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves specified card from the card deck.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A list containing retrieved card.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$cardDeck'}",
             "{$match: {'cardDeck._id': ?1}}",
             "{$project: {_id: 0, card: '$cardDeck'}}",
@@ -92,11 +92,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves specified card from the deck by its index.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param index An index of card to be retrieved.
+     * @param index        An index of card to be retrieved.
      * @return A list containing retrieved card.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$cardDeck'}",
             "{$skip: ?1}",
             "{$limit: 1}",
@@ -112,7 +112,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list of players.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$project: {_id: 0, players: 1}}",
             "{$replaceRoot: {newRoot: '$players'}}"
@@ -123,11 +123,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves specified player from players participating in the game.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player to be retrieved.
+     * @param playerLogin  An identifier of a player to be retrieved.
      * @return A list containing retrieved player.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$project: {_id: 0, player: '$players'}}",
@@ -139,11 +139,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves all players whose character stands on a field given by ID.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param FieldId An identifierof a field to be checked.
+     * @param FieldId      An identifierof a field to be checked.
      * @return A list of players.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$unwind: '$players.character.field'}",
             "{$match: {'players.character.field._id': ?1}}",
@@ -156,12 +156,12 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves different (other than specified) players whose character stands on a specified field.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player to be excluded from the list.
-     * @param fieldId An identifier of a field to be checked.
+     * @param playerLogin  An identifier of a player to be excluded from the list.
+     * @param fieldId      An identifier of a field to be checked.
      * @return A list of players.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$unwind: '$players.character.field'}",
             "{$match: {'players.character.field._id': ?2}}",
@@ -175,12 +175,12 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves specified hand card of a given player.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player whose hand cards are to be filtered.
-     * @param cardId An identifier of a card to be retrieved.
+     * @param playerLogin  An identifier of a player whose hand cards are to be filtered.
+     * @param cardId       An identifier of a card to be retrieved.
      * @return A list containing retrieved item card.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$unwind: '$players.cardsOnHand'}",
@@ -194,11 +194,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves all cards held by specified player.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player whose hand cards are to be retrieved.
+     * @param playerLogin  An identifier of a player whose hand cards are to be retrieved.
      * @return A list of cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$unwind: '$players.cardsOnHand'}",
@@ -211,11 +211,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves list of trophies (enemy cards) that belong to specified player.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player whose trophies are to be retrieved.
+     * @param playerLogin  An identifier of a player whose trophies are to be retrieved.
      * @return A list of enemy cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$unwind: '$players.trophies'}",
@@ -228,11 +228,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves and filters player's hand cards in order to find only strength buffing cards.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player whose hand cards are to be filtered.
+     * @param playerLogin  An identifier of a player whose hand cards are to be filtered.
      * @return A list of item cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$project: {_id: 0, healthCards: {$filter: {input: '$players.cardsOnHand', as: 'card', cond: {$gt: ['$$card.strength', 0]}}}}}",
@@ -245,11 +245,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves and filters player's hand cards in order to find only health buffing cards.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param playerLogin An identifier of a player whose hand cards are to be filtered.
+     * @param playerLogin  An identifier of a player whose hand cards are to be filtered.
      * @return A list of item cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$players'}",
             "{$match: {'players._id': ?1}}",
             "{$project: {_id: 0, healthCards: {$filter: {input: '$players.cardsOnHand', as: 'card', cond: {$gt: ['$$card.health', 0]}}}}}",
@@ -265,7 +265,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list of characters.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$charactersInGame'}",
             "{$project: {_id: 0, character: '$charactersInGame'}}",
             "{$replaceRoot: {newRoot: '$character'}}"
@@ -276,11 +276,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves a character specified by its ID.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param characterId An identifier of a character to be retrieved.
+     * @param characterId  An identifier of a character to be retrieved.
      * @return A list containing retrieved character.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$charactersInGame'}",
             "{$match: {'charactersInGame._id': ?1}}",
             "{$project: {_id: 0, character: '$charactersInGame'}}",
@@ -296,7 +296,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list containing retrieved round.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$project: {_id: 0, round: '$activeRound'}}",
             "{$replaceRoot: {newRoot: '$round'}}"
     })
@@ -309,7 +309,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A retrieved board.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$project: {_id: 0, board: 1}}",
             "{$replaceRoot: {newRoot: '$board'}}"
     })
@@ -322,7 +322,7 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * @return A list of fields.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id:  ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$board.fieldsOnBoard'}",
             "{$project: {_id: 0, field: '$board.fieldsOnBoard'}}",
             "{$replaceRoot: {newRoot: '$field'}}"
@@ -331,12 +331,13 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
 
     /**
      * Retrieves specified field from the board of a game.
+     *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param fieldId An identifier of a field to be retrieved.
+     * @param fieldId      An identifier of a field to be retrieved.
      * @return A retrieved field.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$board.fieldsOnBoard'}",
             "{$match: {'board.fieldsOnBoard._id': ?1}}",
             "{$project: {_id: 0, field: '$board.fieldsOnBoard'}}",
@@ -348,11 +349,11 @@ public interface PlayedGameRepository extends MongoRepository<PlayedGame, String
      * Retrieves all enemy cards that are currently on a field given by ID.
      *
      * @param playedGameId An identifier of a game which data is to be retrieved.
-     * @param fieldId An identifier of a field to be checked.
+     * @param fieldId      An identifier of a field to be checked.
      * @return A list of enemy cards.
      */
     @Aggregation(pipeline = {
-            "{$match: {_id: ObjectId(?0)}}",
+            "{$match: {_id: ?0}}",
             "{$unwind: '$board.fieldsOnBoard'}",
             "{$match: {'board.fieldsOnBoard._id': ?1}}",
             "{$unwind: '$board.fieldsOnBoard.enemy'}",

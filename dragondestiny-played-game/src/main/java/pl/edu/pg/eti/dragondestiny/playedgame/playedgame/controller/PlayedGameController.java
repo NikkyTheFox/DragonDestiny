@@ -39,6 +39,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGameList;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
+import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.ServiceException;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
@@ -82,24 +83,6 @@ public class PlayedGameController {
         this.playedGameService = playedGameService;
         this.initializingPlayedGameService = initializingPlayedGameService;
         this.modelMapper = modelMapper;
-    }
-
-    // TEST - ignore it
-    @GetMapping("/{playedGameId}/players/{playerLogin}/test")
-    public ResponseEntity<PlayerDTO> testGame(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
-        // find game
-        Optional<PlayedGame> game = playedGameService.findPlayedGame(playedGameId);
-        if (game.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        // find player
-        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        // Player updatedPlayer = player.get().getPlayerManager().checkTrophies(player.get());
-        PlayerDTO playerDTO = modelMapper.map(player.get(), PlayerDTO.class);
-        return ResponseEntity.ok().body(playerDTO);
     }
 
     // GAME ------------------------------------------------------
@@ -171,10 +154,14 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    public ResponseEntity<PlayedGameDTO> startGame(@PathVariable(name = "playedGameId") String playedGameId) {
-        Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
-        return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity startGame(@PathVariable(name = "playedGameId") String playedGameId) {
+        try {
+            Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
+            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        }
     }
 
     /**
@@ -189,7 +176,7 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "204", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    public ResponseEntity<String> deleteGame(@PathVariable(name = "playedGameId") String playedGameId) {
+    public ResponseEntity deleteGame(@PathVariable(name = "playedGameId") String playedGameId) {
         if (playedGameService.delete(playedGameId)) {
             return ResponseEntity.noContent().build();
         }
@@ -211,10 +198,14 @@ public class PlayedGameController {
                     schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    public ResponseEntity<RoundDTO> getActiveRound(@PathVariable(name = "playedGameId") String playedGameId) {
-        Optional<Round> round = playedGameService.findActiveRound(playedGameId);
-        return round.map(value -> ResponseEntity.ok().body(modelMapper.map(value, RoundDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity getActiveRound(@PathVariable(name = "playedGameId") String playedGameId) {
+        try {
+            Optional<Round> round = playedGameService.findActiveRound(playedGameId);
+            return round.map(value -> ResponseEntity.ok().body(modelMapper.map(value, RoundDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        }
     }
 
     /**
@@ -432,10 +423,14 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
-    public ResponseEntity<PlayedGameDTO> moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
-        Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
-        return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
+        try {
+            Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
+            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        }
     }
 
     /**
@@ -751,7 +746,7 @@ public class PlayedGameController {
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ItemCardListDTO.class))}),
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player or played game not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> addPlayerToGameByLogin(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {

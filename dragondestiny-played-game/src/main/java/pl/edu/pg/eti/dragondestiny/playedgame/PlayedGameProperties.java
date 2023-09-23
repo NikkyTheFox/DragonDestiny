@@ -21,14 +21,14 @@ public class PlayedGameProperties {
     public static Integer numberOfCardsOnHand = 5;
 
     /**
-     * Number of trophies needed to get strength points increase.
+     * Low bound of dice roll.
      */
     public static Integer diceLowerBound = 1;
 
     /**
-     * Number of trophies needed to get strength points increase.
+     * High bound of dice roll.
      */
-    public static Integer diceUpperBound = 1;
+    public static Integer diceUpperBound = 6;
 
     /**
      * ID of the moin boss.

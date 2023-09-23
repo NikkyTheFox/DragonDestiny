@@ -1,18 +1,14 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.player.object;
 
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import pl.edu.pg.eti.dragondestiny.playedgame.PlayedGameProperties;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
-import pl.edu.pg.eti.dragondestiny.playedgame.interfaces.HealthCalculable;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.EqualsAndHashCode;
-import org.springframework.data.annotation.Id;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
-import pl.edu.pg.eti.dragondestiny.playedgame.PlayedGameProperties;
+import pl.edu.pg.eti.dragondestiny.playedgame.interfaces.HealthCalculable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +64,7 @@ public class Player implements HealthCalculable {
      *
      * @return A number of total health.
      */
-    public Integer getHealth(){
+    public Integer getHealth() {
 
         return getCharacter().getHealth();
     }
@@ -78,7 +74,7 @@ public class Player implements HealthCalculable {
      *
      * @return A number of total strength.
      */
-    public Integer getStrength(){
+    public Integer getStrength() {
 
         return getCharacter().getStrength();
     }
@@ -159,7 +155,7 @@ public class Player implements HealthCalculable {
      *
      * @return A field that player's character stands on.
      */
-    public Field getPositionField(){
+    public Field getPositionField() {
 
         return getCharacter().getField();
     }
@@ -167,7 +163,7 @@ public class Player implements HealthCalculable {
     /**
      * Sets player's character's position on board.
      *
-    * @param field A field that player's character is moved to.
+     * @param field A field that player's character is moved to.
      */
     public void setPositionField(Field field) {
 
@@ -193,7 +189,7 @@ public class Player implements HealthCalculable {
         OptionalInt index = IntStream.range(0, getCardsOnHand().size())
                 .filter(i -> Objects.equals(getCardsOnHand().get(i).getId(), card.getId()))
                 .findFirst();
-        if(index.isPresent()){
+        if (index.isPresent()) {
             getCharacter().removeCard((ItemCard) card);
             getCardsOnHand().remove(index.getAsInt());
         }
@@ -215,7 +211,7 @@ public class Player implements HealthCalculable {
      * @param N A number of trophies to be removed.
      */
     public void removeCardsFromTrophies(Integer N) {
-        if(N > 0){
+        if (N > 0) {
             getTrophies().subList(0, N).clear();
         }
     }
@@ -225,7 +221,7 @@ public class Player implements HealthCalculable {
      *
      * @return True/False.
      */
-    public Boolean isAlive(){
+    public Boolean isAlive() {
         return character.getHealth() > 0;
     }
 }

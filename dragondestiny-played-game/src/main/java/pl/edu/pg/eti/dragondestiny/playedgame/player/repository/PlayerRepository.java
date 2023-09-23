@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
+import reactor.core.publisher.Mono;
 
 /**
  * A repository with method to retrieve and update data in the database containing data about players.
@@ -19,7 +20,7 @@ public class PlayerRepository {
      * @param webClientBuilder The builder used to create the WebClient instance.
      */
     @Autowired
-    public PlayerRepository(WebClient.Builder webClientBuilder){
+    public PlayerRepository(WebClient.Builder webClientBuilder) {
         this.client = webClientBuilder.baseUrl("http://GAME-USER/api/users").build();
     }
 
@@ -29,13 +30,14 @@ public class PlayerRepository {
      * @param playerLogin An identifier of a player.
      * @return A retrieved player.
      */
-    public Player findByLogin(String playerLogin){
+    public Player findByLogin(String playerLogin) {
         ResponseEntity<Player> playerDTOResponseEntity = client.get()
                 .uri("/{playerLogin}", playerLogin)
                 .retrieve()
+                .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError(), clientResponse -> Mono.empty())
                 .toEntity(Player.class)
                 .block();
-        if(playerDTOResponseEntity == null){
+        if (playerDTOResponseEntity == null) {
             return null;
         }
         return playerDTOResponseEntity.getBody();
@@ -44,10 +46,10 @@ public class PlayerRepository {
     /**
      * Adds a specific game to the player's game history.
      *
-     * @param playerLogin An identifier of a player.
+     * @param playerLogin  An identifier of a player.
      * @param playedGameId An identifier of a game.
      */
-    public void addGame(String playerLogin, String playedGameId){
+    public void addGame(String playerLogin, String playedGameId) {
         client.put()
                 .uri("/{login}/addGame/{gameId}", playerLogin, playedGameId)
                 .retrieve()

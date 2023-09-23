@@ -1,12 +1,12 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.character.object;
 
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 
 import java.io.Serializable;
 
@@ -68,7 +68,7 @@ public class Character implements Serializable {
      *
      * @param value A number to reduce strength with.
      */
-    public void reduceStrength(Integer value){
+    public void reduceStrength(Integer value) {
 
         setStrength(getStrength() - value);
     }
