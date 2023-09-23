@@ -2,7 +2,6 @@ package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
 
 import lombok.Data;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldType;
 
 /**
@@ -34,5 +33,5 @@ public class FieldDTO {
     /**
      * Enemy Card corresponding to enemy on that field.
      */
-    private EnemyCardListDTO enemyCardList;
+    private EnemyCardDTO enemyCard;
 }

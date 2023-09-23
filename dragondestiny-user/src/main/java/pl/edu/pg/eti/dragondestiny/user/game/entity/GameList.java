@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +17,6 @@ public class GameList {
     /**
      * A list of games.
      */
-    private List<Game> gameList = new ArrayList<>();
+    private List<Game> gameList;
 
 }

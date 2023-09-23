@@ -1,17 +1,16 @@
-
 package pl.edu.pg.eti.dragondestiny.user.user.service;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.service.GameService;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.dto.UserListDTO;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
-import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
 import pl.edu.pg.eti.dragondestiny.user.user.entity.UserList;
 import pl.edu.pg.eti.dragondestiny.user.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class UserService {
      * Autowired constructor - beans are injected automatically.
      *
      * @param userRepository Repository with methods for data retrieval and manipulation.
-     * @param gameService Service with methods of manipulation of game database data.
+     * @param gameService    Service with methods of manipulation of game database data.
      */
     @Autowired
     public UserService(UserRepository userRepository, GameService gameService) {
@@ -60,7 +59,7 @@ public class UserService {
      * Returns user by Login & Password combination.
      *
      * @param userLogin An identifier of a user to be retrieved.
-     * @param password A password of a user to be retrieved.
+     * @param password  A password of a user to be retrieved.
      * @return A retrieved user.
      */
     public Optional<User> getUser(String userLogin, String password) {
@@ -96,13 +95,19 @@ public class UserService {
      *
      * @param userLogin An identifier of a user to be deleted.
      */
-    public Optional<Boolean> deleteUser(String userLogin) {
+    public Boolean deleteUser(String userLogin) {
         Optional<User> user = getUser(userLogin);
         if (user.isEmpty()) {
-            return Optional.empty();
+            return false;
+        }
+        for (Game game : user.get().getPlayedGames()) {
+            game.getUserList().remove(user.get());
+            if (game.getUserList().isEmpty()) {
+                gameService.delete(game);
+            }
         }
         userRepository.deleteById(userLogin);
-        return Optional.of(Boolean.TRUE);
+        return true;
     }
 
     /**
@@ -123,21 +128,14 @@ public class UserService {
     /**
      * Update user's information.
      *
-     * @param updatedUser A structure with new data for user's details.
+     * @param updatedUser  A structure with new data for user's details.
      * @param userToUpdate A user to be updated with new data.
      */
     private void update(User updatedUser, User userToUpdate) {
-        if(updatedUser.getLogin() != null){
-            // update login to new value
-            userToUpdate.setLogin(updatedUser.getLogin());
-        }
-
-        if(updatedUser.getName() != null){
-            // update name to new value
+        if (updatedUser.getName() != null) {
             userToUpdate.setName(updatedUser.getName());
         }
-        if(updatedUser.getPassword() != null){
-            // update password to new value
+        if (updatedUser.getPassword() != null) {
             userToUpdate.setPassword(updatedUser.getPassword());
         }
         userRepository.save(userToUpdate);
@@ -146,7 +144,7 @@ public class UserService {
     /**
      * Updates provided user's details.
      *
-     * @param userLogin An identifier of a user to be updated.
+     * @param userLogin   An identifier of a user to be updated.
      * @param updatedUser A structure with new data.
      * @return An updated user.
      */
@@ -165,18 +163,18 @@ public class UserService {
      * @param userLogin An identifier of a user.
      * @return A structure containing list of games.
      */
-    public Optional<GameList> findGames(String userLogin){
+    public Optional<GameList> findGames(String userLogin) {
         Optional<User> user = getUser(userLogin);
         if (user.isEmpty())
             return Optional.empty();
-        return gameService.getGames(user.get());
+        return Optional.of(new GameList(gameService.getGames(user.get())));
     }
 
     /**
      * Adds game to the user's list of games. Also adds user to game's list of users.
      *
      * @param userLogin An identifier of a user.
-     * @param gameId An identifier of a game.
+     * @param gameId    An identifier of a game.
      * @return Updated user.
      */
     public Optional<User> addGameToUser(String userLogin, String gameId) {
@@ -196,7 +194,7 @@ public class UserService {
      * Converts UserList into UserListDTO.
      *
      * @param modelMapper Mapper allowing conversion,
-     * @param userList A structure containing list of users.
+     * @param userList    A structure containing list of users.
      * @return A DTO.
      */
     public UserListDTO convertUserListToDTO(ModelMapper modelMapper, UserList userList) {

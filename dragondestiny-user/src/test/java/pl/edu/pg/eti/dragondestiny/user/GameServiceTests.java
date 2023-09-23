@@ -18,26 +18,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class GameServiceTests {
 
+    private final List<Game> gameList = new ArrayList<>();
     /**
      * GameService is object being tested. All mocks will be automatically injected as dependencies.
      */
     @InjectMocks
     private GameService gameService;
-
     /**
      * GameRepository mock for GameService.
      */
     @Mock
     private GameRepository gameRepositoryMock;
-
-    private List<Game> gameList = new ArrayList<>();
 
     @BeforeEach
     public void init() {
@@ -48,14 +45,14 @@ public class GameServiceTests {
         User user3 = new User("disney", "pass", "Ginny", null);
 
         Game game1 = new Game("game1", new ArrayList<>(Arrays.asList(user1, user2)));
-        Game game2 = new Game("game2", new ArrayList<>(Arrays.asList(user2)));
+        Game game2 = new Game("game2", new ArrayList<>(List.of(user2)));
         Game game3 = new Game("game3", new ArrayList<>(Arrays.asList(user1, user2, user3)));
         gameList.add(game1);
         gameList.add(game2);
         gameList.add(game3);
         user1.setPlayedGames(new ArrayList<>(Arrays.asList(game1, game3)));
         user2.setPlayedGames(new ArrayList<>(Arrays.asList(game1, game2, game3)));
-        user3.setPlayedGames(new ArrayList<>(Arrays.asList(game3)));
+        user3.setPlayedGames(new ArrayList<>(List.of(game3)));
 
         when(gameRepositoryMock.findAll()).thenReturn(gameList);
 
@@ -63,9 +60,9 @@ public class GameServiceTests {
         when(gameRepositoryMock.findById("game2")).thenReturn(Optional.of(game2));
         when(gameRepositoryMock.findById("game3")).thenReturn(Optional.of(game3));
 
-        when(gameRepositoryMock.findAllByUserList(user1)).thenReturn(Optional.of(new GameList(user1.getPlayedGames())));
-        when(gameRepositoryMock.findAllByUserList(user2)).thenReturn(Optional.of(new GameList(user2.getPlayedGames())));
-        when(gameRepositoryMock.findAllByUserList(user3)).thenReturn(Optional.of(new GameList(user3.getPlayedGames())));
+        when(gameRepositoryMock.findAllByUserList(user1)).thenReturn(user1.getPlayedGames());
+        when(gameRepositoryMock.findAllByUserList(user2)).thenReturn(user2.getPlayedGames());
+        when(gameRepositoryMock.findAllByUserList(user3)).thenReturn(user3.getPlayedGames());
     }
 
     @Test
@@ -109,14 +106,12 @@ public class GameServiceTests {
         List<Game> gameListToFind = gameList.stream()
                 .filter(game -> game.getUserList().stream().anyMatch(
                         user -> user.getLogin().equals(login))).toList();
-
         // Act
-        Optional<GameList> gameListFound = gameService.getGames(userFound.get());
-
+        List<Game> gameListFound = gameService.getGames(userFound.get());
         // Assert
-        assertEquals(gameListToFind.size(), gameListFound.get().getGameList().size());
+        assertEquals(gameListToFind.size(), gameListFound.size());
         for (int d = 0; d < gameListToFind.size(); d++) {
-            assertEquals(gameListFound.get().getGameList().get(d), gameListToFind.get(d));
+            assertEquals(gameListFound.get(d), gameListToFind.get(d));
         }
     }
 
@@ -125,10 +120,8 @@ public class GameServiceTests {
         // Arrange
         String login = "nonExistingUser";
         User userToFind = null;
-
         // Act
-        Optional<GameList> gameListFound = gameService.getGames(userToFind);
-
+        List<Game> gameListFound = gameService.getGames(userToFind);
         // Assert
         assertTrue(gameListFound.isEmpty());
     }
@@ -136,13 +129,11 @@ public class GameServiceTests {
     @Test
     public void testGetGames() {
         // Act
-        Optional<GameList> gameListFound = gameService.getGames();
-
+        List<Game> gameListFound = gameService.getGames();
         // Assert
-        assertEquals(gameListFound.get().getGameList().size(), gameList.size());
-
-        for (int d = 0; d < gameListFound.get().getGameList().size(); d++) {
-            assertEquals(gameListFound.get().getGameList().get(d), gameList.get(d));
+        assertEquals(gameListFound.size(), gameList.size());
+        for (int d = 0; d < gameListFound.size(); d++) {
+            assertEquals(gameListFound.get(d), gameList.get(d));
         }
     }
 
@@ -157,7 +148,7 @@ public class GameServiceTests {
 
         // Assert
         for (int d = 0; d < gameListDTO.getGameList().size(); d++) {
-            assertTrue(gameListDTO.getGameList().get(d).getClass() == GameDTO.class);
+            assertSame(gameListDTO.getGameList().get(d).getClass(), GameDTO.class);
         }
     }
 

@@ -461,6 +461,9 @@ public class PlayedGameService {
         Round round = new Round();
         round.setId(1);
         List<Player> players = game.getPlayers();
+        if (players.isEmpty()) {
+            return Optional.empty();
+        }
         Collections.shuffle(players);
         round.setPlayers(players);
         Player startingPlayer = players.get(0);
@@ -1079,8 +1082,7 @@ public class PlayedGameService {
      */
     public void resetFieldEnemy(PlayedGame game, Field field, EnemyCard enemyCard) {
         enemyCard.setHealth(0);
-        EnemyCardList enemyCardList = field.getEnemyCardList();
-        enemyCardList.getEnemyCardList().set(0, enemyCard);
+        field.setEnemyCard(enemyCard);
         updateField(game, field);
         playedGameRepository.save(game);
     }

@@ -103,7 +103,7 @@ public class PlayedGameServiceTests {
             f.setType(FieldType.LOSE_ONE_ROUND);
             board.getFieldsOnBoard().add(f);
         }
-        board.getFieldsOnBoard().get(0).setEnemyCardList(new EnemyCardList(new ArrayList<>(List.of(enemyCard1))));
+        board.getFieldsOnBoard().get(0).setEnemyCard(new EnemyCardList(new ArrayList<>(List.of(enemyCard1))));
         board.getFieldsOnBoard().add(fieldBridge);
         board.getFieldsOnBoard().add(fieldBoss);
 
@@ -162,7 +162,7 @@ public class PlayedGameServiceTests {
                 .thenAnswer(invocation -> {
                     int fieldId = invocation.getArgument(1);
                     if (fieldId == 1) {
-                        return playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemyCardList().getEnemyCardList();
+                        return playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemyCard().getEnemyCardList();
                     }
                     return new ArrayList<>();
                 });
@@ -580,7 +580,7 @@ public class PlayedGameServiceTests {
     public void testFindEnemyCardsOnField() {
         // Arrange
         int fieldId = 1;
-        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCardList).get();
+        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardsOnField(playedGameId, fieldId);
         // Assert
@@ -605,7 +605,7 @@ public class PlayedGameServiceTests {
     public void testFindEnemyCardsOnPlayersField() {
         // Arrange
         int fieldId = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getPositionField().getId();
-        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCardList).get();
+        EnemyCardList enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
         // Assert

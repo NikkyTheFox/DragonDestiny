@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.edu.pg.eti.dragondestiny.user.game.dto.GameDTO;
 import pl.edu.pg.eti.dragondestiny.user.game.dto.GameListDTO;
-import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
-import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
 import pl.edu.pg.eti.dragondestiny.user.game.entity.Game;
+import pl.edu.pg.eti.dragondestiny.user.game.entity.GameList;
 import pl.edu.pg.eti.dragondestiny.user.game.repository.GameRepository;
+import pl.edu.pg.eti.dragondestiny.user.user.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class GameService {
      * @param user A user whose game list is to be retrieved.
      * @return A list of retrieved games.
      */
-    public Optional<GameList> getGames(User user) {
+    public List<Game> getGames(User user) {
 
         return gameRepository.findAllByUserList(user);
     }
@@ -58,12 +58,9 @@ public class GameService {
      *
      * @return A structure containing list of games.
      */
-    public Optional<GameList> getGames() {
-        List<Game> gameList = gameRepository.findAll();
-        if (gameList.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(new GameList(gameList));
+    public List<Game> getGames() {
+
+        return gameRepository.findAll();
     }
 
     /**
@@ -77,13 +74,23 @@ public class GameService {
     }
 
     /**
+     * Delete game from repository.
+     *
+     * @param game A game to be deleted from database.
+     */
+    public void delete(Game game) {
+
+        gameRepository.delete(game);
+    }
+
+    /**
      * Converts GameList into GameListDTO.
      *
      * @param modelMapper Mapper allowing conversion.
-     * @param gameList A structure containing list of games.
+     * @param gameList    A structure containing list of games.
      * @return A DTO.
      */
-    public GameListDTO convertGameListToDTO(ModelMapper modelMapper, GameList gameList){
+    public GameListDTO convertGameListToDTO(ModelMapper modelMapper, GameList gameList) {
         List<GameDTO> gameDTOList = new ArrayList<>();
         gameList.getGameList().forEach(game -> {
             GameDTO gameDTO = modelMapper.map(game, GameDTO.class);

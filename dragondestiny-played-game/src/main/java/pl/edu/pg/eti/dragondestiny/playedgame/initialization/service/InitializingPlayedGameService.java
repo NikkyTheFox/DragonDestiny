@@ -1,9 +1,11 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.initialization.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.CardType;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.CardType;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
@@ -14,8 +16,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.initialization.DTO.GameEngineGameD
 import pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository.InitializingPlayedGameRepository;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -38,7 +38,7 @@ public class InitializingPlayedGameService {
     /**
      * A constructor to initialize InitializingPlayedGameService with PlayedGameRepository and InitializingPlayedGameRepository
      *
-     * @param playedGameRepository A repository with methods to handle played game data.
+     * @param playedGameRepository             A repository with methods to handle played game data.
      * @param initializingPlayedGameRepository A repository with methods to retrieve data from game engine.
      */
     @Autowired
@@ -110,9 +110,9 @@ public class InitializingPlayedGameService {
             return Optional.empty();
         }
         for (Field c : fieldList.getFieldList()) {
-            if (c.getEnemyCardList().getEnemyCardList().size() > 0) {
-                c.getEnemyCardList().getEnemyCardList().get(0).setCardType(CardType.ENEMY_CARD);
-                c.getEnemyCardList().getEnemyCardList().get(0).setHealth(c.getEnemyCardList().getEnemyCardList().get(0).getInitialHealth());
+            if (c.getEnemyCard() != null) {
+                c.getEnemyCard().setCardType(CardType.ENEMY_CARD);
+                c.getEnemyCard().setHealth(c.getEnemyCard().getInitialHealth());
             }
             playedBoard.addFieldsInBoard(c);
         }

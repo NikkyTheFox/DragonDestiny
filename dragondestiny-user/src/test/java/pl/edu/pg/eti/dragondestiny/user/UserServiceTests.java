@@ -1,9 +1,7 @@
 package pl.edu.pg.eti.dragondestiny.user;
 
-import junitparams.Parameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.Parameterized;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -28,40 +26,37 @@ import static org.mockito.Mockito.*;
 public class UserServiceTests {
 
     /**
+     * Testing list of users to add to UserRepository.
+     */
+    private final List<User> userList = new ArrayList<User>();
+    /**
      * UserService is object being tested. All mocks will be automatically injected as dependencies.
      */
     @InjectMocks
     private UserService userService;
-
     /**
      * UserRepository mock for UserService.
      */
     @Mock
     private UserRepository userRepositoryMock;
-
     /**
      * GameService mock for UserService.
      */
     @Mock
     private GameService gameServiceMock;
 
-    /**
-     * Testing list of users to add to UserRepository.
-     */
-    private List<User> userList = new ArrayList<User>();
-
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
 
         User user1 = new User("login1", "pass1", "name1", new ArrayList<>());
-        User user2 = new User("login2", "pass2","name2", new ArrayList<>());
+        User user2 = new User("login2", "pass2", "name2", new ArrayList<>());
         ArrayList<Game> gamesList = new ArrayList<>();
         Game game1 = new Game("game1", null);
         Game game2 = new Game("game2", null);
         gamesList.add(game1);
         gamesList.add(game2);
-        User user3 = new User("login3", "pass3","name3", gamesList);
+        User user3 = new User("login3", "pass3", "name3", gamesList);
         userList.add(user1);
         userList.add(user2);
         userList.add(user3);
@@ -76,15 +71,14 @@ public class UserServiceTests {
         when(userRepositoryMock.findUserByLoginAndPassword("login2", "pass2")).thenReturn(Optional.of(user2));
         when(userRepositoryMock.findUserByLoginAndPassword("login3", "pass3")).thenReturn(Optional.of(user3));
 
-        when(gameServiceMock.getGames(user1)).thenReturn(Optional.of(new GameList(user1.getPlayedGames())));
-        when(gameServiceMock.getGames(user2)).thenReturn(Optional.of(new GameList(user2.getPlayedGames())));
-        when(gameServiceMock.getGames(user3)).thenReturn(Optional.of(new GameList(user3.getPlayedGames())));
+        when(gameServiceMock.getGames(user1)).thenReturn(user1.getPlayedGames());
+        when(gameServiceMock.getGames(user2)).thenReturn(user2.getPlayedGames());
+        when(gameServiceMock.getGames(user3)).thenReturn(user3.getPlayedGames());
 
         when(gameServiceMock.getGame("game1")).thenReturn(Optional.of(game1));
         when(gameServiceMock.getGame("game2")).thenReturn(Optional.of(game2));
-
-
     }
+
     @Test
     public void testGetUserByLoginExisting() {
         // Arrange
@@ -167,14 +161,13 @@ public class UserServiceTests {
         String login2 = "nonExistingLogin";
 
         // Act
-        Optional<Boolean> response = userService.deleteUser(login);
-        Optional<Boolean> response2 = userService.deleteUser(login2);
+        Boolean response = userService.deleteUser(login);
+        Boolean response2 = userService.deleteUser(login2);
 
         // Assert
-        assertTrue(response.isPresent());
-        assertEquals(Boolean.TRUE, response.get());
+        assertEquals(Boolean.TRUE, response);
         verify(userRepositoryMock, times(1)).deleteById(login);
-        assertTrue(response2.isEmpty());
+        assertEquals(Boolean.FALSE, response2);
         verify(userRepositoryMock, times(0)).deleteById(login2);
     }
 
@@ -184,10 +177,10 @@ public class UserServiceTests {
         String login = "nonExistingLogin";
 
         // Act
-        Optional<Boolean> response = userService.deleteUser(login);
+        Boolean response = userService.deleteUser(login);
 
         // Assert
-        assertTrue(response.isEmpty());
+        assertEquals(response, Boolean.FALSE);
         verify(userRepositoryMock, times(0)).deleteById(login);
     }
 
@@ -331,7 +324,7 @@ public class UserServiceTests {
 
         // Assert
         for (int d = 0; d < userListDTO.getUserList().size(); d++) {
-            assertTrue(userListDTO.getUserList().get(d).getClass() == UserDTO.class);
+            assertSame(userListDTO.getUserList().get(d).getClass(), UserDTO.class);
         }
     }
 

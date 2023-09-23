@@ -1,4 +1,5 @@
 package pl.edu.pg.eti.dragondestiny.user;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTests {
 
@@ -86,11 +89,11 @@ public class UserControllerTests {
         User user2 = new User("ron", "pass", "Ron", new ArrayList<>());
         User user3 = new User("ginny", "pass", "Ginny", new ArrayList<>());
         Game game1 = new Game("game1", new ArrayList<>(Arrays.asList(user1, user2)));
-        Game game2 = new Game("game2", new ArrayList<>(Arrays.asList(user2)));
+        Game game2 = new Game("game2", new ArrayList<>(List.of(user2)));
         Game game3 = new Game("game3", new ArrayList<>(Arrays.asList(user1, user2, user3)));
         user1.setPlayedGames(new ArrayList<>(Arrays.asList(game1, game3)));
         user2.setPlayedGames(new ArrayList<>(Arrays.asList(game1, game2, game3)));
-        user3.setPlayedGames(new ArrayList<>(Arrays.asList(game3)));
+        user3.setPlayedGames(new ArrayList<>(List.of(game3)));
 
         userListToFind = new UserList(new ArrayList<>(Arrays.asList(user1, user2, user3)));
         gameListToFind = new GameList(new ArrayList<>(Arrays.asList(game1, game2, game3)));
@@ -149,7 +152,7 @@ public class UserControllerTests {
 
         // Act
         MvcResult mvcResult = mockMvc.perform(get("http://localhost:8083/api/users")
-                        .accept(MediaType.APPLICATION_JSON)).andReturn();
+                .accept(MediaType.APPLICATION_JSON)).andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
         UserListDTO userListFound = objectMapper.readValue(responseContent, UserListDTO.class);
@@ -215,7 +218,7 @@ public class UserControllerTests {
         when(modelMapper.map(user, UserDTO.class)).thenReturn(userToFind);
 
         // Act
-        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8083/api/users/login")
+        MvcResult mvcResult = mockMvc.perform(put("http://localhost:8083/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userToLogin))
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
@@ -236,7 +239,7 @@ public class UserControllerTests {
         UserLoginDTO userToLogin = new UserLoginDTO(login, password);
 
         // Act
-        MvcResult mvcResult = mockMvc.perform(get("http://localhost:8083/api/users/login")
+        MvcResult mvcResult = mockMvc.perform(put("http://localhost:8083/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userToLogin))
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
@@ -315,7 +318,7 @@ public class UserControllerTests {
     public void testGetUserGamesExisting() throws Exception {
         // Arrange
         String login = "harry";
-        GameList gameListToFind = new GameList (userListToFind.getUserList().stream().filter(
+        GameList gameListToFind = new GameList(userListToFind.getUserList().stream().filter(
                 user -> user.getLogin().equals(login)).findFirst().get().getPlayedGames().stream().toList());
 
         // Act
@@ -398,8 +401,8 @@ public class UserControllerTests {
         String gameId = "game1";
         Game game = new Game("game1", new ArrayList<>());
         GameDTO gameDTO = new GameDTO("game1");
-        User userToFind = new User(login, password, "Bilbo Baggins", new ArrayList<>(Arrays.asList(game)));
-        UserDTO userDTOToFind = new UserDTO(login, "Bilbo Baggins", new ArrayList<>(Arrays.asList(gameDTO)));
+        User userToFind = new User(login, password, "Bilbo Baggins", new ArrayList<>(List.of(game)));
+        UserDTO userDTOToFind = new UserDTO(login, "Bilbo Baggins", new ArrayList<>(List.of(gameDTO)));
 
         when(userServiceMock.addGameToUser(login, gameId)).thenReturn(Optional.of(userToFind));
 
@@ -453,34 +456,26 @@ public class UserControllerTests {
     public void testDeleteUserOK() throws Exception {
         // Arrange
         String login = "hobbit";
-
-        when(userServiceMock.deleteUser(login)).thenReturn(Optional.of(true));
-
+        when(userServiceMock.deleteUser(login)).thenReturn(true);
         // Act
         MvcResult mvcResult = mockMvc.perform(delete("http://localhost:8083/api/users/{login}", login)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
 
         String responseContent = mvcResult.getResponse().getContentAsString();
-        Boolean response = objectMapper.readValue(responseContent, Boolean.class);
-
         // Assert
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertEquals(true, response);
+        assertEquals(204, mvcResult.getResponse().getStatus());
     }
 
     @Test
     public void testDeleteUserNotExisting() throws Exception {
         // Arrange
         String login = "hobbitNotFound";
-
-        when(userServiceMock.deleteUser(login)).thenReturn(Optional.empty());
-
+        when(userServiceMock.deleteUser(login)).thenReturn(false);
         // Act
         MvcResult mvcResult = mockMvc.perform(delete("http://localhost:8083/api/users/{login}", login)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
-
         // Assert
         assertEquals(404, mvcResult.getResponse().getStatus());
     }
@@ -489,34 +484,25 @@ public class UserControllerTests {
     public void testAddGameOK() throws Exception {
         // Arrange
         String gameId = "gameNew";
-
         // Act
         MvcResult mvcResult = mockMvc.perform(put("http://localhost:8083/api/users/games/{gameId}", gameId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
-
-        String responseContent = mvcResult.getResponse().getContentAsString();
-        Boolean response = objectMapper.readValue(responseContent, Boolean.class);
-
         // Assert
-        assertEquals(200, mvcResult.getResponse().getStatus());
-        assertEquals(true, response);
+        assertEquals(204, mvcResult.getResponse().getStatus());
     }
 
     @Test
     public void testGetAllGamesOK() throws Exception {
         // Arrange
         GameListDTO gameListDTOToFind = convertGameListToDTO(modelMapper, gameListToFind);
-        when(gameServiceMock.getGames()).thenReturn(Optional.of(gameListToFind));
-
+        when(gameServiceMock.getGames()).thenReturn(gameListToFind.getGameList());
         // Act
         MvcResult mvcResult = mockMvc.perform(get("http://localhost:8083/api/users/games")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)).andReturn();
-
         String responseContent = mvcResult.getResponse().getContentAsString();
         GameListDTO gameListDTOFound = objectMapper.readValue(responseContent, GameListDTO.class);
-
         // Assert
         assertEquals(200, mvcResult.getResponse().getStatus());
         assertEquals(gameListDTOToFind.getGameList().size(), gameListDTOFound.getGameList().size());

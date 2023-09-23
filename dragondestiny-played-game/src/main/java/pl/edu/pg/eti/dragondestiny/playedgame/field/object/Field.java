@@ -1,19 +1,11 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.field.object;
 
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.AccessLevel;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Corresponds to fields on played board.
@@ -49,5 +41,5 @@ public class Field implements Serializable {
     /**
      * Enemy Card List corresponding to enemy cards on that field.
      */
-    private EnemyCardList enemyCardList;
+    private EnemyCard enemyCard;
 }
