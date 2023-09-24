@@ -110,9 +110,9 @@ public class InitializingPlayedGameService {
             return Optional.empty();
         }
         for (Field c : fieldList.getFieldList()) {
-            if (c.getEnemyCard() != null) {
-                c.getEnemyCard().setCardType(CardType.ENEMY_CARD);
-                c.getEnemyCard().setHealth(c.getEnemyCard().getInitialHealth());
+            if (c.getEnemy() != null) {
+                c.getEnemy().setCardType(CardType.ENEMY_CARD);
+                c.getEnemy().setHealth(c.getEnemy().getInitialHealth());
             }
             playedBoard.addFieldsInBoard(c);
         }

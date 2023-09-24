@@ -104,7 +104,7 @@ public class PlayedGameServiceTests {
             f.setType(FieldType.LOSE_ONE_ROUND);
             board.getFieldsOnBoard().add(f);
         }
-        board.getFieldsOnBoard().get(0).setEnemyCard(enemyCard1);
+        board.getFieldsOnBoard().get(0).setEnemy(enemyCard1);
         board.getFieldsOnBoard().add(fieldBridge);
         board.getFieldsOnBoard().add(fieldBoss);
 
@@ -163,7 +163,7 @@ public class PlayedGameServiceTests {
                 .thenAnswer(invocation -> {
                     int fieldId = invocation.getArgument(1);
                     if (fieldId == 1) {
-                        return new ArrayList(Collections.singletonList(playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemyCard()));
+                        return new ArrayList(Collections.singletonList(playedGame.getBoard().getFieldsOnBoard().stream().filter(f -> f.getId().equals(fieldId)).findFirst().get().getEnemy()));
                     }
                     return new ArrayList<>();
                 });
@@ -398,7 +398,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindPlayersCharacter() {
+    public void testFindPlayersCharacter() throws ServiceException {
         // Arrange
         Character characterToFind = playedGame.getPlayers().stream().filter(card -> card.getLogin().equals(playerLogin)).findFirst().get().getCharacter();
 
@@ -411,7 +411,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindPlayersCharacterNotFound() {
+    public void testFindPlayersCharacterNotFound() throws ServiceException {
         // Arrange
         String playerLogin = "nonExisting";
 
@@ -551,7 +551,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindCharactersNotInUse() {
+    public void testFindCharactersNotInUse() throws ServiceException {
         // Arrange
         List<Character> charactersInGame = playedGame.getCharactersInGame();
         List<Character> charactersInPlayers = playedGame.getPlayers().stream().map(Player::getCharacter).collect(Collectors.toList());
@@ -568,7 +568,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindCharactersNotInUseNotFound() {
+    public void testFindCharactersNotInUseNotFound() throws ServiceException {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -581,7 +581,7 @@ public class PlayedGameServiceTests {
     public void testFindEnemyCardsOnField() {
         // Arrange
         int fieldId = 1;
-        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
+        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemy).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardsOnField(playedGameId, fieldId);
         // Assert
@@ -601,10 +601,10 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersField() {
+    public void testFindEnemyCardsOnPlayersField() throws ServiceException {
         // Arrange
         int fieldId = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getPositionField().getId();
-        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemyCard).get();
+        EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemy).get();
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
         // Assert
@@ -613,7 +613,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersFieldNotFound() {
+    public void testFindEnemyCardsOnPlayersFieldNotFound() throws ServiceException {
         // Arrange
         String playerLogin = "nonExisting";
         // Act
@@ -666,7 +666,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindActiveRound() {
+    public void testFindActiveRound() throws ServiceException {
         // Arrange
         Round roundToFind = playedGame.getActiveRound();
         // Act
@@ -677,7 +677,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindActiveRoundNotFound() {
+    public void testFindActiveRoundNotFound() throws ServiceException {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -760,7 +760,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindDifferentPlayersByField() {
+    public void testFindDifferentPlayersByField() throws ServiceException {
         // Arrange
         int fieldId = 1;
         Player player2 = new Player();
@@ -781,7 +781,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindDifferentPlayersByFieldNotFound() {
+    public void testFindDifferentPlayersByFieldNotFound() throws ServiceException {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -924,17 +924,15 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundNotFound() {
+    public void testNextRoundNotFound() throws ServiceException {
         // Arrange
         playedGame.setIsStarted(false);
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act and Assert
+        assertThrows(ServiceException.class, () -> playedGameService.nextRound(playedGameId));
     }
 
     @Test
-    public void testAddPlayer() {
+    public void testAddPlayer() throws ServiceException {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -950,7 +948,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAddPlayerNotFound() {
+    public void testAddPlayerNotFound() throws ServiceException {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -963,7 +961,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAssignCharacterToPlayer() {
+    public void testAssignCharacterToPlayer() throws ServiceException {
         // Arrange
         int characterId = 2;
         Optional<Character> characterToAdd = playedGame.getCharactersInGame().stream().filter(character -> character.getId().equals(characterId)).findFirst();
@@ -976,13 +974,11 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAssignCharacterToPlayerNotFound() {
+    public void testAssignCharacterToPlayerNotFound() throws ServiceException {
         // Arrange
         int characterId = 241;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId));
     }
 
     @Test
@@ -1008,7 +1004,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToUsed() {
+    public void testMoveCardFromCardDeckToUsed() throws ServiceException {
         // Arrange
         int cardId = 20;
         // Act
@@ -1020,13 +1016,11 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToUsedNotFound() {
+    public void testMoveCardFromCardDeckToUsedNotFound() throws ServiceException {
         // Arrange
         int cardId = 142124;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId));
     }
 
     @Test
@@ -1058,14 +1052,12 @@ public class PlayedGameServiceTests {
     public void testMoveCardFromCardDeckToPlayerNotFound() throws Exception {
         // Arrange
         int cardId = 142124;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophies() {
+    public void testMoveCardFromCardDeckToTrophies() throws ServiceException {
         // Arrange
         int cardId = 2;
         // Act
@@ -1077,7 +1069,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() {
+    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() throws ServiceException {
         // Arrange
         int cardId = 2;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1099,17 +1091,15 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophiesNotFound() {
+    public void testMoveCardFromCardDeckToTrophiesNotFound() throws ServiceException {
         // Arrange
         int cardId = 142124;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId));
     }
 
     @Test
-    public void testMoveCardFromPlayerToUsedDeck() {
+    public void testMoveCardFromPlayerToUsedDeck() throws ServiceException {
         // Arrange
         int cardId = 30;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1124,17 +1114,15 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromPlayerToUsedDeckNotFound() {
+    public void testMoveCardFromPlayerToUsedDeckNotFound() throws ServiceException {
         // Arrange
         int cardId = 142124;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId));
     }
 
     @Test
-    public void testChangePosition() {
+    public void testChangePosition() throws ServiceException {
         // Arrange
         int fieldId = 2;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1147,17 +1135,15 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testChangePositionFieldNotFound() {
+    public void testChangePositionFieldNotFound() throws ServiceException {
         // Arrange
         int fieldId = 231;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
+        // Act & Assert
+        assertThrows(ServiceException.class, () -> playedGameService.changePosition(playedGameId, playerLogin, fieldId));
     }
 
     @Test
-    public void testCheckPossibleNewPositions() {
+    public void testCheckPossibleNewPositions() throws ServiceException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1175,7 +1161,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBridgeField() {
+    public void testCheckPossibleNewPositionsBridgeFieldBlocked() throws ServiceException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1184,7 +1170,6 @@ public class PlayedGameServiceTests {
         List<Field> fieldsToMoveTo = new ArrayList<>();
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(3)).findFirst().get());
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(13)).findFirst().get());
-        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst().get());
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert
@@ -1196,14 +1181,36 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBossField() {
+    public void testCheckPossibleNewPositionsBridgeFieldOK() throws ServiceException {
+        // Arrange
+        int roll = 3;
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        playerToCheck.get().setBridgeGuardianDefeated(true);
+        List<Field> fieldsToMoveTo = new ArrayList<>();
+        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(3)).findFirst().get());
+        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(13)).findFirst().get());
+        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst().get());
+        // Act
+        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
+        // Assert
+        assertTrue(fieldsToMoveToFound.isPresent());
+        assertEquals(fieldsToMoveTo.size(), fieldsToMoveToFound.get().getFieldList().size());
+        for (int d = 0; d < fieldsToMoveTo.size(); d++) {
+            assertEquals(fieldsToMoveTo.get(d), fieldsToMoveToFound.get().getFieldList().get(d));
+        }
+    }
+
+    @Test
+    public void testCheckPossibleNewPositionsBossField() throws ServiceException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst();
         playerToCheck.get().setPositionField(fieldPos.get());
         List<Field> fieldsToMoveTo = new ArrayList<>();
-        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst().get());
+        fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst().get());
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,6 @@ public class PlayerList {
     /**
      * A list of player.
      */
-    private List<Player> playerList;
+    private List<Player> playerList = new ArrayList<>();
 
 }

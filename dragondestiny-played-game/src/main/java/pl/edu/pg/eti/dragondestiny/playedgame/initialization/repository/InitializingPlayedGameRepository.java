@@ -1,7 +1,6 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,7 +26,7 @@ public class InitializingPlayedGameRepository {
      * @param webClientBuilder The builder used to create the WebClient instance.
      */
     @Autowired
-    public InitializingPlayedGameRepository(WebClient.Builder webClientBuilder){
+    public InitializingPlayedGameRepository(WebClient.Builder webClientBuilder) {
         this.client = webClientBuilder.build();
     }
 
@@ -59,7 +58,7 @@ public class InitializingPlayedGameRepository {
      * @param gameEngineGameId An identifier of the game in the game engine.
      * @return A structure containing a list of enemy cards.
      */
-    public EnemyCardList getGameEnemyCards(Integer gameEngineGameId){
+    public EnemyCardList getGameEnemyCards(Integer gameEngineGameId) {
         ResponseEntity<EnemyCardList> enemyCardListResponseEntity = client.get()
                 .uri("http://GAME-ENGINE/api/games/{gameId}/cards/enemy", gameEngineGameId)
                 .retrieve()
@@ -77,7 +76,7 @@ public class InitializingPlayedGameRepository {
      * @param gameEngineGameId An identifier of the game in the game engine.
      * @return A structure containing a list of item cards.
      */
-    public ItemCardList getGameItemCards(Integer gameEngineGameId){
+    public ItemCardList getGameItemCards(Integer gameEngineGameId) {
         ResponseEntity<ItemCardList> itemCardListResponseEntity = client.get()
                 .uri("http://GAME-ENGINE/api/games/{gameId}/cards/item", gameEngineGameId)
                 .retrieve()
@@ -95,7 +94,7 @@ public class InitializingPlayedGameRepository {
      * @param gameEngineGameId An identifier of the game in the game engine.
      * @return A structure containing list of characters.
      */
-    public CharacterList getGameCharacters(Integer gameEngineGameId){
+    public CharacterList getGameCharacters(Integer gameEngineGameId) {
         ResponseEntity<CharacterList> characterListResponseEntity = client.get()
                 .uri("http://GAME-ENGINE/api/games/{gameId}/characters", gameEngineGameId)
                 .retrieve()
@@ -131,7 +130,7 @@ public class InitializingPlayedGameRepository {
      * @param gameEngineGameId An identifier of the game in the game engine.
      * @return A structure containing a list of fields.
      */
-    public FieldList getGameFieldList(Integer gameEngineGameId){
+    public FieldList getGameFieldList(Integer gameEngineGameId) {
         ResponseEntity<FieldList> fieldListResponseEntity = client.get()
                 .uri("http://GAME-ENGINE/api/games/{gameId}/board/fields", gameEngineGameId)
                 .retrieve()
@@ -148,7 +147,7 @@ public class InitializingPlayedGameRepository {
      *
      * @param gameId An identifier to be added.
      */
-    public void addGameToUserDatabase(String gameId){
+    public void addGameToUserDatabase(String gameId) {
         client.put()
                 .uri("http://GAME-USER/api/users/games/{gameId}", gameId)
                 .retrieve()

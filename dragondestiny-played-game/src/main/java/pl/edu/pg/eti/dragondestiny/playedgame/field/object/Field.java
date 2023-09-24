@@ -41,5 +41,5 @@ public class Field implements Serializable {
     /**
      * Enemy Card List corresponding to enemy cards on that field.
      */
-    private EnemyCard enemyCard;
+    private EnemyCard enemy;
 }

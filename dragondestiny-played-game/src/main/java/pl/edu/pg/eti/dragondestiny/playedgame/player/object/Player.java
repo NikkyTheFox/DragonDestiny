@@ -43,6 +43,11 @@ public class Player implements HealthCalculable {
     private Integer blockedTurns = 0;
 
     /**
+     * Whether the player has already defeated the Bridge Guardian and can go for boss.
+     */
+    private Boolean bridgeGuardianDefeated = false;
+
+    /**
      * Character chosen by the player.
      * Many players can play the same type of character.
      */

@@ -14,12 +14,11 @@ import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 public class PlayedGameConfig {
 
     @Bean
-    public ModelMapper modelMapper(){
+    public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
         // Customize the modelMapper configuration
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         modelMapper.typeMap(EnemyCard.class, EnemyCardDTO.class).include(CardDTO.class);
         modelMapper.typeMap(ItemCard.class, ItemCardDTO.class).include(CardDTO.class);
 

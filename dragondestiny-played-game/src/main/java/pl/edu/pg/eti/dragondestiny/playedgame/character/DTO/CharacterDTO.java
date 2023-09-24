@@ -1,12 +1,16 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.character.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldDTO;
 
 /**
  * DTO allows to hide implementation from the client.
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CharacterDTO {
 
     /**

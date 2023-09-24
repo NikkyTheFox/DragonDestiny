@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,6 @@ public class FieldList {
     /**
      * A list of fields.
      */
-    private List<Field> fieldList;
+    private List<Field> fieldList = new ArrayList<>();
 
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +19,6 @@ public class ItemCardList {
     /**
      * A list of item cards.
      */
-    private List<ItemCard> itemCardList;
+    private List<ItemCard> itemCardList = new ArrayList<>();
 
 }

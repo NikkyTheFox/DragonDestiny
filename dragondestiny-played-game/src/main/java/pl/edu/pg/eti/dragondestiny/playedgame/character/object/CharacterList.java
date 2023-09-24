@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,6 @@ public class CharacterList {
     /**
      * A list of characters.
      */
-    private List<Character> characterList;
+    private List<Character> characterList = new ArrayList<>();
 
 }

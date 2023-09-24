@@ -1,6 +1,8 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldType;
 
@@ -8,6 +10,8 @@ import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldType;
  * DTO allows to hide implementation from the client.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FieldDTO {
 
     /**
@@ -33,5 +37,5 @@ public class FieldDTO {
     /**
      * Enemy Card corresponding to enemy on that field.
      */
-    private EnemyCardDTO enemyCard;
+    private EnemyCardDTO enemy;
 }

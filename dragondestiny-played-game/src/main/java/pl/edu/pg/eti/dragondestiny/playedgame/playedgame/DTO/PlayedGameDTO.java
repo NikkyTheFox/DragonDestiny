@@ -1,6 +1,8 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.DTO.PlayedBoardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.DTO.CardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.DTO.CharacterDTO;
@@ -13,6 +15,8 @@ import java.util.List;
  * DTO allows to hide implementation from the client.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlayedGameDTO {
 
     /**
@@ -53,5 +57,5 @@ public class PlayedGameDTO {
     /**
      * Characters available to play in the game - not those chosen by users!
      */
-    private List<CharacterDTO>  charactersInGame;
+    private List<CharacterDTO> charactersInGame;
 }

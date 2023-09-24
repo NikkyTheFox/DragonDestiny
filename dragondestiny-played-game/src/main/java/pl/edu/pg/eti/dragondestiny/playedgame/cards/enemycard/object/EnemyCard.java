@@ -1,7 +1,7 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object;
 
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import lombok.*;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import pl.edu.pg.eti.dragondestiny.playedgame.interfaces.HealthCalculable;
 
 /**
@@ -11,7 +11,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.interfaces.HealthCalculable;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @EqualsAndHashCode
 public class EnemyCard extends Card implements HealthCalculable {
 
@@ -56,7 +56,7 @@ public class EnemyCard extends Card implements HealthCalculable {
      *
      * @return True/False.
      */
-    public Boolean isAlive(){
+    public Boolean isAlive() {
         return health > 0;
     }
 }
