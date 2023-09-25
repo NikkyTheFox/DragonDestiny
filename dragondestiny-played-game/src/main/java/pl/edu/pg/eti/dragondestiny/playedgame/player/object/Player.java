@@ -48,6 +48,11 @@ public class Player implements HealthCalculable {
     private Boolean bridgeGuardianDefeated = false;
 
     /**
+     * Whether the player has already defeated the Boss and won the game.
+     */
+    private Boolean bossDefeated = false;
+
+    /**
      * Character chosen by the player.
      * Many players can play the same type of character.
      */

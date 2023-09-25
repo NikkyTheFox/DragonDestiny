@@ -949,10 +949,14 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<PlayerDTO> blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
-        Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
-        return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
+        try {
+            Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
+            return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        }
     }
 
     /**
@@ -969,10 +973,14 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<PlayerDTO> blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
-        Optional<Player> player = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
-        return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
+        try {
+            Optional<Player> player = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
+            return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        }
     }
 
     // ACTIONS -----------------------------------------------------------------------------------------------------------
@@ -1020,42 +1028,9 @@ public class PlayedGameController {
             return fightResult.map(result -> ResponseEntity.ok().body(modelMapper.map(result, FightResultDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (ServiceException ex) {
-            return null;
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
     }
-
-
-// Fight with an Enemy on field is still a fight with EnemyCard which has its ID, so method above should be used
-
-//    /**
-//     * Call to get result of fight between Player and Enemy from field where the player's character stays.
-//     *
-//     * @param playedGameId
-//     * @param playerLogin
-//     * @param playerRoll
-//     * @param enemyRoll
-//     * @return
-//     */
-//    @PutMapping("{playedGameId}/players/{playerLogin}/roll/{playerRoll}/enemy/roll/{enemyRoll}")
-//    public ResponseEntity<FightResult> handleFight(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
-//        // find game
-//        Optional<PlayedGame> gameRequest = playedGameService.findPlayedGame(playedGameId);
-//        if (gameRequest.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        // find player
-//        Optional<Player> player = playedGameService.findPlayer(playedGameId, playerLogin);
-//        if (player.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        // find enemy from field
-//        Optional<Field> field = playedGameService.findField(playedGameId, player.get().getCharacter().getField().getId());
-//        if (field.isEmpty())
-//            return ResponseEntity.notFound().build();
-//        EnemyCard enemy = field.get().getEnemy();
-//        if (enemy == null)
-//            return ResponseEntity.notFound().build();
-//        FightResult fightResult = playedGameService.calculateFight(gameRequest.get(), player.get(), field.get(), enemy, playerRoll, enemyRoll);
-//        return ResponseEntity.ok().body(fightResult);
-//    }
 
     /**
      * Handles a fight between one specified player and another specified player.
@@ -1073,13 +1048,13 @@ public class PlayedGameController {
                     schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity<FightResultDTO> handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) throws ServiceException {
-        Optional<PlayedGame> playerGame = playedGameService.setPlayerFightRoll(playedGameId, playerLogin, playerRoll);
-        if (playerGame.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) throws ServiceException {
+        try {
+            Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+            return fightResult.map(result -> ResponseEntity.ok().body(modelMapper.map(result, FightResultDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (ServiceException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
-        return fightResult.map(result -> ResponseEntity.ok().body(modelMapper.map(result, FightResultDTO.class)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

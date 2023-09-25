@@ -1,7 +1,7 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object;
 
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import lombok.*;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 
 /**
  * Corresponds to item card in game.
@@ -29,8 +29,8 @@ public class ItemCard extends Card {
      *
      * @return True if no health remaining.
      */
-    public Boolean isUsed(){
-        return getHealth() <= 0;
+    public Boolean isUsed() {
+        return getStrength() <= 0 && getHealth() <= 0;
     }
 
     /**

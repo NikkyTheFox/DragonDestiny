@@ -27,7 +27,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.*;
 import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
-import pl.edu.pg.eti.dragondestiny.playedgame.interfaces.HealthCalculable;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
@@ -980,66 +979,47 @@ public class PlayedGameService {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
-        if (playedGame.isEmpty() || player.isEmpty() || card.isEmpty()) {
+        if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Card card1 = card.get();
-        EnemyCard enemyCard = (EnemyCard) card1;
+        if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Player roll value is not within set values");
+        }
+        if (!(enemyRollValue >= PlayedGameProperties.diceLowerBound && enemyRollValue <= PlayedGameProperties.diceUpperBound)) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Enemy roll value is not within set values");
+        }
+        if (player.get().getCharacter() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
+        }
+        if (player.get().getCharacter().getField() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
+        }
+        if (card.isEmpty()) {
+            if (player.get().getCharacter().getField().getEnemy() != null && player.get().getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
+                card = Optional.of(player.get().getCharacter().getField().getEnemy());
+            } else {
+                throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in game");
+            }
+        }
+        if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Only card of type ENEMY CARD can be enemy to fight with");
+        }
+        EnemyCard enemyCard = (EnemyCard) card.get();
         FightResult fightResult = new FightResult();
-        int playerResult = player1.getStrength() + playerRollValue;
-        System.out.println("PLAYER " + playerResult);
+        int playerResult = player.get().getStrength() + playerRollValue;
         int enemyResult = enemyCard.getInitialStrength() + enemyRollValue;
-        System.out.println("ENEMY " + enemyResult);
         if (playerResult >= enemyResult) { // player won
-            decreaseHealth(playedGame1, player1, enemyCard, -1);
+            decreaseHealth(playedGame.get(), player.get(), enemyCard, 1, fightResult);
             fightResult.setAttackerWon(true);
-            if (!isAlive(enemyCard))
-                fightResult.setEnemyKilled(true);
         } else { // player lost
-            decreaseHealth(playedGame1, player1, 1);
+            decreaseHealth(playedGame.get(), player.get(), 1, fightResult);
             fightResult.setAttackerWon(false);
-            if (!isAlive(player1))
+            if (!player.get().isAlive())
                 fightResult.setPlayerDead(true);
         }
+        playedGameRepository.save(playedGame.get());
         return Optional.of(fightResult);
     }
-
-//    /**
-//     * Method to calculate fight result between Player and Enemy from field.
-//     *
-//     * @param game
-//     * @param player
-//     * @param field
-//     * @param enemy
-//     * @param playerRoll
-//     * @param enemyRoll
-//     * @return
-//     */
-//    public FightResult calculateFight(PlayedGame game, Player player, Field field, EnemyCard enemy, Integer playerRoll, Integer enemyRoll) {
-//        FightResult fightResult = new FightResult();
-//        Integer playerResult = player.getPlayerManager().calculateTotalStrength(player) + playerRoll;
-//        System.out.println("PLAYER " + playerResult);
-//        Integer enemyResult = enemy.getCardManager().calculateTotalStrength(enemy) + enemyRoll;
-//        System.out.println("ENEMY " + enemyResult);
-//        if (playerResult >= enemyResult) { // PLAYER WON
-//            decreaseHealth(game, player, field, enemy, -1);
-//            fightResult.setAttackerWon(true);
-//            if (enemy.getCardManager().calculateTotalHealth(enemy) <= 0) {
-//                fightResult.setEnemyKilled(true);
-//                resetFieldEnemy(game, player, field, enemy);
-//                if (field.getType() == FieldType.BOSS_FIELD)
-//                    fightResult.setGameWon(true);
-//            }
-//        } else { // PLAYER LOST
-//            decreaseHealth(game, player, -1);
-//            fightResult.setAttackerWon(false);
-//            if (player.getPlayerManager().calculateTotalHealth(player) <= 0)
-//                fightResult.setPlayerDead(true);
-//        }
-//        return fightResult;
-//    }
 
     /**
      * Calculates fight result between two players. Player is treated as a defender and Enemy is treated as an attacker.
@@ -1057,9 +1037,9 @@ public class PlayedGameService {
         if (playedGame.isEmpty() || player.isEmpty() || enemyPlayer.isEmpty()) {
             return Optional.empty();
         }
-        if (enemyPlayer.get().getFightRoll() == 0) {
-            // call from the attacker, wait for attacker roll
-            return Optional.empty();
+        setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
+        if (enemyPlayer.get().getFightRoll() == 0) { // call from the attacker, wait for attacked roll
+            throw new ServiceException(HttpStatusCode.valueOf(204), "Attacker roll assigned, waiting for attacked player's roll.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -1067,9 +1047,7 @@ public class PlayedGameService {
 
         FightResult fightResult = new FightResult();
         int playerResult = player1.getStrength() + playerRollValue;
-        System.out.println("PLAYER " + playerResult);
         int enemyResult = enemyPlayer1.getStrength() + enemyPlayer1.getFightRoll();
-        System.out.println("ENEMY PLAYER " + enemyResult);
         setPlayerFightRoll(playedGameId, playerLogin, 0);
         setPlayerFightRoll(playedGameId, enemyPlayerLogin, 0);
         if (playerResult >= enemyResult) { // DEFENDER (PLAYER) WON
@@ -1078,8 +1056,8 @@ public class PlayedGameService {
             fightResult.setLostPlayer(enemyPlayer1.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin);
             if (loserHealthCards.isEmpty()) { // no health cards
-                decreaseHealth(playedGame1, enemyPlayer1, -1);
-                if (!isAlive(enemyPlayer1))
+                decreaseHealth(playedGame1, enemyPlayer1, 1, fightResult);
+                if (!enemyPlayer1.isAlive())
                     fightResult.setEnemyKilled(true);
             } else {
                 fightResult.setChooseCardFromEnemyPlayer(true);
@@ -1090,8 +1068,8 @@ public class PlayedGameService {
             fightResult.setLostPlayer(player1.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, playerLogin);
             if (loserHealthCards.isEmpty()) { // no health cards
-                decreaseHealth(playedGame1, player1, -1);
-                if (!isAlive(player1)) {
+                decreaseHealth(playedGame1, player1, 1, fightResult);
+                if (!player1.isAlive()) {
                     fightResult.setPlayerDead(true);
                 }
             } else {
@@ -1099,83 +1077,6 @@ public class PlayedGameService {
             }
         }
         return Optional.of(fightResult);
-    }
-
-    /**
-     * Decreases health points of a specified player by given value.
-     *
-     * @param game   The game to perform actions on.
-     * @param player The player whose health points are to be reduced.
-     * @param value  A number that is to be subtracted from player's health.
-     */
-    public void decreaseHealth(PlayedGame game, Player player, Integer value) throws ServiceException {
-        Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> !itemCard.isUsed()).findFirst();
-        if (card.isEmpty()) {
-            // no health cards
-            player.reduceHealth(value);
-        } else {
-            // decrease health card
-            card.get().reduceHealth(value);
-            if (card.get().isUsed()) { // remove used up card
-                moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId());
-            }
-        }
-        updatePlayer(game, player);
-        playedGameRepository.save(game);
-    }
-
-    /**
-     * Decreases health points of specified enemy card by given value.
-     *
-     * @param game      The game to perform actions on.
-     * @param player    The player who may get a trophy for defeating an enemy.
-     * @param enemyCard The enemy card which health points are to be reduced.
-     * @param value     A number that is to be subtracted from enemy's health points.
-     */
-    public void decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value) throws ServiceException {
-        enemyCard.reduceHealth(value);
-        if (!isAlive(enemyCard) &&
-                !Objects.equals(enemyCard.getId(), PlayedGameProperties.guardianID) && // check if defeated card is bridge guardian
-                !Objects.equals(enemyCard.getId(), PlayedGameProperties.bossID)) { //check if defeated card is boss
-
-            Optional<PlayedGame> updatedGame = moveCardToPlayerTrophies(game.getId(), player.getLogin(), enemyCard.getId());
-            if (updatedGame.isPresent()) {
-                checkTrophies(updatedGame.get(), player);
-                playedGameRepository.save(updatedGame.get());
-                return;
-            }
-        }
-        updateCardDeck(game, enemyCard);
-        playedGameRepository.save(game);
-    }
-
-//    /**
-//     * Method to decrease health points of enemy from field by value.
-//     *
-//     * @param game The game to perform actions on.
-//     * @param enemyCard The enemy card which health points are to be reduced.
-//     * @param value A number that is to be subtracted from enemy's health points.
-//     */
-//    public void decreaseHealth(PlayedGame game, Field field, EnemyCard enemyCard, Integer value) {
-//        enemyCard.reduceHealth(value);
-//        field.setEnemy(enemyCard);
-//        System.out.println("Set enemy on field " + field.getEnemy().getReceivedHealth());
-//        updateField(game, field);
-//        playedGameRepository.save(game);
-//    }
-
-    /**
-     * Resets enemy from field to its initial health points.
-     *
-     * @param game      The game to perform actions on.
-     * @param field     The field on which enemy stands.
-     * @param enemyCard The enemy card to reset,
-     */
-    public void resetFieldEnemy(PlayedGame game, Field field, EnemyCard enemyCard) {
-        enemyCard.setHealth(0);
-        field.setEnemy(enemyCard);
-        updateField(game, field);
-        playedGameRepository.save(game);
     }
 
     /**
@@ -1193,9 +1094,6 @@ public class PlayedGameService {
         Random random = new Random();
         Integer toReturn = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
         return Optional.of(toReturn);
-
-        //FOR TEST PURPOSES:
-        //return Optional.of(1);
     }
 
     /**
@@ -1206,15 +1104,18 @@ public class PlayedGameService {
      * @param numOfTurnsToBlock A number of turns to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) {
+    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) throws ServiceException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty() || numOfTurnsToBlock == 0) {
+        if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
+        }
+        if (numOfTurnsToBlock <= 0) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "Number of turns to block must be greater than 0");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
-        player1.setBlockedTurns(numOfTurnsToBlock);
+        player1.setBlockedTurns(player1.getBlockedTurns() + numOfTurnsToBlock);
         updatePlayer(playedGame1, player1);
         playedGameRepository.save(playedGame1);
         return Optional.of(player1);
@@ -1227,37 +1128,27 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) {
+    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) throws ServiceException {
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (player.isEmpty()) {
             return Optional.empty();
         }
-        Optional<Field> field = findField(playedGameId, player.get().getCharacter().getField().getId());
-        if (field.isEmpty()) {
-            return Optional.empty();
+        if (player.get().getCharacter() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
         }
+        if (player.get().getCharacter().getField() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+        }
+        Field field = player.get().getCharacter().getField();
         int numOfTurnsToBlock = 0;
-        if (field.get().getType() == FieldType.LOSE_ONE_ROUND) {
+        if (field.getType() == FieldType.LOSE_ONE_ROUND) {
             numOfTurnsToBlock = 1;
         }
-        if (field.get().getType() == FieldType.LOSE_TWO_ROUNDS) {
+        if (field.getType() == FieldType.LOSE_TWO_ROUNDS) {
             numOfTurnsToBlock = 2;
         }
         return blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
     }
-
-    /**
-     * Helper method to check if an object instance (player or enemy card) is still alive.
-     *
-     * @param object A player or enemy card.
-     * @return True if alive.
-     */
-    public <T extends HealthCalculable> Boolean isAlive(T object) {
-
-        return object.isAlive();
-    }
-
-    // methods to convert objects to DTO
 
     /**
      * Converts PlayedGameList into PlayedGameListDTO.
@@ -1369,6 +1260,61 @@ public class PlayedGameService {
             playerDTOList.add(playerDTO);
         });
         return new PlayerListDTO(playerDTOList);
+    }
+
+    /**
+     * Decreases health points of specified enemy card by given value.
+     *
+     * @param game      The game to perform actions on.
+     * @param player    The player who may get a trophy for defeating an enemy.
+     * @param enemyCard The enemy card which health points are to be reduced.
+     * @param value     A number that is to be subtracted from enemy's health points.
+     */
+    private void decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) throws ServiceException {
+        enemyCard.reduceHealth(value);
+        if (!enemyCard.isAlive()) {
+            if (Objects.equals(enemyCard.getId(), PlayedGameProperties.guardianID)) {
+                player.setBridgeGuardianDefeated(true);
+                updatePlayer(game, player);
+            } else if (Objects.equals(enemyCard.getId(), PlayedGameProperties.bossID)) {
+                player.setBossDefeated(true);
+                fightResult.setGameWon(true);
+                updatePlayer(game, player);
+            } else {
+                Optional<PlayedGame> updatedGame = moveCardToPlayerTrophies(game.getId(), player.getLogin(), enemyCard.getId());
+                fightResult.setEnemyKilled(true);
+                if (updatedGame.isPresent()) {
+                    checkTrophies(updatedGame.get(), player);
+                    playedGameRepository.save(updatedGame.get());
+                    return;
+                }
+            }
+        }
+        updateCardDeck(game, enemyCard);
+        playedGameRepository.save(game);
+    }
+
+    /**
+     * Decreases health points of a specified player by given value.
+     *
+     * @param game   The game to perform actions on.
+     * @param player The player whose health points are to be reduced.
+     * @param value  A number that is to be subtracted from player's health.
+     */
+    private void decreaseHealth(PlayedGame game, Player player, Integer value, FightResult fightResult) throws ServiceException {
+        Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0 && !itemCard.isUsed()).findFirst();
+        if (card.isEmpty()) { // no health cards
+            player.reduceHealth(value);
+            updatePlayer(game, player);
+        } else { // decrease health card
+            card.get().reduceHealth(value);
+            if (card.get().isUsed()) { // remove used up card
+                moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId());
+            } else {
+                updatePlayer(game, player);
+                playedGameRepository.save(game);
+            }
+        }
     }
 
     /**

@@ -38,6 +38,11 @@ public class PlayerDTO {
     private Boolean bridgeGuardianDefeated = false;
 
     /**
+     * Whether the player has already defeated the Boss and won the game.
+     */
+    private Boolean bossDefeated = false;
+
+    /**
      * Character chosen by the player.
      */
     private CharacterDTO character;
