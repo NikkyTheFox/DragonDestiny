@@ -17,7 +17,7 @@ export class StartGameComponent implements OnInit{
   }
 
   ngOnInit(){
-    this.gameId = this.shared.getGame().id;
+    this.gameId = this.shared.getGame()!.id;
   }
 
   //to check if logic is not already in PlayedGameService.java

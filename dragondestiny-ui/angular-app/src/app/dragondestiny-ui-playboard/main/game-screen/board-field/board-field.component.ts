@@ -71,7 +71,7 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   }
 
   retrieveCharactersOnField(){
-    this.playedGameService.getPlayers(this.requestStructure.game.id).subscribe( (data: any) => {
+    this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
       this.playersInGame = data.playerList;
       this.playersInGame.forEach( (player: Player) => {
         this.charactersOnField.push(player.character);
@@ -98,7 +98,7 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   }
 
   moveCharacter(fieldId: number){
-    this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game.id, this.requestStructure.player.login, fieldId).subscribe((data: PlayedGame) => {
+    this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe((data: PlayedGame) => {
       this.shared.sendMoveCharacterClickEvent();
     });
   }

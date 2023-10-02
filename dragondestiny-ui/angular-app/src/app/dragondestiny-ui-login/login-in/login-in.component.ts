@@ -25,6 +25,7 @@ export class LoginInComponent{
     this.userService.getUserByLoginPassword(user).subscribe((data: any) => {
       this.dataService.loginData = data;
       this.dataService.loginFlag = true;
+
       this.router.navigate(['/dashboard']);
     },
       (error: any) =>{ // Handle 404 and others

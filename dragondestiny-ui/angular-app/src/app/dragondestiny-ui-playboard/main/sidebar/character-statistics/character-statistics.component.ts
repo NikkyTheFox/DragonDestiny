@@ -17,7 +17,7 @@ export class CharacterStatisticsComponent implements OnInit{
   constructor(private playedGameService: PlayedGameService){
   }
    ngOnInit(){
-    this.playedGameService.getPlayer(this.requestStructure.game.id, this.requestStructure.player.login).subscribe( (data: Player) => {
+    this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
       this.player = data;
     });
    }

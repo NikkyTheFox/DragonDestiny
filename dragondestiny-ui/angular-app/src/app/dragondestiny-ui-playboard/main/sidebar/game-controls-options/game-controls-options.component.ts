@@ -52,7 +52,7 @@ export class GameControlsOptionsComponent implements OnInit{
   }
 
   getField(){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game.id, this.requestStructure.player.login).subscribe((data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: PlayedGameCharacter) => {
       this.currentField = data.field;
       this.checkEnemyOnField(this.currentField);
       this.checkPlayerOnField(this.currentField);
@@ -60,7 +60,7 @@ export class GameControlsOptionsComponent implements OnInit{
   }
 
   getPlayerCharacter(){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game.id, this.requestStructure.player.login).subscribe((data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: PlayedGameCharacter) => {
       this.playersCharacter = data;
       this.getField();
     });
@@ -75,7 +75,7 @@ export class GameControlsOptionsComponent implements OnInit{
   }
 
   checkPlayerOnField(field: Field){
-    this.playedGameService.getPlayersOnField(this.requestStructure.game.id, field.id).subscribe((data: any) => {
+    this.playedGameService.getPlayersOnField(this.requestStructure.game!.id, field.id).subscribe((data: any) => {
       this.playersOnField = data.playerList;
       this.playersOnField.forEach((player: Player) => {
         if(player.character.id !== this.playersCharacter.id){

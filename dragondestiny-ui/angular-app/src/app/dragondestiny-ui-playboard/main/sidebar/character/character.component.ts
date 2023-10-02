@@ -22,7 +22,7 @@ export class CharacterComponent implements OnInit, OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game.id, this.requestStructure.player.login).subscribe( (data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
       this.character = data;
     });
   }

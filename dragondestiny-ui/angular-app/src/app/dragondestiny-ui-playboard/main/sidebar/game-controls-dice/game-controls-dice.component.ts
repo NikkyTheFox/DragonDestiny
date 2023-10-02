@@ -23,7 +23,7 @@ export class GameControlsDiceComponent implements OnInit{
 
   rollDice(){
     if(this.rollValue === 0){ // so a player can roll only once
-      this.playedGameService.rollDice(this.requestStructure.game.id, this.requestStructure.player.login).subscribe((data: number) => {
+      this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
         this.rollValue = data;
         this.checkPositions();
       });
@@ -31,7 +31,7 @@ export class GameControlsDiceComponent implements OnInit{
   }
 
   checkPositions(){
-    this.playedGameService.checkPossibleNewPositions(this.requestStructure.game.id, this.requestStructure.player.login, this.rollValue).subscribe((data: any) => {
+    this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login, this.rollValue).subscribe((data: any) => {
       this.dataService.possibleFields = data.fieldList;
       this.shared.sendDiceRollClickEvent();
     });

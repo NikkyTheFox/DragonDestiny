@@ -25,7 +25,7 @@ export class BoardComponent implements OnInit, OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getGame(this.requestStructure.game.id).subscribe( (data: PlayedGame) => {
+    this.playedGameService.getGame(this.requestStructure.game!.id).subscribe( (data: PlayedGame) => {
       this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
         this.board = data;
         this.prepareRowArray();

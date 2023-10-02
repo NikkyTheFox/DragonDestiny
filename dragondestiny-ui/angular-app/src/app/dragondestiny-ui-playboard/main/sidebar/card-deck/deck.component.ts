@@ -23,13 +23,13 @@ export class DeckComponent implements OnInit, OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getCardsDeck(this.requestStructure.game.id).subscribe( (data: any) => {
+    this.playedGameService.getCardsDeck(this.requestStructure.game!.id).subscribe( (data: any) => {
       this.deck = data.cardList;
       this.numberOfCardsInDeck = this.deck.length;
     });
   }
 
   drawCard(){ // FOR TESTS OF MOVING CARD TO HAND: ID=11 is first item card in deck
-    this.playedGameService.moveItemCardFromDeckToPlayerHand(this.requestStructure.game.id, 11, this.requestStructure.player.login).subscribe();
+    this.playedGameService.moveItemCardFromDeckToPlayerHand(this.requestStructure.game!.id, 11, this.requestStructure.player!.login).subscribe();
   }
 }

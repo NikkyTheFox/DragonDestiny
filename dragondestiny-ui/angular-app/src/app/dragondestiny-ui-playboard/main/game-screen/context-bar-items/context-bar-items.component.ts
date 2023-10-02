@@ -27,7 +27,7 @@ export class ContextBarItemsComponent implements OnInit, OnChanges{
 
   ngOnChanges(){
     this.resetArrays();
-    this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game.id, this.requestStructure.player.login).subscribe( (data: any) => {
+    this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
       this.itemsList = data.itemCardList;
       this.fetchCardsFromEngine();
     },

@@ -13,11 +13,7 @@ export class GameDataService{
   }
   loginFlag: boolean = false;
   chosenGame: string = '';
-  possibleFields: Field[];
-
-  constructor(){
-    this.possibleFields = [];
-  }
+  possibleFields: Field[] = [];
 
   isAuthorized(){
     return this.loginFlag;

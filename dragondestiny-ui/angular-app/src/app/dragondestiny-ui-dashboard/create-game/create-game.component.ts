@@ -3,6 +3,7 @@ import { PlayedGameService } from '../../services/played-game/played-game-servic
 
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
+import {SharedService} from "../../services/shared.service";
 
 @Component({
   selector: 'app-create-game',
@@ -13,7 +14,7 @@ export class CreateGameComponent implements OnInit{
   playerLogin!: string;
   selectedOption: number = 1;
 
-  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private router: Router){
+  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService, private router: Router){
 
   }
 
@@ -22,10 +23,13 @@ export class CreateGameComponent implements OnInit{
   }
 
   initializeGame(){
-    this.playedGameService.initializeGame(this.selectedOption).subscribe((data: any) => {
-      this.playedGameService.addPlayerToGameByLogin(data.id, this.playerLogin).subscribe();
-      this.dataService.chosenGame = data.id;
-      this.router.navigate(['/preparegame']);
+    this.playedGameService.initializeGame(this.selectedOption).subscribe( (data: any) => {
+      this.playedGameService.addPlayerToGameByLogin(data.id, this.playerLogin).subscribe( () => {
+        this.dataService.chosenGame = data.id;
+        this.shared.setRequestByID(data.id, this.playerLogin);
+        this.router.navigate(['/preparegame']);
+        }
+      );
     });
   }
 }

@@ -10,7 +10,9 @@ import { Player } from "../interfaces/played-game/player/player";
 })
 export class SharedService{
 
-  private requestStructure!: GamePlayerRequest;
+  private requestStructure: GamePlayerRequest = {
+
+  };
 
   private diceRoll = new Subject();
   private moveCharacter = new Subject();
@@ -28,18 +30,20 @@ export class SharedService{
   setRequestByID(gameId: string, playerLogin: string){
     this.setGameByID(gameId);
     this.setPlayerByID(gameId, playerLogin);
+    console.log("XDDDDDDD KUrwa")
+    console.log(this.requestStructure.game);
   }
 
   setGameByID(gameId: string){
-    this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) =>{
+    this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) => {
       this.requestStructure.game = playedGame;
-    })
+    });
   }
 
   setPlayerByID(gameId: string, playerLogin: string){
     this.playedGameService.getPlayer(gameId, playerLogin).subscribe( (player: Player) => {
       this.requestStructure.player = player;
-    })
+    });
   }
 
   setRequest(game: PlayedGame, player: Player){

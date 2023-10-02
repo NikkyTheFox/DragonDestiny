@@ -28,14 +28,14 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges{
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game.id, this.requestStructure.player.login).subscribe( (data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
       this.playersCharacter = data;
       this.filterOutPlayers();
     });
   }
 
   filterOutPlayers(){
-    this.playedGameService.getPlayers(this.requestStructure.game.id).subscribe( (data: any) => {
+    this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
       let playerList = data.playerList;
       playerList.forEach( (data: Player) => {
         this.allCharacters.push(data.character);

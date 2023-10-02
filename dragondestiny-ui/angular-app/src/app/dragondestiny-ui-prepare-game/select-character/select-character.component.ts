@@ -22,8 +22,9 @@ export class SelectCharacterComponent implements OnInit, OnChanges{
   }
 
   ngOnInit(){
-    this.gameId = this.shared.getGame().id;
-    this.playerLogin = this.shared.getPlayer().login;
+    // console.log(this.shared.getRequest())
+    this.gameId = this.shared.getGame()!.id;
+    this.playerLogin = this.shared.getPlayer()!.login;
   }
 
   ngOnChanges(){
