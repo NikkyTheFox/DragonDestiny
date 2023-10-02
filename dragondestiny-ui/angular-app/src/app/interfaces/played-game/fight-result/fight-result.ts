@@ -1,4 +1,4 @@
-export interface FightResult {
+export interface FightResult{
   attackerWon: boolean;
   enemyKilled: boolean;
   playerDead: boolean;

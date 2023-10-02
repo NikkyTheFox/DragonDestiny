@@ -1,4 +1,4 @@
-import {Field} from '../field/field';
+import { Field } from '../field/field';
 
 export interface Character{
   id: number;

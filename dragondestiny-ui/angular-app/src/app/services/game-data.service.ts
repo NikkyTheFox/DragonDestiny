@@ -5,20 +5,17 @@ import { Field } from '../interfaces/game-engine/field/field';
 @Injectable({
   providedIn: 'root'
 })
-export class GameDataService {
-
+export class GameDataService{
   loginData: User = {
     login: '',
     name: '',
     playedGames: []
   }
-
   loginFlag: boolean = false;
-
   chosenGame: string = '';
-
   possibleFields: Field[];
-  constructor() {
+
+  constructor(){
     this.possibleFields = [];
   }
 
@@ -28,5 +25,9 @@ export class GameDataService {
 
   getPlayerLogin(){
     return this.loginData.login;
+  }
+
+  getGame(){
+    return this.chosenGame;
   }
 }

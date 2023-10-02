@@ -7,18 +7,21 @@ import { UserRegistered } from '../../interfaces/user/user/user-registered';
 import { UserLogin } from '../../interfaces/user/user/user-login';
 import { UserList } from '../../interfaces/user/user/user-list';
 import { GameList } from '../../interfaces/user/game/game-list';
+
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class UserService{
 
-  constructor(private  http: HttpClient) { }
+  constructor(private  http: HttpClient){
+
+  }
 
   getUsers():Observable<UserList>{
     return this.http.get<UserList>(`${environment.apiUrl}/users`);
   }
 
-  getUserByLogin(login: string):Observable<User>{
+  getUserByLogin(login: string): Observable<User>{
     return this.http.get<User>(`${environment.apiUrl}/users/${login}`);
   }
 

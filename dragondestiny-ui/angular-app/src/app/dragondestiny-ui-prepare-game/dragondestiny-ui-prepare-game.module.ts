@@ -22,4 +22,6 @@ import { DragondestinyUiPrepareGameRoutingModule } from './dragondestiny-ui-prep
     DragondestinyUiPrepareGameRoutingModule
   ]
 })
-export class DragondestinyUiPrepareGameModule { }
+export class DragondestinyUiPrepareGameModule{
+
+}

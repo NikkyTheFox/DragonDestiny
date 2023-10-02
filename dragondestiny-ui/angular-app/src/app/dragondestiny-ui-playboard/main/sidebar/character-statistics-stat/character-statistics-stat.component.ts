@@ -5,8 +5,7 @@ import { Component, Input } from '@angular/core';
   templateUrl: './character-statistics-stat.component.html',
   styleUrls: ['./character-statistics-stat.component.css']
 })
-export class CharacterStatisticsStatComponent {
+export class CharacterStatisticsStatComponent{
   @Input() statName!:string;
   @Input() statValue!:number;
-
 }

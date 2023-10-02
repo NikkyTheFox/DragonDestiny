@@ -11,11 +11,6 @@ import { DragondestinyUiFooterModule } from './dragondestiny-ui-footer/dragondes
 import { DragondestinyUiLoginModule } from './dragondestiny-ui-login/dragondestiny-ui-login.module';
 import { DragondestinyUiPlayboardModule } from './dragondestiny-ui-playboard/dragondestiny-ui-playboard.module';
 import { DragondestinyUiPrepareGameModule } from './dragondestiny-ui-prepare-game/dragondestiny-ui-prepare-game.module';
-import { GameEngineService } from './services/game-engine/game-engine.service';
-import { PlayedGameService } from './services/played-game/played-game-service';
-import { UserService } from './services/user/user.service';
-import { GameDataService } from './services/game-data.service';
-import { SharedService } from './services/shared.service';
 
 @NgModule({
   declarations: [
@@ -34,14 +29,11 @@ import { SharedService } from './services/shared.service';
     DragondestinyUiPlayboardModule,
     DragondestinyUiPrepareGameModule
   ],
-  providers: [
-    GameEngineService,
-    PlayedGameService,
-    UserService,
-    GameDataService,
-    SharedService],
+  providers: [],
   bootstrap: [
     AppComponent
   ]
 })
-export class AppModule { }
+export class AppModule{
+
+}

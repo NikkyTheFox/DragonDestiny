@@ -12,7 +12,7 @@ export class CharacterPortraitComponent implements OnChanges{
   @Input() character!: PlayedGameCharacter;
   gameEngineCharacter!: Character;
 
-  constructor(private gameEngineService: GameEngineService) {
+  constructor(private gameEngineService: GameEngineService){
   }
 
   ngOnChanges(changes: SimpleChanges){

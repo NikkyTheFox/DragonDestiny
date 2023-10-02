@@ -5,6 +5,6 @@ import { Component } from '@angular/core';
   templateUrl: './pawn.component.html',
   styleUrls: ['./pawn.component.css']
 })
-export class PawnComponent {
+export class PawnComponent{
 
 }

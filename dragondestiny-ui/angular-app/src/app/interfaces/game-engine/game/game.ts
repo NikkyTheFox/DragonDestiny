@@ -1,3 +1,3 @@
-export interface Game {
+export interface Game{
   id: number;
 }

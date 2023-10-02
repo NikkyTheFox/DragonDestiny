@@ -18,4 +18,6 @@ import { DragondestinyUiLoginRoutingModule } from './dragondestiny-ui-login-rout
     DragondestinyUiLoginRoutingModule,
   ]
 })
-export class DragondestinyUiLoginModule { }
+export class DragondestinyUiLoginModule{
+
+}

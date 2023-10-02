@@ -6,8 +6,8 @@ import { GameDataService } from "../../services/game-data.service";
   templateUrl: './header-right.component.html',
   styleUrls: ['./header-right.component.css']
 })
-export class HeaderRightComponent {
+export class HeaderRightComponent{
 
-  constructor(protected dataService: GameDataService) {
+  constructor(protected dataService: GameDataService){
   }
 }

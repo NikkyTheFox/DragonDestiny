@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { PlayedGame } from '../../interfaces/played-game/played-game/played-game';
 import { Router } from '@angular/router';
@@ -9,14 +9,19 @@ import { GameDataService } from '../../services/game-data.service';
   templateUrl: './join-game.component.html',
   styleUrls: ['./join-game.component.css']
 })
-export class JoinGameComponent {
-  @Input() playerLogin!: string;
+export class JoinGameComponent implements OnInit{
+  playerLogin!: string;
   gameId!: string;
 
-  constructor(private playedGameService: PlayedGameService, private router: Router, private dataService: GameDataService) {
+  constructor(private playedGameService: PlayedGameService, private router: Router, private dataService: GameDataService){
+
   }
 
-  joinGame() {
+  ngOnInit(){
+    this.playerLogin = this.dataService.getPlayerLogin();
+  }
+
+  joinGame(){
     this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
       if(data.isStarted){
         window.alert('Game has already started, you cannot join it.');

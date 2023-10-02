@@ -1,36 +1,39 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../interfaces/played-game/character/character';
 import { Character } from '../../interfaces/game-engine/character/character';
 import { GameEngineService } from '../../services/game-engine/game-engine.service';
+import { SharedService } from "../../services/shared.service";
 
 @Component({
   selector: 'app-select-character',
   templateUrl: './select-character.component.html',
   styleUrls: ['./select-character.component.css']
 })
-export class SelectCharacterComponent implements OnInit, OnChanges {
-  @Input() gameId!: string;
-  @Input() playerLogin!: string;
+export class SelectCharacterComponent implements OnInit, OnChanges{
+  gameId!: string;
+  playerLogin!: string;
   isSelectedFlag: boolean = false;
   selectedCharacterId!: number;
   availableCharacters: PlayedGameCharacter[] = [];
   charactersToDisplay: Character[] = [];
 
-  constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService) {
+  constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService, private shared: SharedService){
   }
 
-  resetAllTables(){
-    this.availableCharacters = [];
-    this.charactersToDisplay = [];
-  }
-
-  ngOnInit() {
+  ngOnInit(){
+    this.gameId = this.shared.getGame().id;
+    this.playerLogin = this.shared.getPlayer().login;
   }
 
   ngOnChanges(){
     this.resetAllTables();
     this.handleCharacterTiles();
+  }
+
+  resetAllTables(){
+    this.availableCharacters = [];
+    this.charactersToDisplay = [];
   }
 
   findCharactersToDisplay(){
@@ -61,7 +64,7 @@ export class SelectCharacterComponent implements OnInit, OnChanges {
   //   return character === null || character === undefined || Object.keys(character).length === 0;
   // }
 
-  select(character: Character) {
+  select(character: Character){
     this.playedGameService.selectCharacter(this.gameId, this.playerLogin, character.id).subscribe( (data: any) => {
       this.selectedCharacterId = character.id;
       this.resetAllTables();

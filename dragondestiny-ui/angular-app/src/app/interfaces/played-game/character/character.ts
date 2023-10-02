@@ -1,6 +1,6 @@
-import {Field} from '../../game-engine/field/field';
+import { Field } from '../../game-engine/field/field';
 
-export interface PlayedGameCharacter {
+export interface PlayedGameCharacter{
   id: number;
   initialStrength: number;
   initialHealth: number;

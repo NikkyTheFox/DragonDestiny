@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 
 import { GameDataService } from '../../services/game-data.service';
@@ -9,15 +9,20 @@ import { Router } from '@angular/router';
   templateUrl: './create-game.component.html',
   styleUrls: ['./create-game.component.css']
 })
-export class CreateGameComponent {
-  @Input() playerLogin!: string;
+export class CreateGameComponent implements OnInit{
+  playerLogin!: string;
   selectedOption: number = 1;
 
-  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private router: Router) {
+  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private router: Router){
+
   }
 
-  initializeGame() {
-    this.playedGameService.initializeGame(this.selectedOption).subscribe((data: any)=>{
+  ngOnInit(){
+    this.playerLogin = this.dataService.getPlayerLogin();
+  }
+
+  initializeGame(){
+    this.playedGameService.initializeGame(this.selectedOption).subscribe((data: any) => {
       this.playedGameService.addPlayerToGameByLogin(data.id, this.playerLogin).subscribe();
       this.dataService.chosenGame = data.id;
       this.router.navigate(['/preparegame']);

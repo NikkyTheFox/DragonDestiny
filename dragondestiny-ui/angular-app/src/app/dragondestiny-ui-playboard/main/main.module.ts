@@ -41,4 +41,6 @@ import { SidebarModule } from './sidebar/sidebar.module';
     BoardRowComponent
   ]
 })
-export class MainModule { }
+export class MainModule{
+
+}

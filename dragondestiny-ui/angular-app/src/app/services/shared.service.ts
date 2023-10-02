@@ -1,23 +1,74 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { GamePlayerRequest } from "../interfaces/game-player-request";
+import { PlayedGameService } from "./played-game/played-game-service";
+import { PlayedGame } from "../interfaces/played-game/played-game/played-game";
+import { Player } from "../interfaces/played-game/player/player";
 
 @Injectable({
   providedIn: 'root'
 })
-export class SharedService {
+export class SharedService{
 
-  private diceRoll = new Subject<any>();
-  private moveCharacter = new Subject<any>();
-  private drawCard = new Subject<any>();
-  private drawEnemyCard = new Subject<any>();
-  private equipItemCard = new Subject<any>();
-  private fightPlayer = new Subject<any>();
-  private fightEnemyCard = new Subject<any>();
-  private fightEnemyOnField = new Subject<any>();
+  private requestStructure!: GamePlayerRequest;
+
+  private diceRoll = new Subject();
+  private moveCharacter = new Subject();
+  private drawCard = new Subject();
+  private drawEnemyCard = new Subject();
+  private equipItemCard = new Subject();
+  private fightPlayer = new Subject();
+  private fightEnemyCard = new Subject();
+  private fightEnemyOnField = new Subject();
+
+  constructor(private playedGameService: PlayedGameService){
+
+  }
+
+  setRequestByID(gameId: string, playerLogin: string){
+    this.setGameByID(gameId);
+    this.setPlayerByID(gameId, playerLogin);
+  }
+
+  setGameByID(gameId: string){
+    this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) =>{
+      this.requestStructure.game = playedGame;
+    })
+  }
+
+  setPlayerByID(gameId: string, playerLogin: string){
+    this.playedGameService.getPlayer(gameId, playerLogin).subscribe( (player: Player) => {
+      this.requestStructure.player = player;
+    })
+  }
+
+  setRequest(game: PlayedGame, player: Player){
+    this.setGame(game);
+    this.setPlayer(player);
+  }
+
+  setGame(game: PlayedGame){
+    this.requestStructure.game = game;
+  }
+
+  setPlayer(player: Player){
+    this.requestStructure.player = player;
+  }
+
+  getRequest(){
+    return this.requestStructure;
+  }
+
+  getGame(){
+    return this.requestStructure.game;
+  }
+
+  getPlayer(){
+    return this.requestStructure.player;
+  }
 
   sendDiceRollClickEvent(){
-    // @ts-ignore
-    this.diceRoll.next();
+    this.diceRoll.next(null);
   }
 
   getDiceRollClickEvent(){
@@ -25,8 +76,7 @@ export class SharedService {
   }
 
   sendMoveCharacterClickEvent(){
-    // @ts-ignore
-    this.moveCharacter.next();
+    this.moveCharacter.next(null);
   }
 
   getMoveCharacterClickEvent(){
@@ -34,8 +84,7 @@ export class SharedService {
   }
 
   sendDrawCardClickEvent(){
-    // @ts-ignore
-    this.drawCard.next();
+    this.drawCard.next(null);
   }
 
   getDrawCardClickEvent(){
@@ -43,8 +92,7 @@ export class SharedService {
   }
 
   sendDrawEnemyCardClickEvent(){
-    // @ts-ignore
-    this.drawEnemyCard.next();
+    this.drawEnemyCard.next(null);
   }
 
   getDrawEnemyCardClickEvent(){
@@ -52,8 +100,7 @@ export class SharedService {
   }
 
   sendEquipItemCardClickEvent(){
-    // @ts-ignore
-    this.equipItemCard.next();
+    this.equipItemCard.next(null);
   }
 
   getEquipItemCardClickEvent(){
@@ -61,8 +108,7 @@ export class SharedService {
   }
 
   sendFightPlayerClickEvent(){
-    // @ts-ignore
-    this.fightPlayer.next();
+    this.fightPlayer.next(null);
   }
 
   getFightPlayerClickEvent(){
@@ -70,8 +116,7 @@ export class SharedService {
   }
 
   sendFightEnemyCardClickEvent(){
-    // @ts-ignore
-    this.fightEnemyCard.next();
+    this.fightEnemyCard.next(null);
   }
 
   getFightEnemyCardClickEvent(){
@@ -79,12 +124,10 @@ export class SharedService {
   }
 
   sendFightEnemyOnFieldClickEvent(){
-    // @ts-ignore
-    this.fightEnemyOnField.next();
+    this.fightEnemyOnField.next(null);
   }
 
   getFightEnemyOnFieldClickEvent(){
     return this.fightEnemyOnField.asObservable();
   }
-  constructor() { }
 }

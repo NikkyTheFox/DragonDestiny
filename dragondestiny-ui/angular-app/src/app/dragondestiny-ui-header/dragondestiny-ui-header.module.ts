@@ -26,4 +26,6 @@ import { RouterLink } from "@angular/router";
     HeaderRightComponent
   ]
 })
-export class DragondestinyUiHeaderModule { }
+export class DragondestinyUiHeaderModule{
+
+}

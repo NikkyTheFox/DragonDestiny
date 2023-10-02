@@ -1,4 +1,4 @@
-import {EnemyCard} from './enemy-card';
+import { EnemyCard } from './enemy-card';
 
 export interface EnemyCardList{
   enemyCardList: EnemyCard[];

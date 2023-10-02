@@ -1,37 +1,47 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { Player } from '../../../../interfaces/played-game/player/player';
-import { RequestStructureGameidPlayerlogin } from '../../../../interfaces/request-structure-gameid-playerlogin';
+import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
 import { Character } from '../../../../interfaces/game-engine/character/character';
+import { SharedService } from "../../../../services/shared.service";
 
 @Component({
   selector: 'app-context-bar-characters',
   templateUrl: './context-bar-characters.component.html',
   styleUrls: ['./context-bar-characters.component.css']
 })
-export class ContextBarCharactersComponent implements OnChanges {
-  @Input() requestStructure!: RequestStructureGameidPlayerlogin;
+export class ContextBarCharactersComponent implements OnInit, OnChanges{
+  requestStructure!: GamePlayerRequest;
   playersCharacter!: PlayedGameCharacter;
   otherCharacters: PlayedGameCharacter[] = [];
   allCharacters: PlayedGameCharacter[] = [];
   characterNames: string[] = [];
 
-  constructor(protected gameEngineService: GameEngineService, private playedGameService: PlayedGameService) {
+  constructor(protected gameEngineService: GameEngineService, private playedGameService: PlayedGameService, private shared: SharedService){
+
+  }
+
+  ngOnInit(){
+    this.requestStructure = this.shared.getRequest();
   }
 
   ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.gameId, this.requestStructure.playerLogin).subscribe( (data: PlayedGameCharacter) => {
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game.id, this.requestStructure.player.login).subscribe( (data: PlayedGameCharacter) => {
       this.playersCharacter = data;
-      this.playedGameService.getPlayers(this.requestStructure.gameId).subscribe( (data: any) => {
-        let playerList = data.playerList;
-        playerList.forEach( (data: Player) => {
-          this.allCharacters.push(data.character);
-        });
-        this.retrieveOtherCharacters();
-        this.retrieveCharacterNames();
+      this.filterOutPlayers();
+    });
+  }
+
+  filterOutPlayers(){
+    this.playedGameService.getPlayers(this.requestStructure.game.id).subscribe( (data: any) => {
+      let playerList = data.playerList;
+      playerList.forEach( (data: Player) => {
+        this.allCharacters.push(data.character);
       });
+      this.retrieveOtherCharacters();
+      this.retrieveCharacterNames();
     });
   }
 
