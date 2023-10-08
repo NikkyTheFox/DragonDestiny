@@ -293,6 +293,34 @@ public class PlayedGameService {
     }
 
     /**
+     * Retrieves ID of boss field from game properties.
+     *
+     * @param playedGameId
+     * @return
+     */
+    public Optional<Integer> findBossField(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(PlayedGameProperties.bossFieldID);
+    }
+
+    /**
+     * Retrieves ID of bridge field from game properties.
+     *
+     * @param playedGameId
+     * @return
+     */
+    public Optional<Integer> findBridgeField(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(PlayedGameProperties.guardianFieldID);
+    }
+
+    /**
      * Retrieves characters that are already assigned to players.
      *
      * @param playedGameId An identifier of a played game to perform actions on.

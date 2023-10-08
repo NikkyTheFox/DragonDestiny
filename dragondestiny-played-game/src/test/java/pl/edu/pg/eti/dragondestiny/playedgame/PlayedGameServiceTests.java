@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
@@ -16,9 +17,8 @@ import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.CharacterList;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldList;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldType;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.object.*;
+import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
@@ -182,7 +182,6 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
         when(playedGameRepositoryMock.findStrengthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getStrength() > 0).collect(Collectors.toList())));
         when(playedGameRepositoryMock.save(any(PlayedGame.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
     }
 
     @Test
@@ -1220,5 +1219,256 @@ public class PlayedGameServiceTests {
             assertEquals(fieldsToMoveTo.get(d), fieldsToMoveToFound.get().getFieldList().get(d));
         }
     }
+
+    @Test
+    public void checkFieldOptionTestCharacterThrowsException() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        playerToCheck.get().setCharacter(null);
+        // Act and Assert
+        assertThrows(ServiceException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+    }
+
+    @Test
+    public void checkFieldOptionTestFieldThrowsException() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        playerToCheck.get().getCharacter().setField(null);
+        // Act and Assert
+        assertThrows(ServiceException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+    }
+
+    @Test
+    public void checkFieldOptionTest() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(1)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        List<FieldOption> fieldsOptions = new ArrayList<>();
+        fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
+        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+        // Act
+        Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
+        // Assert
+        assertTrue(fieldsOptionsFound.isPresent());
+        assertEquals(fieldsOptions.size(), fieldsOptionsFound.get().getPossibleOptions().size());
+        for (int d = 0; d < fieldsOptions.size(); d++) {
+            assertEquals(fieldsOptions.get(d), fieldsOptionsFound.get().getPossibleOptions().get(d));
+        }
+    }
+
+    @Test
+    public void checkFieldOptionTestBossField() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        List<FieldOption> fieldsOptions = new ArrayList<>();
+        fieldsOptions.add(FieldOption.BOSS_FIELD);
+        fieldsOptions.add(FieldOption.BRIDGE_FIELD);
+        // Act
+        Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
+        // Assert
+        assertTrue(fieldsOptionsFound.isPresent());
+        assertEquals(fieldsOptions.size(), fieldsOptionsFound.get().getPossibleOptions().size());
+        for (int d = 0; d < fieldsOptions.size(); d++) {
+            assertEquals(fieldsOptions.get(d), fieldsOptionsFound.get().getPossibleOptions().get(d));
+        }
+    }
+
+    @Test
+    public void checkFieldOptionTestBridgeFieldBlocked() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        List<FieldOption> fieldsOptions = new ArrayList<>();
+        fieldsOptions.add(FieldOption.BRIDGE_FIELD);
+        // Act
+        Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
+        // Assert
+        assertTrue(fieldsOptionsFound.isPresent());
+        assertEquals(fieldsOptions.size(), fieldsOptionsFound.get().getPossibleOptions().size());
+        for (int d = 0; d < fieldsOptions.size(); d++) {
+            assertEquals(fieldsOptions.get(d), fieldsOptionsFound.get().getPossibleOptions().get(d));
+        }
+    }
+
+    @Test
+    public void checkFieldOptionTestBridgeFieldOK() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        playerToCheck.get().setBridgeGuardianDefeated(true);
+        List<FieldOption> fieldsOptions = new ArrayList<>();
+        fieldsOptions.add(FieldOption.BRIDGE_FIELD);
+        fieldsOptions.add(FieldOption.BOSS_FIELD);
+        // Act
+        Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
+        // Assert
+        assertTrue(fieldsOptionsFound.isPresent());
+        assertEquals(fieldsOptions.size(), fieldsOptionsFound.get().getPossibleOptions().size());
+        for (int d = 0; d < fieldsOptions.size(); d++) {
+            assertEquals(fieldsOptions.get(d), fieldsOptionsFound.get().getPossibleOptions().get(d));
+        }
+    }
+
+    @Test
+    public void checkFieldOptionTestFightPlayer() throws ServiceException {
+        // Arrange
+        Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
+        Player newPlayer = new Player();
+        newPlayer.setLogin("newo");
+        newPlayer.setCharacter(new Character());
+        newPlayer.setPositionField(playerToCheck.get().getPositionField());
+        when(playedGameRepositoryMock.findDifferentPlayersByField(playedGameId, playerLogin, 1)).thenReturn(new ArrayList<>(List.of(newPlayer)));
+        Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(1)).findFirst();
+        playerToCheck.get().setPositionField(fieldPos.get());
+        playerToCheck.get().setBridgeGuardianDefeated(true);
+        List<FieldOption> fieldsOptions = new ArrayList<>();
+        fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
+        fieldsOptions.add(FieldOption.FIGHT_WITH_PLAYER);
+        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+        // Act
+        Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
+        // Assert
+        assertTrue(fieldsOptionsFound.isPresent());
+        assertEquals(fieldsOptions.size(), fieldsOptionsFound.get().getPossibleOptions().size());
+        for (int d = 0; d < fieldsOptions.size(); d++) {
+            assertEquals(fieldsOptions.get(d), fieldsOptionsFound.get().getPossibleOptions().get(d));
+        }
+    }
+
+    @Test
+    public void checkDrawCard() throws ServiceException {
+        // Arrange
+        when(playedGameRepositoryMock.findCardByIndexInCardDeck(eq(playedGameId), anyInt())).thenReturn(new ArrayList<>(List.of(new Card())));
+        // Act
+        Optional<Card> cardFound = playedGameService.drawCard(playedGameId);
+        // Assert
+        assertTrue(cardFound.isPresent());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestInvalidPlayerRollValue() throws ServiceException {
+        // Arrange
+        int playerRoll = 1309;
+        int enemyRoll = 1;
+        int enemyCardId = 2;
+        String expectedMessage = "Player roll value is not within set values";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestInvalidEnemyRollValue() throws ServiceException {
+        // Arrange
+        int playerRoll = 3;
+        int enemyRoll = 1111;
+        int enemyCardId = 2;
+        String expectedMessage = "Enemy roll value is not within set values";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestCharacterNotSet() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 2;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCharacter(null);
+        String expectedMessage = "There was no character assigned to player with given login";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestFieldNotSet() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 2;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.getCharacter().setField(null);
+        String expectedMessage = "There was no position field assigned to character of player with given login";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestCardNotFound() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 115;
+        String expectedMessage = "No card with given id found in game";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestCardNotEnemyCard() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 10;
+        String expectedMessage = "Only card of type ENEMY CARD can be enemy to fight with";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilled() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 2;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
+        int expectedEnemyCardHealth = enemyCard.getHealth() - 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertTrue(fightResult.get().getEnemyKilled());
+        assertTrue(fightResult.get().getAttackerWon());
+        assertEquals(expectedEnemyCardHealth, enemyCard.getHealth());
+        assertTrue(player.getTrophies().contains(enemyCard));
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestPlayerLostDead() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 6;
+        int enemyCardId = 2;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertTrue(fightResult.get().getPlayerDead());
+        assertEquals(expectedPlayerHealth, player.getHealth());
+    }
+
 
 }

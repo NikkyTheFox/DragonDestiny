@@ -88,6 +88,22 @@ public class PlayedGameController {
     // GAME ------------------------------------------------------
 
     /**
+     * Retrieves all played games stored in the database.
+     *
+     * @return A list of all games.
+     */
+    @GetMapping("")
+    @Tag(name = "Played Game")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameListDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
+    public ResponseEntity<PlayedGameListDTO> getAllGames() {
+        PlayedGameList playedGameList = new PlayedGameList(playedGameService.findPlayedGames());
+        return ResponseEntity.ok().body(playedGameService.convertPlayedGameListToDTO(modelMapper, playedGameList));
+    }
+
+    /**
      * Retrieves a played game specified by its ID.
      *
      * @param playedGameId An identifier of a game to be retrieved.
@@ -104,22 +120,6 @@ public class PlayedGameController {
         Optional<PlayedGame> playedGame = playedGameService.findPlayedGame(playedGameId);
         return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Retrieves all played games stored in the database.
-     *
-     * @return A list of all games.
-     */
-    @GetMapping("")
-    @Tag(name = "Played Game")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameListDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
-    public ResponseEntity<PlayedGameListDTO> getAllGames() {
-        PlayedGameList playedGameList = new PlayedGameList(playedGameService.findPlayedGames());
-        return ResponseEntity.ok().body(playedGameService.convertPlayedGameListToDTO(modelMapper, playedGameList));
     }
 
     /**
@@ -288,6 +288,42 @@ public class PlayedGameController {
     public ResponseEntity<FieldDTO> getField(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "fieldId") Integer fieldId) {
         Optional<Field> field = playedGameService.findField(playedGameId, fieldId);
         return field.map(value -> ResponseEntity.ok().body(modelMapper.map(value, FieldDTO.class)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Retrieves ID of boss field in played game.
+     *
+     * @param playedGameId
+     * @return Boss field ID
+     */
+    @GetMapping("{playedGameId}/board/fields/boss")
+    @Tag(name = "Played Game - board")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
+    public ResponseEntity getGameBossField(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<Integer> bossFieldId = playedGameService.findBossField(playedGameId);
+        return bossFieldId.map(value -> ResponseEntity.ok().body(bossFieldId))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Retrieves ID of bridge field in played game.
+     *
+     * @param playedGameId
+     * @return Boss field ID
+     */
+    @GetMapping("{playedGameId}/board/fields/bridge")
+    @Tag(name = "Played Game - board")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", content = @Content),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
+    public ResponseEntity getGameBridgeField(@PathVariable(name = "playedGameId") String playedGameId) {
+        Optional<Integer> bridgeFieldId = playedGameService.findBridgeField(playedGameId);
+        return bridgeFieldId.map(value -> ResponseEntity.ok().body(bridgeFieldId))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
