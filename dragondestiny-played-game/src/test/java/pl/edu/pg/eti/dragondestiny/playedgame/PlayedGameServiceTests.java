@@ -79,6 +79,7 @@ public class PlayedGameServiceTests {
         ItemCard itemCard2 = new ItemCard();
         itemCard2.setId(20);
         itemCard2.setCardType(CardType.ITEM_CARD);
+        itemCard2.setHealth(1);
         ItemCard itemCard3 = new ItemCard();
         itemCard3.setId(30);
         itemCard3.setCardType(CardType.ITEM_CARD);
@@ -148,7 +149,17 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findCardByIdInCardDeck(playedGameId, 10)).thenReturn(new ArrayList<>(List.of(itemCard1)));
         when(playedGameRepositoryMock.findCardByIdInCardDeck(playedGameId, 20)).thenReturn(new ArrayList<>(List.of(itemCard2)));
         when(playedGameRepositoryMock.findCardByIdInUsedDeck(playedGameId, 3)).thenReturn(playedGame.getUsedCardDeck());
-        when(playedGameRepositoryMock.findCardByIdInPlayerHand(playedGameId, playerLogin, 30)).thenReturn(player.getCardsOnHand());
+        when(playedGameRepositoryMock.findCardByIdInPlayerHand(eq(playedGameId), eq(playerLogin), anyInt())).thenAnswer(invocation ->
+        {
+            int cardId = invocation.getArgument(2);
+            Optional<Player> pl = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst();
+            if (pl.isEmpty())
+                return new ArrayList<>();
+            Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getId().equals(cardId)).findFirst();
+            if (card.isEmpty())
+                return new ArrayList<>();
+            return new ArrayList<>(List.of(card.get()));
+        });
         when(playedGameRepositoryMock.findCardsInPlayerHand(anyString(), anyString())).thenReturn(new ArrayList<>());
         when(playedGameRepositoryMock.findCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(itemCard3)));
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(player)));
@@ -1452,13 +1463,36 @@ public class PlayedGameServiceTests {
     }
 
     @Test
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilledTrophiesIncrease() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 1;
+        int enemyCardId = 2;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
+        int expectedEnemyCardHealth = enemyCard.getHealth() - 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setTrophies(new ArrayList<>(Arrays.asList(new EnemyCard(), new EnemyCard(), new EnemyCard(), new EnemyCard())));
+        int playerStrengthExpected = player.getStrength() + 1;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertTrue(fightResult.get().getEnemyKilled());
+        assertTrue(fightResult.get().getAttackerWon());
+        assertEquals(expectedEnemyCardHealth, enemyCard.getHealth());
+        assertEquals(0, player.getTrophies().size());
+        assertEquals(playerStrengthExpected, player.getStrength());
+    }
+
+    @Test
     public void calculateFightWithEnemyCardTestPlayerLostDead() throws ServiceException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
         int enemyCardId = 2;
-        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.getCharacter().setHealth(1);
+        player.setCardsOnHand(new ArrayList<>());
         int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
@@ -1468,6 +1502,375 @@ public class PlayedGameServiceTests {
         assertFalse(fightResult.get().getAttackerWon());
         assertTrue(fightResult.get().getPlayerDead());
         assertEquals(expectedPlayerHealth, player.getHealth());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestPlayerLostDecreaseHealthCard() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 6;
+        int enemyCardId = 2;
+        ItemCard healthCard = (ItemCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(20)).findFirst().get();
+        healthCard.setHealth(2);
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.getCharacter().setHealth(1);
+        player.setCardsOnHand(new ArrayList<>(List.of(healthCard)));
+        int expectedPlayerHealth = player.getHealth();
+        int expectedCardHealth = 1;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertEquals(expectedPlayerHealth, player.getHealth());
+        assertTrue(player.getCardsOnHand().contains(healthCard));
+        assertEquals(expectedCardHealth, healthCard.getHealth());
+    }
+
+    @Test
+    public void calculateFightWithEnemyCardTestPlayerLostLoseHealthCard() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        int enemyRoll = 6;
+        int enemyCardId = 2;
+        ItemCard healthCard = (ItemCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(20)).findFirst().get();
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.getCharacter().setHealth(1);
+        player.setCardsOnHand(new ArrayList<>(List.of(healthCard)));
+        int expectedPlayerHealth = player.getHealth();
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertEquals(expectedPlayerHealth, player.getHealth());
+        assertFalse(player.getCardsOnHand().contains(healthCard));
+    }
+
+    @Test
+    public void calculateFightWithPlayerPlayerRollInvalid() throws ServiceException {
+        // Arrange
+        int playerRoll = 113;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCharacter(null);
+        Player enemyPlayer = new Player();
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        String expectedMessage = "Player roll value is not within set values";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithPlayerNoCharacter() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCharacter(null);
+        Player enemyPlayer = new Player();
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        String expectedMessage = "There was no character assigned to player with given login";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithPlayerNoField() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setPositionField(null);
+        Player enemyPlayer = new Player();
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        String expectedMessage = "There was no position field assigned to character of player with given login";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithPlayerNoEnemyRoll() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        Player enemyPlayer = new Player();
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        String expectedMessage = "Attacker roll assigned, waiting for attacked player's roll";
+        // Act & Assert
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        assertEquals(exception.getMessage(), expectedMessage);
+        assertEquals(HttpStatusCode.valueOf(204), exception.getStatusCode());
+    }
+
+    @Test
+    public void calculateFightWithPlayerPlayerWonEnemyDecreasedHealth() throws ServiceException {
+        // Arrange
+        int playerRoll = 6;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        enemyPlayer.getCharacter().setHealth(2);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getWonPlayer(), playerLogin);
+        assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
+    }
+
+    @Test
+    public void calculateFightWithPlayerPlayerWonEnemyDead() throws ServiceException {
+        // Arrange
+        int playerRoll = 6;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        enemyPlayer.getCharacter().setHealth(1);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getWonPlayer(), playerLogin);
+        assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
+        assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
+        assertTrue(fightResult.get().getEnemyKilled());
+    }
+
+    @Test
+    public void calculateFightWithPlayerPlayerWonChooseCard() throws ServiceException {
+        // Arrange
+        int playerRoll = 6;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(1);
+        enemyPlayer.getCharacter().setHealth(1);
+        ItemCard card = new ItemCard();
+        card.setHealth(1);
+        enemyPlayer.setCardsOnHand(new ArrayList<>(List.of(card)));
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin)).thenReturn(enemyPlayer.getCardsOnHand());
+        int expectedEnemyHealth = enemyPlayer.getHealth();
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertFalse(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getWonPlayer(), playerLogin);
+        assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
+        assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
+        assertTrue(fightResult.get().getChooseCardFromEnemyPlayer());
+    }
+
+    @Test
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDecreasedHealth() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCardsOnHand(new ArrayList<>());
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(6);
+        enemyPlayer.getCharacter().setHealth(2);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
+        int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertTrue(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getLostPlayer(), playerLogin);
+        assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertEquals(expectedPlayerHealth, player.getHealth());
+    }
+
+    @Test
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDead() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCardsOnHand(new ArrayList<>());
+        player.getCharacter().setHealth(1);
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(6);
+        enemyPlayer.getCharacter().setHealth(2);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(player)));
+        int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertTrue(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getLostPlayer(), playerLogin);
+        assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
+        assertFalse(fightResult.get().getEnemyKilled());
+        assertEquals(expectedPlayerHealth, player.getHealth());
+    }
+
+    @Test
+    public void calculateFightWithPlayerEnemyPlayerWonChooseCard() throws ServiceException {
+        // Arrange
+        int playerRoll = 1;
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        ItemCard card = new ItemCard();
+        card.setHealth(1);
+        player.setCardsOnHand(new ArrayList<>(List.of(card)));
+        Player enemyPlayer = new Player();
+        enemyPlayer.setCharacter(player.getCharacter());
+        String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setLogin(enemyPlayerLogin);
+        enemyPlayer.setFightRoll(6);
+        enemyPlayer.getCharacter().setHealth(1);
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
+        when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(player.getCardsOnHand());
+        int expectedEnemyHealth = enemyPlayer.getHealth();
+        // Act
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        // Assert
+        assertTrue(fightResult.isPresent());
+        assertEquals(0, player.getFightRoll());
+        assertEquals(0, enemyPlayer.getFightRoll());
+        assertTrue(fightResult.get().getAttackerWon());
+        assertEquals(fightResult.get().getLostPlayer(), playerLogin);
+        assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
+        assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
+        assertTrue(fightResult.get().getChooseCardFromEnemyPlayer());
+    }
+
+    @Test
+    public void rollDiceTestPlayerNotFound() {
+        // Arrange
+        String playerLogin = "Non Existing";
+        // Act
+        Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
+        // Assert
+        assertTrue(roll.isEmpty());
+    }
+
+    @Test
+    public void rollDiceTest() {
+        // Act
+        Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
+        // Assert
+        assertTrue(roll.isPresent());
+        assertTrue(roll.get() >= PlayedGameProperties.diceLowerBound && roll.get() <= PlayedGameProperties.diceUpperBound);
+    }
+
+    @Test
+    public void blockTurnsOfPlayerNumberToBlockInvalid() throws ServiceException {
+        // Arrange
+        int numOfTurnsToBlock = -1;
+        String expectedMessage = "Number of turns to block must be greater than 0";
+        // Act
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock));
+        // Assert
+        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void blockTurnsOfPlayer() throws ServiceException {
+        // Arrange
+        int numOfTurnsToBlock = 1;
+        int expectedNumOfBlocked = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getBlockedTurns() + numOfTurnsToBlock;
+        // Act
+        Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
+        // Assert
+        assertTrue(player.isPresent());
+        assertEquals(expectedNumOfBlocked, player.get().getBlockedTurns());
+    }
+
+    @Test
+    public void automaticallyBlockTurnsOfPlayerNoCharacter() throws ServiceException {
+        // Arrange
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setCharacter(null);
+        String expectedMessage = "There was no character assigned to player with given login";
+        // Act
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
+        // Assert
+        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void automaticallyBlockTurnsOfPlayerNoField() throws ServiceException {
+        // Arrange
+        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        player.setPositionField(null);
+        String expectedMessage = "There was no position field assigned to character of player with given login";
+        // Act
+        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
+        // Assert
+        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
+    }
+
+    @Test
+    public void automaticallyBlockTurnsOfPlayer() throws ServiceException {
+        // Arrange
+        Field field = new Field();
+        field.setType(FieldType.LOSE_TWO_ROUNDS);
+        int expectedNumOfBlocked = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getBlockedTurns() + 2;
+        Optional<Player> player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst();
+        player.get().setPositionField(field);
+        // Act
+        Optional<Player> playerFound = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
+        // Assert
+        assertTrue(playerFound.isPresent());
+        assertEquals(expectedNumOfBlocked, playerFound.get().getBlockedTurns());
     }
 
 
