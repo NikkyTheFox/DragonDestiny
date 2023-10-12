@@ -18,11 +18,7 @@ export class InvitePlayerComponent implements OnInit{
   }
 
   ngOnInit(){
-    console.log("XD");
-    const test = this.shared.getRequest();
-    console.log(test.game);
     this.gameId = this.shared.getRequest().game!.id;
-
   }
 
   sendInvite(){

@@ -31,7 +31,7 @@ export class StartGameComponent implements OnInit{
         }
       });
       if(charactersFlag){
-        this.playedGameService.startGame(this.gameId).subscribe((data: any) => {
+        this.playedGameService.startGame(this.gameId).subscribe(() => {
           this.router.navigate(['main']);
         });
       }

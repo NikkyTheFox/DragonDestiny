@@ -22,9 +22,14 @@ export class BoardComponent implements OnInit, OnChanges{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.handleRows();
   }
 
   ngOnChanges(changes: SimpleChanges){
+    this.handleRows();
+  }
+
+  handleRows(){
     this.playedGameService.getGame(this.requestStructure.game!.id).subscribe( (data: PlayedGame) => {
       this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
         this.board = data;

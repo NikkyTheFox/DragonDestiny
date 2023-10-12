@@ -19,12 +19,14 @@ export class SelectCharacterComponent implements OnInit, OnChanges{
   charactersToDisplay: Character[] = [];
 
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService, private shared: SharedService){
+
   }
 
   ngOnInit(){
-    // console.log(this.shared.getRequest())
     this.gameId = this.shared.getGame()!.id;
     this.playerLogin = this.shared.getPlayer()!.login;
+    this.resetAllTables();
+    this.handleCharacterTiles();
   }
 
   ngOnChanges(){

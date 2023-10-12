@@ -27,9 +27,10 @@ export class CreateGameComponent implements OnInit{
       this.playedGameService.addPlayerToGameByLogin(data.id, this.playerLogin).subscribe( () => {
         this.dataService.chosenGame = data.id;
         this.shared.setRequestByID(data.id, this.playerLogin);
-        this.router.navigate(['/preparegame']);
-        }
-      );
+        this.shared.dataLoaded.subscribe( () => {
+          this.router.navigate(['/preparegame']);
+        });
+      });
     });
   }
 }

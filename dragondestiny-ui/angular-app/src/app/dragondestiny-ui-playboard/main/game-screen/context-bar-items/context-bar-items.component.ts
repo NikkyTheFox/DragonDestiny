@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
 import { ItemCard } from '../../../../interfaces/played-game/card/item-card/item-card';
@@ -11,7 +11,7 @@ import { SharedService } from "../../../../services/shared.service";
   templateUrl: './context-bar-items.component.html',
   styleUrls: ['./context-bar-items.component.css']
 })
-export class ContextBarItemsComponent implements OnInit, OnChanges{
+export class ContextBarItemsComponent implements OnInit{
   requestStructure!: GamePlayerRequest;
   itemsList: ItemCard[] = [];
   cardNameList: string[] = [];
@@ -23,14 +23,17 @@ export class ContextBarItemsComponent implements OnInit, OnChanges{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.shared.getEquipItemCardClickEvent().subscribe( () => {
+      this.handleCards();
+    });
   }
 
-  ngOnChanges(){
+  handleCards(){
     this.resetArrays();
     this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-      this.itemsList = data.itemCardList;
-      this.fetchCardsFromEngine();
-    },
+        this.itemsList = data.itemCardList;
+        this.fetchCardsFromEngine();
+      },
       (error: any) => {
         console.log('player has no cards')
       });

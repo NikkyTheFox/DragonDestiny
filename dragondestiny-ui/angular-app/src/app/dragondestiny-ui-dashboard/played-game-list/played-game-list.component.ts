@@ -3,6 +3,7 @@ import { UserService } from '../../services/user/user.service';
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
 import { GameList } from '../../interfaces/user/game/game-list';
+import { SharedService } from "../../services/shared.service";
 
 @Component({
   selector: 'app-played-games-list',
@@ -13,7 +14,7 @@ export class PlayedGameListComponent implements OnInit{
   playerLogin!: string;
   gameIdsList!: GameList;
 
-  constructor(private userService: UserService, private dataService: GameDataService, private router: Router){
+  constructor(private userService: UserService, private dataService: GameDataService, private router: Router, private shared: SharedService){
 
   }
 
@@ -26,6 +27,9 @@ export class PlayedGameListComponent implements OnInit{
 
   continueGame(clickedGameId: string){
     this.dataService.chosenGame = clickedGameId;
-    this.router.navigate(['/main']);
+    this.shared.setRequestByID(this.dataService.chosenGame, this.dataService.getPlayerLogin());
+    this.shared.dataLoaded.subscribe( () => {
+      this.router.navigate(['/main']);
+    });
   }
 }

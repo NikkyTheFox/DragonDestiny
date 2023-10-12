@@ -14,6 +14,10 @@ export class SharedService{
 
   };
 
+  private gameDataLoaded = new Subject();
+  private playerDataLoaded = new Subject();
+  dataLoaded = new Subject();
+
   private diceRoll = new Subject();
   private moveCharacter = new Subject();
   private drawCard = new Subject();
@@ -29,20 +33,25 @@ export class SharedService{
 
   setRequestByID(gameId: string, playerLogin: string){
     this.setGameByID(gameId);
-    this.setPlayerByID(gameId, playerLogin);
-    console.log("XDDDDDDD KUrwa")
-    console.log(this.requestStructure.game);
+    this.gameDataLoaded.subscribe( () => {
+      this.setPlayerByID(gameId, playerLogin);
+      this.playerDataLoaded.subscribe( () => {
+        this.dataLoaded.next(null);
+      });
+    });
   }
 
   setGameByID(gameId: string){
     this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) => {
       this.requestStructure.game = playedGame;
+      this.gameDataLoaded.next(null);
     });
   }
 
   setPlayerByID(gameId: string, playerLogin: string){
     this.playedGameService.getPlayer(gameId, playerLogin).subscribe( (player: Player) => {
       this.requestStructure.player = player;
+      this.playerDataLoaded.next(null);
     });
   }
 

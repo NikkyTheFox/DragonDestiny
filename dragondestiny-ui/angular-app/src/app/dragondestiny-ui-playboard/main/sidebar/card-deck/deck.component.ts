@@ -30,6 +30,8 @@ export class DeckComponent implements OnInit, OnChanges{
   }
 
   drawCard(){ // FOR TESTS OF MOVING CARD TO HAND: ID=11 is first item card in deck
-    this.playedGameService.moveItemCardFromDeckToPlayerHand(this.requestStructure.game!.id, 11, this.requestStructure.player!.login).subscribe();
+    this.playedGameService.moveItemCardFromDeckToPlayerHand(this.requestStructure.game!.id, 11, this.requestStructure.player!.login).subscribe( ()=> {
+      this.shared.sendEquipItemCardClickEvent();
+    });
   }
 }

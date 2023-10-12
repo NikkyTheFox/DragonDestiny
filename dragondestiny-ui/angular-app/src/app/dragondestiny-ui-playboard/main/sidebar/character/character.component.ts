@@ -9,7 +9,7 @@ import { SharedService } from "../../../../services/shared.service";
   templateUrl: './character.component.html',
   styleUrls: ['./character.component.css']
 })
-export class CharacterComponent implements OnInit, OnChanges{
+export class CharacterComponent implements OnInit{
   requestStructure!: GamePlayerRequest;
   character!: PlayedGameCharacter;
 
@@ -19,9 +19,13 @@ export class CharacterComponent implements OnInit, OnChanges{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.handleCharacter();
+    this.shared.getEquipItemCardClickEvent().subscribe( () => {
+      this.handleCharacter();
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges){
+  handleCharacter(){
     this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
       this.character = data;
     });
