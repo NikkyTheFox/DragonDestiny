@@ -293,6 +293,34 @@ public class PlayedGameService {
     }
 
     /**
+     * Retrieves ID of boss field from game properties.
+     *
+     * @param playedGameId
+     * @return
+     */
+    public Optional<Integer> findBossField(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(PlayedGameProperties.bossFieldID);
+    }
+
+    /**
+     * Retrieves ID of bridge field from game properties.
+     *
+     * @param playedGameId
+     * @return
+     */
+    public Optional<Integer> findBridgeField(String playedGameId) {
+        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
+        if (game.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(PlayedGameProperties.guardianFieldID);
+    }
+
+    /**
      * Retrieves characters that are already assigned to players.
      *
      * @param playedGameId An identifier of a played game to perform actions on.
@@ -674,7 +702,7 @@ public class PlayedGameService {
         Character character1 = character.get();
         Optional<Field> field = findField(playedGameId, character1.getField().getId());
         if (field.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Chosen character has no position field assigned.");
+            throw new ServiceException(HttpStatusCode.valueOf(404), "Chosen character has no position field assigned");
         }
         player1.setCharacter(character1);
         updatePlayer(playedGame1, player1);
@@ -1037,9 +1065,18 @@ public class PlayedGameService {
         if (playedGame.isEmpty() || player.isEmpty() || enemyPlayer.isEmpty()) {
             return Optional.empty();
         }
+        if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
+            throw new ServiceException(HttpStatusCode.valueOf(400), "Player roll value is not within set values");
+        }
+        if (player.get().getCharacter() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
+        }
+        if (player.get().getCharacter().getField() == null) {
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
+        }
         setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
         if (enemyPlayer.get().getFightRoll() == 0) { // call from the attacker, wait for attacked roll
-            throw new ServiceException(HttpStatusCode.valueOf(204), "Attacker roll assigned, waiting for attacked player's roll.");
+            throw new ServiceException(HttpStatusCode.valueOf(204), "Attacker roll assigned, waiting for attacked player's roll");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -1134,10 +1171,10 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
         }
         Field field = player.get().getCharacter().getField();
         int numOfTurnsToBlock = 0;
