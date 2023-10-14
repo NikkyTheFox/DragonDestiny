@@ -1,21 +1,27 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { Player } from '../../interfaces/played-game/player/player';
+import { SharedService } from "../../services/shared.service";
 
 @Component({
   selector: 'app-start-game',
   templateUrl: './start-game.component.html',
   styleUrls: ['./start-game.component.css']
 })
-export class StartGameComponent {
-  @Input() gameId!: string;
+export class StartGameComponent implements OnInit{
+ gameId!: string;
 
-  constructor(private playedGameService: PlayedGameService, private router: Router) {
+  constructor(private playedGameService: PlayedGameService, private router: Router, private shared: SharedService){
+
+  }
+
+  ngOnInit(){
+    this.gameId = this.shared.getGame()!.id;
   }
 
   //to check if logic is not already in PlayedGameService.java
-  startGame() {
+  startGame(){
     this.playedGameService.getPlayers(this.gameId).subscribe( (data: any) => {
       let playerList: Player[] = data.playerList;
       let charactersFlag = true;
@@ -25,7 +31,7 @@ export class StartGameComponent {
         }
       });
       if(charactersFlag){
-        this.playedGameService.startGame(this.gameId).subscribe((data: any) => {
+        this.playedGameService.startGame(this.gameId).subscribe(() => {
           this.router.navigate(['main']);
         });
       }
@@ -36,7 +42,7 @@ export class StartGameComponent {
 
   }
 
-  isEmpty(character: any): boolean {
+  isEmpty(character: any){
     // Check if character is null, undefined, or an empty object
     return character === null || character === undefined || Object.keys(character).length === 0;
   }

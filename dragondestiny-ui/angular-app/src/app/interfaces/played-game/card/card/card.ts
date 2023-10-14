@@ -1,6 +1,6 @@
-import {CardType} from './card-type';
+import { CardType } from './card-type';
 
-export interface Card {
+export interface Card{
   id: number;
   cardType: CardType;
 }

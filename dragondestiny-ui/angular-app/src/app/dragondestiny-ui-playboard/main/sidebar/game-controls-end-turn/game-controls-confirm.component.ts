@@ -1,15 +1,24 @@
-import { Component, Input } from '@angular/core';
-import { RequestStructureGameidPlayerlogin } from '../../../../interfaces/request-structure-gameid-playerlogin';
+import { Component, OnInit } from '@angular/core';
+import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { SharedService } from "../../../../services/shared.service";
 
 @Component({
   selector: 'app-game-controls-confirm',
   templateUrl: './game-controls-confirm.component.html',
   styleUrls: ['./game-controls-confirm.component.css']
 })
-export class GameControlsConfirmComponent {
-  @Input() requestStructure!: RequestStructureGameidPlayerlogin;
+export class GameControlsConfirmComponent implements OnInit{
+  requestStructure!: GamePlayerRequest;
 
-  endTurn() {
+  constructor(private shared: SharedService){
+
+  }
+
+  ngOnInit(){
+    this.requestStructure = this.shared.getRequest();
+  }
+
+  endTurn(){
 
   }
 }

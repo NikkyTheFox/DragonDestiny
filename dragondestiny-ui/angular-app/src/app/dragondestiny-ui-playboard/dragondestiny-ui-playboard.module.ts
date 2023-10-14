@@ -12,4 +12,6 @@ import { DragondestinyUiPlayboardRoutingModule } from './dragondestiny-ui-playbo
     DragondestinyUiPlayboardRoutingModule,
   ],
 })
-export class DragondestinyUiPlayboardModule { }
+export class DragondestinyUiPlayboardModule{
+
+}

@@ -1,24 +1,30 @@
 <div class="control-buttons-container">
-  <div *ngIf="(fieldTypeTakeOneCardFlag || fieldTypeTakeTwoCardsFlag) && numberOfCardsToBeDrawn > 0">
-    <button (click)="drawCard()">Take A Card {{numberOfCardsToBeDrawn}}</button>
+  <div *ngIf="TAKE_CARD_FLAG">
+    <button (click)="handleTakeCardFlag()">Take A Card {{numberOfCardsToBeDrawn}}</button>
   </div>
 
-  <div *ngIf="(fieldTypeLoseTwoRoundFlag || fieldTypeLoseTwoRoundFlag) && numberOfTurnsToBeLost > 0">
-    <button (click)="confirmTurnLoss()">Confirm loss of {{numberOfTurnsToBeLost}} rounds</button>
+  <div *ngIf="LOSE_ROUND_FLAG">
+    <button (click)="handleLoseTurnFlag()">Confirm loss of {{numberOfTurnsToBeLost}} rounds</button>
   </div>
 
-  <div *ngIf="fieldTypeBridgeFieldFlag">
-    <button (click)="goToBossRoom()">Go To The Boss Room</button>
+  <div *ngIf="BRIDGE_FIELD_FLAG">
+    <button (click)="handleBridgeFieldFlag()">Go To The Boss Room</button>
   </div>
 
-  <div *ngIf="enemyOnFieldFlag">
-    <button (click)="attackEnemyOnField()">Attack Enemy {{enemyName}} On Field</button>
+  <div *ngIf="BOSS_FIELD_FLAG">
+    <button (click)="handleBossFieldFlag()">Go Back To The Bridge</button>
   </div>
 
-  <div *ngIf="playerOnFieldFlag">
-    <div *ngFor="let character of charactersOnField">
-      <button>Attack {{character.name}}</button>
+  <div *ngIf="FIGHT_WITH_PLAYER_FLAG">
+    <div *ngFor="let player of playersToAttack; let i = index">
+      <button>Attack {{player.login}} ({{ playersToAttackCharacters[i].name }})</button>
     </div>
   </div>
 
+  <div *ngIf="FIGHT_WITH_ENEMY_ON_FIELD_FLAG">
+    <div *ngFor="let enemy of enemiesToAttack; let i = index">
+      <button>Attack {{enemiesToAttackFromEngine[i].name}} | HP: {{enemy.health}} | S: {{enemy.initialStrength}}</button>
+    </div>
+
+  </div>
 </div>

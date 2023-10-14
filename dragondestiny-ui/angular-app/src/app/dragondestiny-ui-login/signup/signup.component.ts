@@ -9,12 +9,13 @@ import { UserRegistered } from '../../interfaces/user/user/user-registered';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
-export class SignupComponent {
+export class SignupComponent{
   login!: string
   name!: string;
   password!: string;
 
-  constructor(private userService: UserService, private dataService: GameDataService, private router: Router) {
+  constructor(private userService: UserService, private dataService: GameDataService, private router: Router){
+
   }
 
   signup(){
@@ -23,8 +24,7 @@ export class SignupComponent {
       name: this.name,
       password: this.password
     }
-
-    this.userService.createUser(user).subscribe((data: any)=>{
+    this.userService.createUser(user).subscribe((data: any) => {
         this.dataService.loginData = data;
         this.dataService.loginFlag = true;
         this.router.navigate(['/dashboard']);

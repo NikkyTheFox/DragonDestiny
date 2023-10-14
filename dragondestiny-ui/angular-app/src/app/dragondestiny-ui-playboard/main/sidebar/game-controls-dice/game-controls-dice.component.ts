@@ -1,29 +1,39 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { GameDataService } from '../../../../services/game-data.service';
 import { SharedService } from '../../../../services/shared.service';
-import { RequestStructureGameidPlayerlogin } from '../../../../interfaces/request-structure-gameid-playerlogin';
+import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
 
 @Component({
   selector: 'app-game-controls-dice',
   templateUrl: './game-controls-dice.component.html',
   styleUrls: ['./game-controls-dice.component.css']
 })
-export class GameControlsDiceComponent {
-  @Input() requestStructure!: RequestStructureGameidPlayerlogin;
+export class GameControlsDiceComponent implements OnInit{
+  requestStructure!: GamePlayerRequest;
   rollValue: number = 0;
 
-  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService) {
+  constructor(private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService){
+
   }
-  rollDice() {
+
+  ngOnInit(){
+    this.requestStructure = this.shared.getRequest();
+  }
+
+  rollDice(){
     if(this.rollValue === 0){ // so a player can roll only once
-      this.playedGameService.rollDice(this.requestStructure.gameId, this.requestStructure.playerLogin).subscribe((data: number) => {
+      this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
         this.rollValue = data;
-        this.playedGameService.checkPossibleNewPositions(this.requestStructure.gameId, this.requestStructure.playerLogin, this.rollValue).subscribe((data: any) => {
-          this.dataService.possibleFields = data.fieldList;
-          this.shared.sendDiceRollClickEvent();
-        });
+        this.checkPositions();
       });
     }
+  }
+
+  checkPositions(){
+    this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login, this.rollValue).subscribe((data: any) => {
+      this.dataService.possibleFields = data.fieldList;
+      this.shared.sendDiceRollClickEvent();
+    });
   }
 }

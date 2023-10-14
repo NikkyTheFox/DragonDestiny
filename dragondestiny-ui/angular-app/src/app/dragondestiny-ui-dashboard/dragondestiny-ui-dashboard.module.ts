@@ -8,8 +8,6 @@ import { PlayedGameListComponent } from './played-game-list/played-game-list.com
 import { FormsModule } from '@angular/forms';
 import { DragondestinyUiDashboardRoutingModule } from './dragondestiny-ui-dashboard-routing.module';
 
-
-
 @NgModule({
   declarations: [
     CreateGameComponent,
@@ -24,4 +22,6 @@ import { DragondestinyUiDashboardRoutingModule } from './dragondestiny-ui-dashbo
     DragondestinyUiDashboardRoutingModule
   ]
 })
-export class DragondestinyUiDashboardModule {}
+export class DragondestinyUiDashboardModule{
+
+}

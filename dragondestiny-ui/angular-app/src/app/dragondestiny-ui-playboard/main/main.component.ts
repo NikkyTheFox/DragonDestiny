@@ -1,24 +1,10 @@
-import {Component, OnInit } from '@angular/core';
-import { GameDataService } from '../../services/game-data.service';
-import { RequestStructureGameidPlayerlogin } from '../../interfaces/request-structure-gameid-playerlogin';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css']
 })
-export class MainComponent implements OnInit {
-  gamePlayerStructure: RequestStructureGameidPlayerlogin = {
-    gameId: '',
-    playerLogin: '',
-  };
+export class MainComponent{
 
-  constructor(private dataService: GameDataService) {
-  }
-
-  ngOnInit(){
-    if(!this.dataService.loginFlag) return;
-    this.gamePlayerStructure.gameId = this.dataService.chosenGame;
-    this.gamePlayerStructure.playerLogin = this.dataService.loginData.login;
-  }
 }

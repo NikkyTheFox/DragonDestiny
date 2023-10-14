@@ -9,8 +9,7 @@ import { PlayedGameService } from '../../../../services/played-game/played-game-
 import { Player } from '../../../../interfaces/played-game/player/player';
 import { Subscription } from 'rxjs';
 import { SharedService } from '../../../../services/shared.service';
-import { Router } from '@angular/router';
-import { RequestStructureGameidPlayerlogin } from '../../../../interfaces/request-structure-gameid-playerlogin';
+import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
 import { FieldList } from '../../../../interfaces/game-engine/field/field-list';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 
@@ -19,21 +18,26 @@ import { PlayedGame } from '../../../../interfaces/played-game/played-game/playe
   templateUrl: './board-field.component.html',
   styleUrls: ['./board-field.component.css']
 })
-export class BoardFieldComponent implements OnChanges{
+export class BoardFieldComponent implements OnInit, OnChanges{
   @Input() board!: Board;
   @Input() fieldIndex!: number;
   @Input() rowIndex!: number;
-  @Input() requestStructure!:RequestStructureGameidPlayerlogin;
+  requestStructure!:GamePlayerRequest;
   fieldList: Field[] = [];
   fieldName!: FieldType;
   fieldId!: number;
   charactersOnField: PlayedGameCharacter[] = [];
   playersInGame: Player[] = [];
   moveFlag: boolean = false;
-  clickDiceRollEventSubscription: Subscription;
-  clickMoveCharacterEventSubscription: Subscription;
+  clickDiceRollEventSubscription!: Subscription;
+  clickMoveCharacterEventSubscription!: Subscription;
 
-  constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService, private router: Router) {
+  constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService){
+
+  }
+
+  ngOnInit(){
+    this.requestStructure = this.shared.getRequest();
     this.clickDiceRollEventSubscription = this.shared.getDiceRollClickEvent().subscribe( (data: any) => {
       this.handlePossibleField();
     });
@@ -43,7 +47,7 @@ export class BoardFieldComponent implements OnChanges{
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges){
     this.resetField();
     this.handleFieldContent()
   }
@@ -57,7 +61,7 @@ export class BoardFieldComponent implements OnChanges{
   }
 
 
-  retrieveFieldType() {
+  retrieveFieldType(){
     for(let i of this.fieldList){
       if(i.yposition == this.rowIndex && i.xposition == this.fieldIndex){
         this.fieldName = i.type;
@@ -67,7 +71,7 @@ export class BoardFieldComponent implements OnChanges{
   }
 
   retrieveCharactersOnField(){
-    this.playedGameService.getPlayers(this.requestStructure.gameId).subscribe( (data: any) => {
+    this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
       this.playersInGame = data.playerList;
       this.playersInGame.forEach( (player: Player) => {
         this.charactersOnField.push(player.character);
@@ -93,8 +97,8 @@ export class BoardFieldComponent implements OnChanges{
     this.moveFlag = false;
   }
 
-  moveCharacter(fieldId: number) {
-    this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.gameId, this.requestStructure.playerLogin, fieldId).subscribe((data: PlayedGame) => {
+  moveCharacter(fieldId: number){
+    this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe((data: PlayedGame) => {
       this.shared.sendMoveCharacterClickEvent();
     });
   }

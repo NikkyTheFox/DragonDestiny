@@ -1,22 +1,32 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
-import { RequestStructureGameidPlayerlogin } from '../../../../interfaces/request-structure-gameid-playerlogin';
+import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { SharedService } from "../../../../services/shared.service";
 
 @Component({
   selector: 'app-character',
   templateUrl: './character.component.html',
   styleUrls: ['./character.component.css']
 })
-export class CharacterComponent implements OnChanges {
-  @Input() requestStructure!: RequestStructureGameidPlayerlogin;
+export class CharacterComponent implements OnInit{
+  requestStructure!: GamePlayerRequest;
   character!: PlayedGameCharacter;
 
-  constructor(private playedGameService: PlayedGameService) {
+  constructor(private playedGameService: PlayedGameService, private shared: SharedService){
+
   }
 
-  ngOnChanges(changes: SimpleChanges){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.gameId, this.requestStructure.playerLogin).subscribe( (data: PlayedGameCharacter) => {
+  ngOnInit(){
+    this.requestStructure = this.shared.getRequest();
+    this.handleCharacter();
+    this.shared.getEquipItemCardClickEvent().subscribe( () => {
+      this.handleCharacter();
+    });
+  }
+
+  handleCharacter(){
+    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
       this.character = data;
     });
   }

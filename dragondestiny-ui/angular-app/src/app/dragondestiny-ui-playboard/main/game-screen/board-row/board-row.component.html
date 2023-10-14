@@ -1,7 +1,5 @@
-<div class="board-row"> <!-- #0 row -->
-
+<div class="board-row">
   <div *ngFor="let i of fieldInRowArray">
-    <app-board-field class="field-outer-left" [board]="board" [fieldIndex]="i" [rowIndex]="rowIndex" [requestStructure]="requestStructure"></app-board-field>
+    <app-board-field class="field-outer-left" [board]="board" [fieldIndex]="i" [rowIndex]="rowIndex"></app-board-field>
   </div>
-
 </div>

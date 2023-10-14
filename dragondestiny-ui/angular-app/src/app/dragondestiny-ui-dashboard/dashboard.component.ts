@@ -1,21 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { UserService } from '../services/user/user.service';
-import { GameDataService } from '../services/game-data.service';
+import { Component } from '@angular/core';
+
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
-  playerLogin!: string;
+export class DashboardComponent{
 
-  constructor(private userService: UserService, private dataService: GameDataService) {
-  }
-
-  ngOnInit(){
-    if(this.dataService.loginFlag){
-      this.playerLogin = this.dataService.getPlayerLogin();
-    }
-  }
 }

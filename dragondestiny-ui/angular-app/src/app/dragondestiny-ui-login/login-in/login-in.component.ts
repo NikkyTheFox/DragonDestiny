@@ -9,11 +9,12 @@ import { Router } from '@angular/router';
   templateUrl: './login-in.component.html',
   styleUrls: ['./login-in.component.css']
 })
-export class LoginInComponent {
+export class LoginInComponent{
   name!: string;
   password!: string;
 
-  constructor(private userService: UserService, private dataService: GameDataService, private router: Router) {
+  constructor(private userService: UserService, private dataService: GameDataService, private router: Router){
+
   }
 
   login(){
@@ -21,9 +22,10 @@ export class LoginInComponent {
       login: this.name,
       password: this.password
     }
-    this.userService.getUserByLoginPassword(user).subscribe((data: any)=>{
+    this.userService.getUserByLoginPassword(user).subscribe((data: any) => {
       this.dataService.loginData = data;
       this.dataService.loginFlag = true;
+
       this.router.navigate(['/dashboard']);
     },
       (error: any) =>{ // Handle 404 and others

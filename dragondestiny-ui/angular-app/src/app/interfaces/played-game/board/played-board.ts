@@ -1,6 +1,6 @@
-import {Field} from '../../game-engine/field/field';
+import { Field } from '../../game-engine/field/field';
 
-export interface PlayedBoard {
+export interface PlayedBoard{
   id: number;
   fieldsOnBoard: Field[];
 }
