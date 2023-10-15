@@ -1,5 +1,7 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.edu.pg.eti.dragondestiny.playedgame.GameWebSocketHandler;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.DTO.PlayedBoardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.DTO.CardDTO;
@@ -71,6 +74,9 @@ public class PlayedGameController {
      */
     private final InitializingPlayedGameService initializingPlayedGameService;
 
+    private final GameWebSocketHandler gameWebSocketHandler;
+    private final ObjectMapper mapper = new ObjectMapper();
+
     /**
      * A constructor for PlayedGameController with PlayedGameService, PlayerService and ModelMapper instances.
      *
@@ -79,10 +85,22 @@ public class PlayedGameController {
      * @param modelMapper                   A mapper used to transform objects to DTOs.
      */
     @Autowired
-    public PlayedGameController(PlayedGameService playedGameService, InitializingPlayedGameService initializingPlayedGameService, ModelMapper modelMapper) {
+    public PlayedGameController(PlayedGameService playedGameService, InitializingPlayedGameService initializingPlayedGameService,
+                                ModelMapper modelMapper, GameWebSocketHandler gameWebSocketHandler) {
         this.playedGameService = playedGameService;
         this.initializingPlayedGameService = initializingPlayedGameService;
         this.modelMapper = modelMapper;
+        this.gameWebSocketHandler = gameWebSocketHandler;
+    }
+
+    @GetMapping("test/{playedGameId}")
+    public ResponseEntity<String> getTest(@PathVariable(name = "playedGameId") String playedGameId) throws JsonProcessingException {
+        Optional<PlayedGame> playedGame = playedGameService.findPlayedGame(playedGameId);
+        if (playedGame.isPresent()) {
+            gameWebSocketHandler.broadcastMessage(mapper.writeValueAsString(playedGame.get()));
+            return ResponseEntity.ok().body(mapper.writeValueAsString(playedGame.get()));
+        }
+        return ResponseEntity.ok().body("SUPER IF IT WORKS!");
     }
 
     // GAME ------------------------------------------------------
@@ -888,11 +906,18 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
-    public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) {
+    public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) throws JsonProcessingException {
+//        messagingTemplate.convertAndSend("http://localhost:4200/test", "SHOT");
         try {
             Optional<PlayedGame> playedGame = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
-            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playedGame.isPresent()) {
+                gameWebSocketHandler.broadcastMessage(mapper.writeValueAsString(playedGame.get()));
+                return ResponseEntity.ok().body(modelMapper.map(playedGame, PlayedGameDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+//            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
+//                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }

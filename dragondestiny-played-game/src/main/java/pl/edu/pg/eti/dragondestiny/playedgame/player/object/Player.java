@@ -76,7 +76,7 @@ public class Player implements HealthCalculable {
      */
     public Integer getHealth() {
 
-        return getCharacter().getHealth();
+        return character == null ? 0 : getCharacter().getHealth();
     }
 
     /**
@@ -86,7 +86,7 @@ public class Player implements HealthCalculable {
      */
     public Integer getStrength() {
 
-        return getCharacter().getStrength();
+        return character == null ? 0 : getCharacter().getStrength();
     }
 
 
@@ -167,7 +167,7 @@ public class Player implements HealthCalculable {
      */
     public Field getPositionField() {
 
-        return getCharacter().getField();
+        return character == null ? null : getCharacter().getField();
     }
 
     /**
@@ -232,6 +232,6 @@ public class Player implements HealthCalculable {
      * @return True/False.
      */
     public Boolean isAlive() {
-        return character.getHealth() > 0;
+        return character != null && character.getHealth() > 0;
     }
 }
