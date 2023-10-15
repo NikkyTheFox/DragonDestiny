@@ -1,0 +1,184 @@
+version: '3'
+
+services:
+  dddiscovery: #eureka server 
+    build:
+      context: ./dragondestiny-discovery
+      dockerfile: Dockerfile
+    image: dd_discovery:latest
+    container_name: dd_discovery
+    restart: always
+    networks:
+      - eureka
+    ports:
+      - "8761:8761"
+    #environment:
+      #EUREKA_SERVER_IP: service:ddDiscovery
+
+  ddconfigserver: #eureka client 
+    build:
+      context: ./dragondestiny-config-server
+      dockerfile: Dockerfile
+    image: dd_config_server:latest
+    container_name: dd_config_server
+    restart: always
+    networks:
+      - eureka
+    ports:
+      - "8888:8888"
+    depends_on:
+      - dddiscovery
+    #command: ["sh", "-c", "sleep 4"]
+
+  ddengine:
+    build:
+      context: ./dragondestiny-engine
+      dockerfile: Dockerfile
+    image: dd_engine:latest
+    container_name: dd_engine
+    ports:
+      - "8086:8086" 
+    restart: always
+    expose:
+      - "8086"   
+    networks:
+      - eureka
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server
+    user: root
+    container_name: sql-server
+    #volumes:
+      #- C:/temp/Docker:/var/opt/mssql/data
+    volumes:
+      - mssql_server_data:/var/opt/mssql/data
+    #  - ./dragondestiny-engine/src/main/resources/config/liquibase/sql-scripts/CreateDatabase.sql:/docker-entrypoint-initdb.d
+    #command: ["sqlcmd", "-U", "sa", "-P", "strONg$@44passwd", "-i", "/docker-entrypoint-initdb.d/CreateDatabase.sql"]
+    #czy wykonać wszystkie skrypty???
+    environment:
+      MSSQL_SA_PASSWORD: strONg$@44passwd
+      #SA_PASSWORD: strONg$@44passwd
+      ACCEPT_EULA: Y
+      MSSQL_PID: Developer
+      SQL_SERVER_URL: sqlserver:1433
+    ports:
+      - "1433:1433" 
+    #expose:
+      #- "1433"
+    restart: always  
+    networks:
+      - eureka
+    depends_on:
+      - ddconfigserver
+    
+  ddgateway:
+    build:
+      context: ./dragondestiny-gateway
+      dockerfile: Dockerfile
+    image: dd_gateway:latest
+    container_name: dd_gateway
+    ports:
+      - "8080:8080"  
+    #expose:
+     # - "8080"
+    restart: always  
+    networks:
+      - eureka
+    depends_on:
+      - ddengine
+
+  ddplayedgame:
+    build:
+      context: ./dragondestiny-played-game
+      dockerfile: Dockerfile
+    image: dd_played_game:latest
+    container_name: dd_played_game
+    ports:
+      - "8085:8085" 
+    restart: always 
+    #expose:
+     # - "8085"   
+    networks:
+      - eureka
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/PlayedGame
+      SPRING_DATA_MONGODB_DATABASE: PlayedGame
+    depends_on:
+      - ddgateway
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: dd-mongodb
+    ports:
+      - "27017:27017"
+    restart: always
+    #environment:
+     # MONGO_INITDB_ROOT_USERNAME: myadmin
+      #MONGO_INITDB_ROOT_PASSWORD: mypassword
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - eureka
+
+  dduser:
+    build:
+      context: ./dragondestiny-user
+      dockerfile: Dockerfile
+    image: dd_user:latest
+    restart: always
+    container_name: dd_user
+    ports:
+      - "8083:8083"  
+    #expose:
+     # - "8083"   
+    networks:
+      - eureka
+    depends_on:
+      - sqlserver
+  
+  ##dd_ui:
+    ##build:
+      ##context: ./dragondestiny-ui/angular-app
+      ##dockerfile: Dockerfile
+    ##image: dd_ui:latest
+    ##container_name: dd_ui
+    ##network_mode: "host"
+ #   networks:
+  #    - eureka2
+    ##ports:
+     ## - "4200:80"
+      #- "4200:4200" 
+    ##depends_on:
+      ##- ddgateway
+
+  proxy:
+    #image: nginx:alpine
+    image: dd_ui:latest
+    container_name: proxy
+    restart: always
+    #volumes:
+     # - ./dragondestiny-ui/angular-app/dist/angular-app:/usr/share/nginx/html/
+      #- ./dragondestiny-ui/angular-app/:/etc/nginx/templates/
+    environment:
+    #  - NGINX_HOST=ninrod.org
+     # - NGINX_PORT=80
+      API_URL: http://ddgateway:8080/api
+    ports:
+      - "4200:80"
+    networks:
+      - eureka
+    depends_on:
+      - ddgateway
+    #command: ["nginx", "-c", "/etc/nginx/conf.d/nginx.conf"]
+    #command: ["nginx", "-g", "daemon off;"]
+#command: service nginx start
+
+volumes:
+  mssql_server_data:
+  mongodata:
+networks:
+  eureka:
+   # driver: bridge

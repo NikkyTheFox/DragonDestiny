@@ -1,4 +1,3 @@
-
 -- BOARD
 INSERT INTO boards
 VALUES (5, 5);
