@@ -58,7 +58,7 @@ export class PlayedGameService{
   }
 
   setNextRound(playedGameId: string): Observable<Round>{
-    return this.http.put<Round>(`${environment.apiUrl}playedgames/${playedGameId}/round/next`, null);
+    return this.http.put<Round>(`${environment.apiUrl}/playedgames/${playedGameId}/round/next`, null);
   }
 
   // BOARD + FIELDS ----------------------------------------------------------
@@ -73,6 +73,14 @@ export class PlayedGameService{
 
   getField(playedGameId: string, fieldId: number): Observable<Field>{
     return this.http.get<Field>(`${environment.apiUrl}/playedgames/${playedGameId}/board/fields/${fieldId}`);
+  }
+
+  getGameBossField(playedGameId: string): Observable<number>{
+    return this.http.get<number>(`${environment.apiUrl}/playedgames/${playedGameId}/board/fields/boss`);
+  }
+
+  getGameBridgeField(playedGameId: string) :Observable<number>{
+    return this.http.get<number>(`${environment.apiUrl}/playedgames/${playedGameId}/board/fields/bridge`);
   }
 
   // CARDS----------------------------------------------------------

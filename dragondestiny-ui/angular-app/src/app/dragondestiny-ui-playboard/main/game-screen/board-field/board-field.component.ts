@@ -9,7 +9,7 @@ import { PlayedGameService } from '../../../../services/played-game/played-game-
 import { Player } from '../../../../interfaces/played-game/player/player';
 import { Subscription } from 'rxjs';
 import { SharedService } from '../../../../services/shared.service';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { FieldList } from '../../../../interfaces/game-engine/field/field-list';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 
@@ -22,7 +22,7 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   @Input() board!: Board;
   @Input() fieldIndex!: number;
   @Input() rowIndex!: number;
-  requestStructure!:GamePlayerRequest;
+  requestStructure!:GameDataStructure;
   fieldList: Field[] = [];
   fieldName!: FieldType;
   fieldId!: number;

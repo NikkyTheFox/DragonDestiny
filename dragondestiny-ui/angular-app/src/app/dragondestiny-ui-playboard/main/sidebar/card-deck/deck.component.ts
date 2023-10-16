@@ -1,7 +1,7 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { Card } from '../../../../interfaces/played-game/card/card/card';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { SharedService } from "../../../../services/shared.service";
 
 @Component({
@@ -10,7 +10,7 @@ import { SharedService } from "../../../../services/shared.service";
   styleUrls: ['./deck.component.css']
 })
 export class DeckComponent implements OnInit, OnChanges{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
   deck: Card[] = [];
   numberOfCardsInDeck: number = 0;
 

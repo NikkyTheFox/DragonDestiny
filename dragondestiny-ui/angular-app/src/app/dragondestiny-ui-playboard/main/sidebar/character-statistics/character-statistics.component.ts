@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { Player } from "../../../../interfaces/played-game/player/player";
 import { PlayedGameService } from "../../../../services/played-game/played-game-service";
-import { GamePlayerRequest } from "../../../../interfaces/game-player-request";
+import { GameDataStructure } from "../../../../interfaces/game-data-structure";
 
 @Component({
   selector: 'app-character-statistics',
@@ -11,7 +11,7 @@ import { GamePlayerRequest } from "../../../../interfaces/game-player-request";
 })
 export class CharacterStatisticsComponent implements OnInit{
   @Input() character!: PlayedGameCharacter;
-  @Input() requestStructure!: GamePlayerRequest;
+  @Input() requestStructure!: GameDataStructure;
   player!: Player;
 
   constructor(private playedGameService: PlayedGameService){

@@ -1,5 +1,12 @@
 <main class="game-screen">
   <app-board class="board"></app-board>
   <app-context-bar class="context-bar"></app-context-bar>
+  <div *ngIf="showNotification">
+    <app-notification
+      class="notification-window"
+      [notificationType]="notificationType"
+      [notificationData]="notificationData">
+    </app-notification>
+  </div>
 </main>
 

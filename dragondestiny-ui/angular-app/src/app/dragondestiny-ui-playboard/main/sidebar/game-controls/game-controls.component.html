@@ -1,5 +1,11 @@
 <div class="controls-container">
-  <app-game-controls-dice></app-game-controls-dice>
-  <app-game-controls-options></app-game-controls-options>
-  <app-game-controls-confirm></app-game-controls-confirm>
+  <div *ngIf="isActive">
+    <app-game-controls-dice></app-game-controls-dice>
+    <app-game-controls-options></app-game-controls-options>
+    <app-game-controls-confirm></app-game-controls-confirm>
+  </div>
+  <div *ngIf="!isActive">
+    <p>Not Your Turn</p>
+    <p>Right now {{ activePlayerLogin }} is deciding on character {{ activePlayerCharacter }} destiny!</p>
+  </div>
 </div>

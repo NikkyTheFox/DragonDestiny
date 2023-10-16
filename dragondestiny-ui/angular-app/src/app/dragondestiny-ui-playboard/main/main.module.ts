@@ -10,6 +10,7 @@ import { BoardFieldComponent } from './game-screen/board-field/board-field.compo
 import { PawnComponent } from './game-screen/pawn/pawn.component';
 import { BoardRowComponent } from './game-screen/board-row/board-row.component';
 import { SidebarModule } from './sidebar/sidebar.module';
+import { NotificationComponent } from './game-screen/notification/notification.component';
 
 
 
@@ -23,7 +24,8 @@ import { SidebarModule } from './sidebar/sidebar.module';
     BoardComponent,
     BoardFieldComponent,
     PawnComponent,
-    BoardRowComponent
+    BoardRowComponent,
+    NotificationComponent
   ],
   imports: [
     CommonModule,

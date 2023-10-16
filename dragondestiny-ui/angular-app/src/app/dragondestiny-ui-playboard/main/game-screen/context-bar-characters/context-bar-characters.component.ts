@@ -3,7 +3,7 @@ import { GameEngineService } from '../../../../services/game-engine/game-engine.
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { Player } from '../../../../interfaces/played-game/player/player';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { Character } from '../../../../interfaces/game-engine/character/character';
 import { SharedService } from "../../../../services/shared.service";
 
@@ -13,7 +13,7 @@ import { SharedService } from "../../../../services/shared.service";
   styleUrls: ['./context-bar-characters.component.css']
 })
 export class ContextBarCharactersComponent implements OnInit, OnChanges{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
   playersCharacter!: PlayedGameCharacter;
   otherCharacters: PlayedGameCharacter[] = [];
   allCharacters: PlayedGameCharacter[] = [];
