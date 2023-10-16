@@ -1042,8 +1042,15 @@ public class PlayedGameService {
         } else { // player lost
             decreaseHealth(playedGame.get(), player.get(), 1, fightResult);
             fightResult.setAttackerWon(false);
-            if (!player.get().isAlive())
+            if (!player.get().isAlive()) {
                 fightResult.setPlayerDead(true);
+                for (Player p : playedGame.get().getPlayers()) {
+                    if (checkIfPlayerLastStanding(playedGame.get(), p)) {
+                        fightResult.setGameWon(true);
+                        fightResult.setWonPlayer(p.getLogin());
+                    }
+                }
+            }
         }
         playedGameRepository.save(playedGame.get());
         return Optional.of(fightResult);
@@ -1094,8 +1101,12 @@ public class PlayedGameService {
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin);
             if (loserHealthCards.isEmpty()) { // no health cards
                 decreaseHealth(playedGame1, enemyPlayer1, 1, fightResult);
-                if (!enemyPlayer1.isAlive())
+                if (!enemyPlayer1.isAlive()) {
                     fightResult.setEnemyKilled(true);
+                    if (checkIfPlayerLastStanding(playedGame1, player1)) {
+                        fightResult.setGameWon(true);
+                    }
+                }
             } else {
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
@@ -1108,6 +1119,9 @@ public class PlayedGameService {
                 decreaseHealth(playedGame1, player1, 1, fightResult);
                 if (!player1.isAlive()) {
                     fightResult.setPlayerDead(true);
+                    if (checkIfPlayerLastStanding(playedGame1, enemyPlayer1)) {
+                        fightResult.setGameWon(true);
+                    }
                 }
             } else {
                 fightResult.setChooseCardFromEnemyPlayer(true);
@@ -1352,6 +1366,22 @@ public class PlayedGameService {
                 playedGameRepository.save(game);
             }
         }
+    }
+
+    /**
+     * Check whether the player is the last alive player in game.
+     *
+     * @param game          The game to check
+     * @param checkedPlayer The player to check
+     * @return Whether the player to check won the game
+     */
+    private boolean checkIfPlayerLastStanding(PlayedGame game, Player checkedPlayer) {
+        for (Player player : game.getPlayers()) {
+            if (player.isAlive() && !player.getLogin().equals(checkedPlayer.getLogin())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

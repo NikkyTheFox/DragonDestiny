@@ -1,7 +1,6 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +38,8 @@ import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
 import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializingPlayedGameService;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameListDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.NotificationEnum;
+import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.NotificationMessage;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGameList;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
@@ -74,8 +75,10 @@ public class PlayedGameController {
      */
     private final InitializingPlayedGameService initializingPlayedGameService;
 
+    /**
+     * Game Web Socket Handler to communicate with players.
+     */
     private final GameWebSocketHandler gameWebSocketHandler;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * A constructor for PlayedGameController with PlayedGameService, PlayerService and ModelMapper instances.
@@ -91,16 +94,6 @@ public class PlayedGameController {
         this.initializingPlayedGameService = initializingPlayedGameService;
         this.modelMapper = modelMapper;
         this.gameWebSocketHandler = gameWebSocketHandler;
-    }
-
-    @GetMapping("test/{playedGameId}")
-    public ResponseEntity<String> getTest(@PathVariable(name = "playedGameId") String playedGameId) throws JsonProcessingException {
-        Optional<PlayedGame> playedGame = playedGameService.findPlayedGame(playedGameId);
-        if (playedGame.isPresent()) {
-            gameWebSocketHandler.broadcastMessage(mapper.writeValueAsString(playedGame.get()));
-            return ResponseEntity.ok().body(mapper.writeValueAsString(playedGame.get()));
-        }
-        return ResponseEntity.ok().body("SUPER IF IT WORKS!");
     }
 
     // GAME ------------------------------------------------------
@@ -175,8 +168,16 @@ public class PlayedGameController {
     public ResponseEntity startGame(@PathVariable(name = "playedGameId") String playedGameId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
-            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playedGame.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.GAME_STARTED));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(playedGame.get(), PlayedGameDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -242,8 +243,16 @@ public class PlayedGameController {
     public ResponseEntity setNextRound(@PathVariable(name = "playedGameId") String playedGameId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.nextRound(playedGameId);
-            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game.getActiveRound(), RoundDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playedGame.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.NEXT_ROUND));
+                    return ResponseEntity.ok().body(modelMapper.map(playedGame.get().getActiveRound(), RoundDTO.class));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -492,8 +501,16 @@ public class PlayedGameController {
     public ResponseEntity moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
-            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playedGame.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_GOT_ITEM, playerLogin, cardId));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(playedGame.get(), PlayedGameDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -907,17 +924,18 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
     public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) throws JsonProcessingException {
-//        messagingTemplate.convertAndSend("http://localhost:4200/test", "SHOT");
         try {
             Optional<PlayedGame> playedGame = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
             if (playedGame.isPresent()) {
-                gameWebSocketHandler.broadcastMessage(mapper.writeValueAsString(playedGame.get()));
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.POSITION_UPDATED));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
                 return ResponseEntity.ok().body(modelMapper.map(playedGame, PlayedGameDTO.class));
             } else {
                 return ResponseEntity.notFound().build();
             }
-//            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-//                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -1013,8 +1031,16 @@ public class PlayedGameController {
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
         try {
             Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
-            return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (player.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_BLOCKED, playerLogin, player.get().getBlockedTurns()));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(player.get(), PlayerDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -1037,8 +1063,16 @@ public class PlayedGameController {
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<Player> player = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
-            return player.map(value -> ResponseEntity.ok().body(modelMapper.map(value, PlayerDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (player.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_BLOCKED, playerLogin, player.get().getBlockedTurns()));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(player.get(), PlayerDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -1086,8 +1120,22 @@ public class PlayedGameController {
     public ResponseEntity handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, cardId, playerRoll, enemyRoll);
-            return fightResult.map(result -> ResponseEntity.ok().body(modelMapper.map(result, FightResultDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (fightResult.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, playerLogin, cardId, fightResult.get().getAttackerWon()));
+                    if (fightResult.get().getPlayerDead()) {
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_DIED, playerLogin));
+                    }
+                    if (fightResult.get().getGameWon()) {
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_WON_GAME, fightResult.get().getWonPlayer()));
+                    }
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(fightResult.get(), FightResultDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
@@ -1112,8 +1160,26 @@ public class PlayedGameController {
     public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) throws ServiceException {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
-            return fightResult.map(result -> ResponseEntity.ok().body(modelMapper.map(result, FightResultDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (fightResult.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_ATTACKED));
+                    if (fightResult.get().getWonPlayer() != null) {
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, fightResult.get().getWonPlayer(), true));
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, fightResult.get().getLostPlayer(), false));
+                    }
+                    if (fightResult.get().getPlayerDead()) {
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_DIED, fightResult.get().getLostPlayer()));
+                    }
+                    if (fightResult.get().getGameWon()) {
+                        gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_WON_GAME, fightResult.get().getWonPlayer()));
+                    }
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+                return ResponseEntity.ok().body(modelMapper.map(fightResult.get(), FightResultDTO.class));
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }
