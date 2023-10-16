@@ -24,6 +24,7 @@ p {
   background-color: lightgray;
   align-items: center;
 }
+
 .header-left,
 .header-middle,
 .header-right{
@@ -62,6 +63,14 @@ label {
   background-color: lightcyan;
   border: 1px solid black;
   align-items: center;
+}
+
+.notification-window {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  border: 2px solid red;
+  background-color: white;
 }
 
 .board {

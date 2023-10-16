@@ -4,9 +4,10 @@ import { SharedService } from '../../../../services/shared.service';
 import { Player } from '../../../../interfaces/played-game/player/player';
 import { Character } from '../../../../interfaces/game-engine/character/character';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { EnemyCard } from "../../../../interfaces/played-game/card/enemy-card/enemy-card";
 import { Card } from "../../../../interfaces/game-engine/card/card/card";
+import {EnemyCardList} from "../../../../interfaces/played-game/card/enemy-card/enemy-card-list";
 
 @Component({
   selector: 'app-game-controls-options',
@@ -14,7 +15,7 @@ import { Card } from "../../../../interfaces/game-engine/card/card/card";
   styleUrls: ['./game-controls-options.component.css']
 })
 export class GameControlsOptionsComponent implements OnInit{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
 
   TAKE_CARD_FLAG: boolean = false;
   numberOfCardsToBeDrawn: number = 0;
@@ -24,6 +25,8 @@ export class GameControlsOptionsComponent implements OnInit{
   BOSS_FIELD_FLAG: boolean = false;
   FIGHT_WITH_PLAYER_FLAG: boolean = false;
   FIGHT_WITH_ENEMY_ON_FIELD_FLAG: boolean = false;
+
+  EXCHANGE_TROPHIES_FLAG: boolean = false;
 
   playersToAttack: Player[] = [];
   playersToAttackCharacters: Character[] = [];
@@ -49,9 +52,49 @@ export class GameControlsOptionsComponent implements OnInit{
 
   getFieldOptions(){
     this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-      console.log(data);
       this.checkOptions(data.possibleOptions);
       this.handleOptionFlags();
+    });
+  }
+
+  handleTrophiesFlag(){
+    this.playedGameService.getTrophies(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
+      this.EXCHANGE_TROPHIES_FLAG = data.enemyCardList.length === 5; // RIGHT NOW HARDCODED, TO CHANGE LATER
+    });
+  }
+
+  handleFightPlayerFlag(){
+    if(this.FIGHT_WITH_PLAYER_FLAG){
+      this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+        this.playersToAttack = data.playerList;
+        this.fetchPlayersCharacter();
+      });
+    }
+  }
+
+  handleFightEnemyFlag(){
+    if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
+      this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+        // to check
+        this.enemiesToAttack = data.enemycardList;
+        this.fetchEnemies();
+      });
+    }
+  }
+
+  fetchPlayersCharacter(){
+    this.playersToAttack.forEach( (player: Player) => {
+      this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
+        this.playersToAttackCharacters.push(character);
+      });
+    });
+  }
+
+  fetchEnemies(){
+    this.enemiesToAttack.forEach( (enemy: EnemyCard) => {
+      this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
+        this.enemiesToAttackFromEngine.push(card);
+      });
     });
   }
 
@@ -91,82 +134,50 @@ export class GameControlsOptionsComponent implements OnInit{
   }
 
   handleOptionFlags(){
-    this.handleTakeCardFlag();
-    this.handleLoseTurnFlag();
-    this.handleBridgeFieldFlag();
-    this.handleBossFieldFlag();
     this.handleFightPlayerFlag();
     this.handleFightEnemyFlag();
+    this.handleTrophiesFlag();
   }
 
-  handleTakeCardFlag(){
-    if(this.TAKE_CARD_FLAG){
-      this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( () => {
-        this.numberOfCardsToBeDrawn--;
-        // to implement item-card / enemy-card logic
-        if(this.numberOfCardsToBeDrawn <= 0){
-          this.TAKE_CARD_FLAG = false;
-        }
-      });
+  takeCardClick(){
+    this.numberOfCardsToBeDrawn--;
+    this.shared.sendDrawCardClickEvent();
+    if(this.numberOfCardsToBeDrawn <= 0){
+      this.TAKE_CARD_FLAG = false;
     }
+    // this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( () => {
+    //
+    // });
   }
 
-  handleLoseTurnFlag(){
-    if(this.LOSE_ROUND_FLAG){
-      this.playedGameService.automaticallyBlockTurnsOfPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
-        console.log('Player: ' + this.requestStructure.player!.login + ' blocked for ' + this.numberOfTurnsToBeLost + ' turns.');
-      });
-    }
+  loseTurnClick(){
+    this.shared.sendBlockTurnEvent();
+    // this.playedGameService.automaticallyBlockTurnsOfPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
+    //   console.log('Player: ' + this.requestStructure.player!.login + ' blocked for ' + this.numberOfTurnsToBeLost + ' turns.');
+    // });
   }
 
-  handleBridgeFieldFlag(){
-    if(this.BRIDGE_FIELD_FLAG){
-      // to implement check if bridge guardian is defeated
-      // GetBridgeFieldId() needed in backend
-      // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
-    }
+  bridgeMoveClick(){
+    // to implement check if bridge guardian is defeated
+    // GetBridgeFieldId() needed in backend
+    // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
   }
 
-  handleBossFieldFlag(){
-    if(this.BOSS_FIELD_FLAG){
-      // GetBossFieldId() needed in backend
-      // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
-    }
+  bossMoveClick(){
+    // GetBossFieldId() needed in backend
+    // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
   }
 
-  handleFightPlayerFlag(){
-    if(this.FIGHT_WITH_PLAYER_FLAG){
-      this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-        this.playersToAttack = data.playerList;
-        this.fetchPlayersCharacter();
-      });
-    }
+  attackPlayedClick(enemyPlayedLogin: string){
+    this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
   }
 
-  handleFightEnemyFlag(){
-    if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
-      this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-        // to check
-        this.enemiesToAttack = data.enemycardList;
-        this.fetchEnemies();
-      });
-    }
+  attackEnemyClick(enemyCardId: number){
+    this.shared.sendFightEnemyCardClickEvent(enemyCardId);
   }
 
-  fetchPlayersCharacter(){
-    this.playersToAttack.forEach( (player: Player) => {
-      this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
-        this.playersToAttackCharacters.push(character);
-      });
-    });
-  }
-
-  fetchEnemies(){
-    this.enemiesToAttack.forEach( (enemy: EnemyCard) => {
-      this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
-        this.enemiesToAttackFromEngine.push(card);
-      });
-    });
+  exchangeTrophiesClick(){
+    // this.shared.sendExchangeTrophiesEvent();
   }
 
   resetOptions(){

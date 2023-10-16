@@ -3,7 +3,7 @@ import { GameEngineService } from '../../../../services/game-engine/game-engine.
 import { Board } from '../../../../interfaces/game-engine/board/board';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { SharedService } from "../../../../services/shared.service";
 
 @Component({
@@ -12,7 +12,7 @@ import { SharedService } from "../../../../services/shared.service";
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit, OnChanges{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
   board !: Board;
   rowArray: number[] = [];
 

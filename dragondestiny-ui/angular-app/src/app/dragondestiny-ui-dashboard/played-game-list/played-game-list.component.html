@@ -1,5 +1,11 @@
-<div *ngIf="gameIdsList">
-  <div *ngFor="let g of gameIdsList.gameList; let i = index" class="played-game-list">
-    {{i+1}}) Game ID: {{g.id}} <button (click)="continueGame(g.id)">Continue</button> <!--<button>Preview</button>-->
+<div *ngIf="gameList">
+  <div *ngFor="let g of gameList; let i = index" class="played-game-list">
+    {{i+1}}) Game ID: {{g.id}}
+    <div *ngIf="g.isStarted">
+      <button (click)="continueGame(g.id)">Continue</button>
+    </div>
+    <div *ngIf="!g.isStarted">
+      <button (click)="joinGame(g.id)">Join</button>
+    </div>
   </div>
 </div>

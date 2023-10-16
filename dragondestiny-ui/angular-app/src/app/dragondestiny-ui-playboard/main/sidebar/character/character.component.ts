@@ -1,7 +1,7 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { SharedService } from "../../../../services/shared.service";
 
 @Component({
@@ -10,7 +10,7 @@ import { SharedService } from "../../../../services/shared.service";
   styleUrls: ['./character.component.css']
 })
 export class CharacterComponent implements OnInit{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
   character!: PlayedGameCharacter;
 
   constructor(private playedGameService: PlayedGameService, private shared: SharedService){

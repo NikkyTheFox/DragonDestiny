@@ -3,7 +3,7 @@ import { PlayedGameService } from '../../../../services/played-game/played-game-
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
 import { ItemCard } from '../../../../interfaces/played-game/card/item-card/item-card';
 import { Card } from '../../../../interfaces/game-engine/card/card/card';
-import { GamePlayerRequest } from '../../../../interfaces/game-player-request';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { SharedService } from "../../../../services/shared.service";
 
 @Component({
@@ -12,7 +12,7 @@ import { SharedService } from "../../../../services/shared.service";
   styleUrls: ['./context-bar-items.component.css']
 })
 export class ContextBarItemsComponent implements OnInit{
-  requestStructure!: GamePlayerRequest;
+  requestStructure!: GameDataStructure;
   itemsList: ItemCard[] = [];
   cardNameList: string[] = [];
   cardDescList: string[] = [];
