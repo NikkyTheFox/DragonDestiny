@@ -907,6 +907,7 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
     public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) throws JsonProcessingException {
+//        messagingTemplate.convertAndSend("http://localhost:4200/test", "SHOT");
         try {
             Optional<PlayedGame> playedGame = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
             if (playedGame.isPresent()) {
@@ -915,6 +916,8 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
+//            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
+//                    .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (ServiceException ex) {
             return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
         }

@@ -32,7 +32,20 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   clickDiceRollEventSubscription!: Subscription;
   clickMoveCharacterEventSubscription!: Subscription;
 
-  constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService, private shared: SharedService){
+  messages: string[] = [];
+
+  private webSocket : WebSocket;
+
+  constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService,
+              private shared: SharedService){
+    this.webSocket = new WebSocket('ws://localhost:8085/test');
+    this.webSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const mappedData: PlayedGame = Object.assign(data);
+      // @ts-ignore
+      this.messages.push(mappedData.players[0].character.field.id.toString());
+      this.playersInGame = mappedData.players;
+    };
   }
 
   ngOnInit(){
