@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
@@ -22,7 +21,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
-import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.ServiceException;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.service.PlayerService;
@@ -408,7 +406,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindPlayersCharacter() throws ServiceException {
+    public void testFindPlayersCharacter() {
         // Arrange
         Character characterToFind = playedGame.getPlayers().stream().filter(card -> card.getLogin().equals(playerLogin)).findFirst().get().getCharacter();
 
@@ -421,7 +419,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindPlayersCharacterNotFound() throws ServiceException {
+    public void testFindPlayersCharacterNotFound() {
         // Arrange
         String playerLogin = "nonExisting";
 
@@ -561,7 +559,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindCharactersNotInUse() throws ServiceException {
+    public void testFindCharactersNotInUse() {
         // Arrange
         List<Character> charactersInGame = playedGame.getCharactersInGame();
         List<Character> charactersInPlayers = playedGame.getPlayers().stream().map(Player::getCharacter).collect(Collectors.toList());
@@ -578,7 +576,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindCharactersNotInUseNotFound() throws ServiceException {
+    public void testFindCharactersNotInUseNotFound() {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -611,7 +609,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersField() throws ServiceException {
+    public void testFindEnemyCardsOnPlayersField() {
         // Arrange
         int fieldId = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getPositionField().getId();
         EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemy).get();
@@ -623,7 +621,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersFieldNotFound() throws ServiceException {
+    public void testFindEnemyCardsOnPlayersFieldNotFound() {
         // Arrange
         String playerLogin = "nonExisting";
         // Act
@@ -676,7 +674,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindActiveRound() throws ServiceException {
+    public void testFindActiveRound() {
         // Arrange
         Round roundToFind = playedGame.getActiveRound();
         // Act
@@ -687,7 +685,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindActiveRoundNotFound() throws ServiceException {
+    public void testFindActiveRoundNotFound() {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -770,7 +768,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindDifferentPlayersByField() throws ServiceException {
+    public void testFindDifferentPlayersByField() {
         // Arrange
         int fieldId = 1;
         Player player2 = new Player();
@@ -791,7 +789,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindDifferentPlayersByFieldNotFound() throws ServiceException {
+    public void testFindDifferentPlayersByFieldNotFound() {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -849,7 +847,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGame() throws ServiceException {
+    public void testStartGame() {
         // Act
         Optional<PlayedGame> playedGameStarted = playedGameService.startGame(playedGameId, true);
         // Assert
@@ -861,7 +859,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGameNotFound() throws ServiceException {
+    public void testStartGameNotFound() {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -871,7 +869,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRound() throws ServiceException {
+    public void testNextRound() {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -890,7 +888,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayer() throws ServiceException {
+    public void testNextRoundBlockedPlayer() {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -913,7 +911,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayers() throws ServiceException {
+    public void testNextRoundBlockedPlayers() {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -934,15 +932,17 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundNotFound() throws ServiceException {
+    public void testNextRoundNotFound() {
         // Arrange
         playedGame.setIsStarted(false);
+        String expectedMessage = "The game is not started yet.";
         // Act and Assert
-        assertThrows(ServiceException.class, () -> playedGameService.nextRound(playedGameId));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.nextRound(playedGameId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testAddPlayer() throws ServiceException {
+    public void testAddPlayer() {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -958,7 +958,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAddPlayerNotFound() throws ServiceException {
+    public void testAddPlayerNotFound() {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -971,7 +971,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAssignCharacterToPlayer() throws ServiceException {
+    public void testAssignCharacterToPlayer() {
         // Arrange
         int characterId = 2;
         Optional<Character> characterToAdd = playedGame.getCharactersInGame().stream().filter(character -> character.getId().equals(characterId)).findFirst();
@@ -984,11 +984,11 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAssignCharacterToPlayerNotFound() throws ServiceException {
+    public void testAssignCharacterToPlayerNotFound() {
         // Arrange
         int characterId = 241;
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId));
+        assertThrows(NoSuchElementException.class, () -> playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId));
     }
 
     @Test
@@ -1014,7 +1014,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToUsed() throws ServiceException {
+    public void testMoveCardFromCardDeckToUsed() {
         // Arrange
         int cardId = 20;
         // Act
@@ -1026,15 +1026,17 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToUsedNotFound() throws ServiceException {
+    public void testMoveCardFromCardDeckToUsedNotFound() {
         // Arrange
         int cardId = 142124;
+        String expectedMessage = "No card with given id found in card deck";
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayer() throws Exception {
+    public void testMoveCardFromCardDeckToPlayer() {
         // Arrange
         int cardId = 20;
         // Act
@@ -1046,7 +1048,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayerTooManyCards() throws ServiceException {
+    public void testMoveCardFromCardDeckToPlayerTooManyCards() {
         // Arrange
         int cardId = 20;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1054,20 +1056,24 @@ public class PlayedGameServiceTests {
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
+        String expectedMessage = "Player has no place on hand.";
         // Act and Assert
-        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
     public void testMoveCardFromCardDeckToPlayerNotFound() throws Exception {
         // Arrange
         int cardId = 142124;
+        String expectedMessage = "No card with given id found in card deck.";
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophies() throws ServiceException {
+    public void testMoveCardFromCardDeckToTrophies() {
         // Arrange
         int cardId = 2;
         // Act
@@ -1079,7 +1085,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() throws ServiceException {
+    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() {
         // Arrange
         int cardId = 2;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1101,15 +1107,17 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophiesNotFound() throws ServiceException {
+    public void testMoveCardFromCardDeckToTrophiesNotFound() {
         // Arrange
         int cardId = 142124;
+        String expectedMessage = "No card with given id found in card deck.";
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromPlayerToUsedDeck() throws ServiceException {
+    public void testMoveCardFromPlayerToUsedDeck() {
         // Arrange
         int cardId = 30;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1124,15 +1132,17 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromPlayerToUsedDeckNotFound() throws ServiceException {
+    public void testMoveCardFromPlayerToUsedDeckNotFound() {
         // Arrange
         int cardId = 142124;
+        String expectedMessage = "No card with given id found in player's hand.";
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId));
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testChangePosition() throws ServiceException {
+    public void testChangePosition() {
         // Arrange
         int fieldId = 2;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1145,15 +1155,17 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testChangePositionFieldNotFound() throws ServiceException {
+    public void testChangePositionFieldNotFound() {
         // Arrange
         int fieldId = 231;
+        String expectedMessage = "Field with given id was not found on the board";
         // Act & Assert
-        assertThrows(ServiceException.class, () -> playedGameService.changePosition(playedGameId, playerLogin, fieldId));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.changePosition(playedGameId, playerLogin, fieldId));
+        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void testCheckPossibleNewPositions() throws ServiceException {
+    public void testCheckPossibleNewPositions() {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1171,7 +1183,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBridgeFieldBlocked() throws ServiceException {
+    public void testCheckPossibleNewPositionsBridgeFieldBlocked() {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1191,7 +1203,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBridgeFieldOK() throws ServiceException {
+    public void testCheckPossibleNewPositionsBridgeFieldOK() {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1213,7 +1225,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBossField() throws ServiceException {
+    public void testCheckPossibleNewPositionsBossField() {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1232,25 +1244,29 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestCharacterThrowsException() throws ServiceException {
+    public void checkFieldOptionTestCharacterThrowsException() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         playerToCheck.get().setCharacter(null);
+        String expectedMessage = "There was no character assigned to player with given login.";
         // Act and Assert
-        assertThrows(ServiceException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void checkFieldOptionTestFieldThrowsException() throws ServiceException {
+    public void checkFieldOptionTestFieldThrowsException() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         playerToCheck.get().getCharacter().setField(null);
+        String expectedMessage = "There was no position field assigned to character of player with given login.";
         // Act and Assert
-        assertThrows(ServiceException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
+        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void checkFieldOptionTest() throws ServiceException {
+    public void checkFieldOptionTest() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(1)).findFirst();
@@ -1269,7 +1285,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBossField() throws ServiceException {
+    public void checkFieldOptionTestBossField() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst();
@@ -1288,7 +1304,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBridgeFieldBlocked() throws ServiceException {
+    public void checkFieldOptionTestBridgeFieldBlocked() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
@@ -1306,7 +1322,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBridgeFieldOK() throws ServiceException {
+    public void checkFieldOptionTestBridgeFieldOK() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
@@ -1326,7 +1342,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestFightPlayer() throws ServiceException {
+    public void checkFieldOptionTestFightPlayer() {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Player newPlayer = new Player();
@@ -1352,7 +1368,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkDrawCard() throws ServiceException {
+    public void checkDrawCard() {
         // Arrange
         when(playedGameRepositoryMock.findCardByIndexInCardDeck(eq(playedGameId), anyInt())).thenReturn(new ArrayList<>(List.of(new Card())));
         // Act
@@ -1362,33 +1378,31 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestInvalidPlayerRollValue() throws ServiceException {
+    public void calculateFightWithEnemyCardTestInvalidPlayerRollValue() {
         // Arrange
         int playerRoll = 1309;
         int enemyRoll = 1;
         int enemyCardId = 2;
         String expectedMessage = "Player roll value is not within set values";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestInvalidEnemyRollValue() throws ServiceException {
+    public void calculateFightWithEnemyCardTestInvalidEnemyRollValue() {
         // Arrange
         int playerRoll = 3;
         int enemyRoll = 1111;
         int enemyCardId = 2;
         String expectedMessage = "Enemy roll value is not within set values";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestCharacterNotSet() throws ServiceException {
+    public void calculateFightWithEnemyCardTestCharacterNotSet() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1397,13 +1411,12 @@ public class PlayedGameServiceTests {
         player.setCharacter(null);
         String expectedMessage = "There was no character assigned to player with given login";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestFieldNotSet() throws ServiceException {
+    public void calculateFightWithEnemyCardTestFieldNotSet() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1412,39 +1425,36 @@ public class PlayedGameServiceTests {
         player.getCharacter().setField(null);
         String expectedMessage = "There was no position field assigned to character of player with given login";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestCardNotFound() throws ServiceException {
+    public void calculateFightWithEnemyCardTestCardNotFound() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
         int enemyCardId = 115;
         String expectedMessage = "No card with given id found in game";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestCardNotEnemyCard() throws ServiceException {
+    public void calculateFightWithEnemyCardTestCardNotEnemyCard() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
         int enemyCardId = 10;
         String expectedMessage = "Only card of type ENEMY CARD can be enemy to fight with";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilled() throws ServiceException {
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilled() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1463,7 +1473,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilledTrophiesIncrease() throws ServiceException {
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilledTrophiesIncrease() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1485,7 +1495,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostDead() throws ServiceException {
+    public void calculateFightWithEnemyCardTestPlayerLostDead() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
@@ -1505,7 +1515,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostDecreaseHealthCard() throws ServiceException {
+    public void calculateFightWithEnemyCardTestPlayerLostDecreaseHealthCard() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
@@ -1529,7 +1539,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostLoseHealthCard() throws ServiceException {
+    public void calculateFightWithEnemyCardTestPlayerLostLoseHealthCard() {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
@@ -1550,7 +1560,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerRollInvalid() throws ServiceException {
+    public void calculateFightWithPlayerPlayerRollInvalid() {
         // Arrange
         int playerRoll = 113;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1562,13 +1572,12 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = "Player roll value is not within set values";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(400), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithPlayerNoCharacter() throws ServiceException {
+    public void calculateFightWithPlayerNoCharacter() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1580,13 +1589,12 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = "There was no character assigned to player with given login";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithPlayerNoField() throws ServiceException {
+    public void calculateFightWithPlayerNoField() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1598,13 +1606,12 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = "There was no position field assigned to character of player with given login";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithPlayerNoEnemyRoll() throws ServiceException {
+    public void calculateFightWithPlayerNoEnemyRoll() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1614,13 +1621,12 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = "Attacker roll assigned, waiting for attacked player's roll";
         // Act & Assert
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
-        assertEquals(HttpStatusCode.valueOf(204), exception.getStatusCode());
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonEnemyDecreasedHealth() throws ServiceException {
+    public void calculateFightWithPlayerPlayerWonEnemyDecreasedHealth() {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1646,7 +1652,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonEnemyDead() throws ServiceException {
+    public void calculateFightWithPlayerPlayerWonEnemyDead() {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1672,7 +1678,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonChooseCard() throws ServiceException {
+    public void calculateFightWithPlayerPlayerWonChooseCard() {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1702,7 +1708,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonPlayerDecreasedHealth() throws ServiceException {
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDecreasedHealth() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1730,7 +1736,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonPlayerDead() throws ServiceException {
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDead() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1760,7 +1766,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonChooseCard() throws ServiceException {
+    public void calculateFightWithPlayerEnemyPlayerWonChooseCard() {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1809,19 +1815,18 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void blockTurnsOfPlayerNumberToBlockInvalid() throws ServiceException {
+    public void blockTurnsOfPlayerNumberToBlockInvalid() {
         // Arrange
         int numOfTurnsToBlock = -1;
         String expectedMessage = "Number of turns to block must be greater than 0";
         // Act
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock));
         // Assert
         assertEquals(expectedMessage, exception.getMessage());
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void blockTurnsOfPlayer() throws ServiceException {
+    public void blockTurnsOfPlayer() {
         // Arrange
         int numOfTurnsToBlock = 1;
         int expectedNumOfBlocked = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getBlockedTurns() + numOfTurnsToBlock;
@@ -1833,33 +1838,31 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void automaticallyBlockTurnsOfPlayerNoCharacter() throws ServiceException {
+    public void automaticallyBlockTurnsOfPlayerNoCharacter() {
         // Arrange
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setCharacter(null);
         String expectedMessage = "There was no character assigned to player with given login";
         // Act
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
         // Assert
         assertEquals(expectedMessage, exception.getMessage());
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void automaticallyBlockTurnsOfPlayerNoField() throws ServiceException {
+    public void automaticallyBlockTurnsOfPlayerNoField() {
         // Arrange
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setPositionField(null);
         String expectedMessage = "There was no position field assigned to character of player with given login";
         // Act
-        ServiceException exception = assertThrows(ServiceException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
         // Assert
         assertEquals(expectedMessage, exception.getMessage());
-        assertEquals(HttpStatusCode.valueOf(404), exception.getStatusCode());
     }
 
     @Test
-    public void automaticallyBlockTurnsOfPlayer() throws ServiceException {
+    public void automaticallyBlockTurnsOfPlayer() {
         // Arrange
         Field field = new Field();
         field.setType(FieldType.LOSE_TWO_ROUNDS);

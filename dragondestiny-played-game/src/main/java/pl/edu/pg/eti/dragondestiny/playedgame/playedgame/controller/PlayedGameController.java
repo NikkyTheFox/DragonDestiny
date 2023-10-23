@@ -43,7 +43,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.NotificationMess
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGameList;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameService;
-import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.ServiceException;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
@@ -51,6 +50,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.DTO.RoundDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -178,8 +178,10 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -222,8 +224,8 @@ public class PlayedGameController {
             Optional<Round> round = playedGameService.findActiveRound(playedGameId);
             return round.map(value -> ResponseEntity.ok().body(modelMapper.map(value, RoundDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -253,8 +255,8 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -453,8 +455,8 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -478,8 +480,8 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -511,8 +513,10 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -536,8 +540,10 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -559,8 +565,8 @@ public class PlayedGameController {
             Optional<Card> card = playedGameService.drawCard(playedGameId);
             return card.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CardDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -642,8 +648,8 @@ public class PlayedGameController {
             Optional<CharacterList> characterList = playedGameService.findCharactersNotInUse(playedGameId);
             return characterList.map(list -> ResponseEntity.ok().body(playedGameService.convertCharacterListToDTO(modelMapper, list)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -728,8 +734,8 @@ public class PlayedGameController {
             Optional<Character> character = playedGameService.findPlayersCharacter(playedGameId, playerLogin);
             return character.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CharacterDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -853,8 +859,8 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.addPlayer(playedGameId, playerLogin);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -878,8 +884,8 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -903,8 +909,8 @@ public class PlayedGameController {
             Optional<FieldList> fieldList = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, rollValue);
             return fieldList.map(list -> ResponseEntity.ok().body(playedGameService.convertFieldListToDTO(modelMapper, list)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -936,8 +942,8 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -960,8 +966,8 @@ public class PlayedGameController {
             Optional<FieldOptionList> fieldOptionList = playedGameService.checkFieldOption(playedGameId, playerLogin);
             return fieldOptionList.map(optionList -> ResponseEntity.ok().body(new FieldOptionListDTO(optionList.getPossibleOptions())))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -984,8 +990,8 @@ public class PlayedGameController {
             Optional<PlayerList> playerList = playedGameService.findDifferentPlayersByField(playedGameId, playerLogin);
             return playerList.map(list -> ResponseEntity.ok().body(playedGameService.convertPlayerListToDTO(modelMapper, list)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -1008,8 +1014,8 @@ public class PlayedGameController {
             Optional<EnemyCardList> enemyCardList = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
             return enemyCardList.map(cardList -> ResponseEntity.ok().body(playedGameService.convertEnemyCardListToDTO(modelMapper, cardList)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -1041,8 +1047,8 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -1073,9 +1079,12 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
+
     }
 
     // ACTIONS -----------------------------------------------------------------------------------------------------------
@@ -1136,8 +1145,10 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -1155,9 +1166,10 @@ public class PlayedGameController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = FightResultDTO.class))}),
+            @ApiResponse(responseCode = "204", description = "Roll saved, waiting for enemy's roll", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) throws ServiceException {
+    public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
             if (fightResult.isPresent()) {
@@ -1180,8 +1192,12 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (ServiceException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.returnMessage());
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(204).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 }

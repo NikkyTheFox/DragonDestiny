@@ -37,6 +37,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     public void broadcastMessage(String playedGameId, NotificationMessage message) throws JsonProcessingException {
         TextMessage textMessage = new TextMessage(objectMapper.writeValueAsString(message.toString()));
+        if (sessionsMap.map.isEmpty()) {
+            return;
+        }
         for (WebSocketSession session : sessionsMap.map.get(playedGameId)) {
             try {
                 session.sendMessage(textMessage);

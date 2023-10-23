@@ -2,7 +2,6 @@ package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import pl.edu.pg.eti.dragondestiny.playedgame.PlayedGameProperties;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
@@ -89,17 +88,6 @@ public class PlayedGameService {
     public List<PlayedGame> findPlayedGames() {
 
         return playedGameRepository.findAll();
-    }
-
-    /**
-     * Adds new played game to database.
-     *
-     * @param game The PlayedGame to be saved.
-     * @return Saved played game.
-     */
-    public PlayedGame save(PlayedGame game) {
-
-        return playedGameRepository.save(game);
     }
 
     /**
@@ -210,14 +198,14 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player whose character is to be retrieved.
      * @return A retrieved player's character.
      */
-    public Optional<Character> findPlayersCharacter(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<Character> findPlayersCharacter(String playedGameId, String playerLogin) {
         Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (game.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Given player does not have a character assigned.");
+            throw new NoSuchElementException("Given player does not have a character assigned.");
         }
         return player.map(Player::getCharacter);
     }
@@ -350,14 +338,14 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a game to retrieve data about.
      * @return A structure containing list of characters.
      */
-    public Optional<CharacterList> findCharactersNotInUse(String playedGameId) throws ServiceException {
+    public Optional<CharacterList> findCharactersNotInUse(String playedGameId) {
         Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         List<Character> characterList = playedGameRepository.findCharacters(playedGameId);
         if (game.isEmpty()) {
             return Optional.empty();
         }
         if (characterList.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "No characters found in played game.");
+            throw new NoSuchElementException("No characters found in played game.");
         }
         List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
         if (playerList.isEmpty()) {
@@ -399,17 +387,17 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing a list of enemy cards.
      */
-    public Optional<EnemyCardList> findEnemyCardOnPlayersField(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<EnemyCardList> findEnemyCardOnPlayersField(String playedGameId, String playerLogin) {
         Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (game.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
+            throw new NoSuchElementException("There was no character assigned to player with given login.");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
         List<EnemyCard> enemyCardList = playedGameRepository.findEnemyOnField(playedGameId, player.get().getCharacter().getField().getId());
         if (enemyCardList.isEmpty()) {
@@ -447,13 +435,13 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return Currently ongoing round.
      */
-    public Optional<Round> findActiveRound(String playedGameId) throws ServiceException {
+    public Optional<Round> findActiveRound(String playedGameId) {
         Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         if (game.isEmpty()) {
             return Optional.empty();
         }
         if (game.get().getActiveRound() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "The game does not have an active round started.");
+            throw new NoSuchElementException("The game does not have an active round started.");
         }
         return playedGameRepository.findActiveRound(playedGameId).stream().findFirst();
     }
@@ -514,23 +502,24 @@ public class PlayedGameService {
     }
 
     /**
-     * Retrieves other players from player's position field.
+     * Retrieves ot
+     * her players from player's position field.
      *
      * @param playedGameId An identifier of a played game to perform actions on.
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing a list of players.
      */
-    public Optional<PlayerList> findDifferentPlayersByField(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<PlayerList> findDifferentPlayersByField(String playedGameId, String playerLogin) {
         Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (game.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
+            throw new NoSuchElementException("There was no character assigned to player with given login.");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
         List<Player> playerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.get().getCharacter().getField().getId());
         if (playerList.isEmpty()) {
@@ -586,21 +575,27 @@ public class PlayedGameService {
      * @param startBoolean A boolean to set if game is to be started
      * @return An updated game.
      */
-    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) throws ServiceException {
+    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         if (!startBoolean || playedGame.isEmpty()) {
             return Optional.empty();
         }
         PlayedGame game = playedGame.get();
         if (game.getIsStarted()) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "The game is already started.");
+            throw new IllegalArgumentException("The game is already started.");
         }
         Round round = new Round();
         round.setId(1);
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There must be at least one player in game to start.");
+            throw new NoSuchElementException("There must be at least one player in game to start.");
         }
+        for (Player player : players) {
+            if (player.getCharacter() == null) {
+                throw new NoSuchElementException("All players must have a character assigned");
+            }
+        }
+
         Collections.shuffle(players);
         round.setPlayerList(players);
         Player startingPlayer = players.get(0);
@@ -615,13 +610,13 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return An updated game.
      */
-    public Optional<PlayedGame> nextRound(String playedGameId) throws ServiceException {
+    public Optional<PlayedGame> nextRound(String playedGameId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         if (playedGame.isEmpty()) {
             return Optional.empty();
         }
-        if (!playedGame.get().getIsStarted()) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "The game is not started yet.");
+        if (!playedGame.get().getIsStarted() || playedGame.get().getActiveRound() == null) {
+            throw new IllegalArgumentException("The game is not started yet.");
         }
         PlayedGame game = playedGame.get();
         game.getRounds().add(game.getActiveRound());
@@ -665,14 +660,14 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player to be added to the game
      * @return An updated game.
      */
-    public Optional<PlayedGame> addPlayer(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<PlayedGame> addPlayer(String playedGameId, String playerLogin) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = playerService.findByLogin(playerLogin);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (playedGame.get().getPlayers().stream().filter(p -> p.getLogin().equals(playerLogin)).findAny().isPresent()) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "The player with given login is already added to the game.");
+            throw new IllegalArgumentException("The player with given login is already added to the game.");
         }
         playedGame.get().addPlayerToGame(player.get());
         playerService.addGame(playerLogin, playedGameId);
@@ -687,7 +682,7 @@ public class PlayedGameService {
      * @param characterId  An identifier of character to be assigned to the player.
      * @return An updated game.
      */
-    public Optional<PlayedGame> assignCharacterToPlayer(String playedGameId, String playerLogin, Integer characterId) throws ServiceException {
+    public Optional<PlayedGame> assignCharacterToPlayer(String playedGameId, String playerLogin, Integer characterId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Character> character = findCharacter(playedGameId, characterId);
@@ -695,14 +690,14 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (character.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Character with given id was not found in the game.");
+            throw new NoSuchElementException("Character with given id was not found in the game.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
         Character character1 = character.get();
         Optional<Field> field = findField(playedGameId, character1.getField().getId());
         if (field.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Chosen character has no position field assigned");
+            throw new NoSuchElementException("Chosen character has no position field assigned");
         }
         player1.setCharacter(character1);
         updatePlayer(playedGame1, player1);
@@ -739,14 +734,14 @@ public class PlayedGameService {
      * @return An updated game.
      */
 
-    public Optional<PlayedGame> moveCardFromCardDeckToUsedCardDeck(String playedGameId, Integer cardId) throws ServiceException {
+    public Optional<PlayedGame> moveCardFromCardDeckToUsedCardDeck(String playedGameId, Integer cardId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
         if (playedGame.isEmpty()) {
             return Optional.empty();
         }
         if (card.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in card deck");
+            throw new NoSuchElementException("No card with given id found in card deck");
         }
         PlayedGame game = playedGame.get();
         Card card1 = card.get();
@@ -763,7 +758,7 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card that is to be moved to a player hand.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) throws ServiceException {
+    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
@@ -771,18 +766,18 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (card.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in card deck.");
+            throw new NoSuchElementException("No card with given id found in card deck.");
         }
         if (!card.get().getCardType().equals(CardType.ITEM_CARD)) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Only card of type ITEM CARD can be added to player's hand.");
+            throw new IllegalArgumentException("Only card of type ITEM CARD can be added to player's hand.");
         }
         if (!player.get().checkCardsOnHand()) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Player has no place on hand.");
+            throw new IllegalArgumentException("Player has no place on hand.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
         if (player1.getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Player has no character assigned.");
+            throw new NoSuchElementException("Player has no character assigned.");
         }
         Card card1 = card.get();
         player1.moveCardToPlayer(card1);
@@ -799,7 +794,7 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card to be moved to player's trophy list.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardToPlayerTrophies(String playedGameId, String playerLogin, Integer cardId) throws ServiceException {
+    public Optional<PlayedGame> moveCardToPlayerTrophies(String playedGameId, String playerLogin, Integer cardId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
@@ -807,10 +802,10 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (card.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in card deck.");
+            throw new NoSuchElementException("No card with given id found in card deck.");
         }
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Only card of type ENEMY CARD can be added to player's trophies.");
+            throw new IllegalArgumentException("Only card of type ENEMY CARD can be added to player's trophies.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -830,7 +825,7 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card to be moved.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardFromPlayerToUsedCardDeck(String playedGameId, String playerLogin, Integer cardId) throws ServiceException {
+    public Optional<PlayedGame> moveCardFromPlayerToUsedCardDeck(String playedGameId, String playerLogin, Integer cardId) {
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<ItemCard> itemCard = findCardInPlayerHand(playedGameId, playerLogin, cardId);
@@ -838,7 +833,7 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (itemCard.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in player's hand.");
+            throw new NoSuchElementException("No card with given id found in player's hand.");
         }
         Card card = itemCard.get();
         Player player1 = player.get();
@@ -857,15 +852,18 @@ public class PlayedGameService {
      * @param fieldId      An identifier of a new player's position field.
      * @return An updated game.
      */
-    public Optional<PlayedGame> changePosition(String playedGameId, String playerLogin, Integer fieldId) throws ServiceException {
+    public Optional<PlayedGame> changePosition(String playedGameId, String playerLogin, Integer fieldId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Field> field = findField(playedGameId, fieldId);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
+        if (player.get().getCharacter() == null) {
+            throw new NoSuchElementException("There was no character assigned to player with given login");
+        }
         if (field.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Field with given id was not found on the board.");
+            throw new NoSuchElementException("Field with given id was not found on the board");
         }
         Player player1 = player.get();
         PlayedGame playedGame1 = playedGame.get();
@@ -883,17 +881,17 @@ public class PlayedGameService {
      * @param rollValue    A value that has been rolled.
      * @return A structure containing a list of fields.
      */
-    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin, Integer rollValue) throws ServiceException {
+    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin, Integer rollValue) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
+            throw new NoSuchElementException("There was no character assigned to player with given login.");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
         Player player1 = player.get();
         PlayedGame playedGame1 = playedGame.get();
@@ -937,17 +935,17 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing list of possible options.
      */
-    public Optional<FieldOptionList> checkFieldOption(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<FieldOptionList> checkFieldOption(String playedGameId, String playerLogin) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login.");
+            throw new NoSuchElementException("There was no character assigned to player with given login.");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login.");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -978,7 +976,7 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return A randomly drawn card.
      */
-    public Optional<Card> drawCard(String playedGameId) throws ServiceException {
+    public Optional<Card> drawCard(String playedGameId) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         if (playedGame.isEmpty()) {
             return Optional.empty();
@@ -986,7 +984,7 @@ public class PlayedGameService {
         Random random = new Random();
         List<Card> cardList = playedGameRepository.findCardDeck(playedGameId);
         if (cardList.isEmpty()) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There are no cards in the card deck.");
+            throw new NoSuchElementException("There are no cards in the card deck.");
         }
         int cardToDrawIndex = random.nextInt(cardList.size() - 1);
         List<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex);
@@ -1003,7 +1001,7 @@ public class PlayedGameService {
      * @param enemyRollValue  A value rolled by an enemy (rolled by server).
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId, Integer playerRollValue, Integer enemyRollValue) throws ServiceException {
+    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId, Integer playerRollValue, Integer enemyRollValue) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
@@ -1011,26 +1009,26 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Player roll value is not within set values");
+            throw new IllegalArgumentException("Player roll value is not within set values");
         }
         if (!(enemyRollValue >= PlayedGameProperties.diceLowerBound && enemyRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Enemy roll value is not within set values");
+            throw new IllegalArgumentException("Enemy roll value is not within set values");
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
+            throw new NoSuchElementException("There was no character assigned to player with given login");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
         }
         if (card.isEmpty()) {
             if (player.get().getCharacter().getField().getEnemy() != null && player.get().getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
                 card = Optional.of(player.get().getCharacter().getField().getEnemy());
             } else {
-                throw new ServiceException(HttpStatusCode.valueOf(404), "No card with given id found in game");
+                throw new NoSuchElementException("No card with given id found in game");
             }
         }
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Only card of type ENEMY CARD can be enemy to fight with");
+            throw new IllegalArgumentException("Only card of type ENEMY CARD can be enemy to fight with");
         }
         EnemyCard enemyCard = (EnemyCard) card.get();
         FightResult fightResult = new FightResult();
@@ -1065,7 +1063,7 @@ public class PlayedGameService {
      * @param playerRollValue  A value rolled by player (defender)
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin, Integer playerRollValue) throws ServiceException {
+    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin, Integer playerRollValue) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Player> enemyPlayer = findPlayer(playedGameId, enemyPlayerLogin);
@@ -1073,17 +1071,17 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new ServiceException(HttpStatusCode.valueOf(400), "Player roll value is not within set values");
+            throw new IllegalArgumentException("Player roll value is not within set values");
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
+            throw new NoSuchElementException("There was no character assigned to player with given login");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
         }
         setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
         if (enemyPlayer.get().getFightRoll() == 0) { // call from the attacker, wait for attacked roll
-            throw new ServiceException(HttpStatusCode.valueOf(204), "Attacker roll assigned, waiting for attacked player's roll");
+            throw new IllegalStateException("Attacker roll assigned, waiting for attacked player's roll");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -1155,14 +1153,14 @@ public class PlayedGameService {
      * @param numOfTurnsToBlock A number of turns to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) throws ServiceException {
+    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (numOfTurnsToBlock <= 0) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "Number of turns to block must be greater than 0");
+            throw new IllegalArgumentException("Number of turns to block must be greater than 0");
         }
         PlayedGame playedGame1 = playedGame.get();
         Player player1 = player.get();
@@ -1179,24 +1177,25 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) throws ServiceException {
+    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) {
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         if (player.isEmpty()) {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no character assigned to player with given login");
+            throw new NoSuchElementException("There was no character assigned to player with given login");
         }
         if (player.get().getCharacter().getField() == null) {
-            throw new ServiceException(HttpStatusCode.valueOf(404), "There was no position field assigned to character of player with given login");
+            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
         }
         Field field = player.get().getCharacter().getField();
         int numOfTurnsToBlock = 0;
         if (field.getType() == FieldType.LOSE_ONE_ROUND) {
             numOfTurnsToBlock = 1;
-        }
-        if (field.getType() == FieldType.LOSE_TWO_ROUNDS) {
+        } else if (field.getType() == FieldType.LOSE_TWO_ROUNDS) {
             numOfTurnsToBlock = 2;
+        } else {
+            throw new IllegalArgumentException("The player is not located on blocking field");
         }
         return blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
     }
@@ -1321,7 +1320,7 @@ public class PlayedGameService {
      * @param enemyCard The enemy card which health points are to be reduced.
      * @param value     A number that is to be subtracted from enemy's health points.
      */
-    private void decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) throws ServiceException {
+    private void decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) {
         enemyCard.reduceHealth(value);
         if (!enemyCard.isAlive()) {
             if (Objects.equals(enemyCard.getId(), PlayedGameProperties.guardianID)) {
@@ -1352,7 +1351,7 @@ public class PlayedGameService {
      * @param player The player whose health points are to be reduced.
      * @param value  A number that is to be subtracted from player's health.
      */
-    private void decreaseHealth(PlayedGame game, Player player, Integer value, FightResult fightResult) throws ServiceException {
+    private void decreaseHealth(PlayedGame game, Player player, Integer value, FightResult fightResult) {
         Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0 && !itemCard.isUsed()).findFirst();
         if (card.isEmpty()) { // no health cards
             player.reduceHealth(value);
