@@ -1,9 +1,12 @@
+import { NotificationEnum } from './../interfaces/played-game/notification/notification-enum';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { GameDataStructure } from "../interfaces/game-data-structure";
 import { PlayedGameService } from "./played-game/played-game-service";
 import { PlayedGame } from "../interfaces/played-game/played-game/played-game";
 import { Player } from "../interfaces/played-game/player/player";
+import { WebsocketService } from './websocket.service';
+import { NotificationMessage } from '../interfaces/played-game/notification/notification-message';
 
 @Injectable({
   providedIn: 'root'
@@ -36,9 +39,11 @@ export class SharedService{
   private drawCard = new Subject();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
+  private socket!: WebSocket;
+  private socketMessage = new Subject<NotificationMessage>();
 
 
-  constructor(private playedGameService: PlayedGameService){
+  constructor(private playedGameService: PlayedGameService, private wsService: WebsocketService){
 
   }
 
@@ -265,4 +270,52 @@ export class SharedService{
   getFightEnemyCardClickEvent(){
     return this.fightEnemyCard.asObservable();
   }
+
+  //    Socket Handling
+  initSocket(playedGameId: string){
+    this.wsService.connect(playedGameId);
+    this.socket = this.wsService.getSocket();
+  }
+
+  getSocket(){
+    this.socket.onmessage = (event) => {
+      console.log("XD mamy socketa");
+      console.log(event.data);
+      this.broadcastSocketMessage(event.data);
+    }
+    return this.socket;
+  }
+
+  broadcastSocketMessage(message: NotificationMessage){
+    this.socketMessage.next(message);
+  }
+
+  getSocketMessage(){
+    return this.socketMessage.asObservable();
+  }
+
+  parseNotificationMessage(data: string): NotificationMessage {
+    const regex = /NotificationMessage\(notificationOption=(.*), name=(.*), number=(.*), bool=(.*)\)/;
+    const matches = data.match(regex);
+  
+    if (matches) {
+      const [, notificationOption, name, number, bool] = matches;
+  
+
+      return {
+        notificationOption: NotificationEnum[notificationOption as keyof typeof NotificationEnum],
+        name,
+        number: parseInt(number, 10),
+        bool: bool === "true",
+      };
+    }
+  
+    return {
+      notificationOption: 0,
+      name: '',
+      number: 0,
+      bool: false,
+    };
+  }
+  
 }

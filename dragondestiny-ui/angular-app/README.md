@@ -1,3 +1,7 @@
+# After instalation of Node.js
+
+`npm install -g @angular/cli`
+
 # AngularApp
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.0.3.
