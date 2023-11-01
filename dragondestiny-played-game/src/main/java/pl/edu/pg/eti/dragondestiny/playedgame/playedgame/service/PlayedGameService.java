@@ -102,6 +102,7 @@ public class PlayedGameService {
             return false;
         }
         playedGameRepository.deleteById(playedGameId);
+        playerService.deleteGame(playedGameId);
         return true;
     }
 

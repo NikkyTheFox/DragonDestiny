@@ -49,4 +49,13 @@ public class PlayerService {
     public void addGame(String playerLogin, String playedGameId) {
         playerRepository.addGame(playerLogin, playedGameId);
     }
+
+    /**
+     * Deletes specific game from all players' game history.
+     *
+     * @param playedGameId
+     */
+    public void deleteGame(String playedGameId) {
+        playerRepository.deleteGame(playedGameId);
+    }
 }

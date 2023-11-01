@@ -197,6 +197,7 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "204", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
+    // TODO: delete from all players
     public ResponseEntity deleteGame(@PathVariable(name = "playedGameId") String playedGameId) {
         if (playedGameService.delete(playedGameId)) {
             return ResponseEntity.noContent().build();
@@ -242,6 +243,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
+    // TODO: add round order check
     public ResponseEntity setNextRound(@PathVariable(name = "playedGameId") String playedGameId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.nextRound(playedGameId);
@@ -450,6 +452,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
+    // TODO: round order check ?
     public ResponseEntity moveCardFromCardDeckToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId);
@@ -475,6 +478,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity moveCardFromPlayerHandToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId);
@@ -500,6 +504,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
@@ -535,6 +540,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity moveCardToPlayersTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
@@ -929,6 +935,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) throws JsonProcessingException {
         try {
             Optional<PlayedGame> playedGame = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
@@ -1034,6 +1041,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
         try {
             Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
@@ -1066,6 +1074,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<Player> player = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
@@ -1126,6 +1135,7 @@ public class PlayedGameController {
                     schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, cardId, playerRoll, enemyRoll);
@@ -1169,6 +1179,7 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "204", description = "Roll saved, waiting for enemy's roll", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
+    // TODO: round order check
     public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
