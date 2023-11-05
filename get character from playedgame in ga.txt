@@ -1,0 +1,15 @@
+get character from playedgame in game prep	DONE
+fix prep loading speed issues			DONE
+
+update context bar on end of turn		DONE
+
+update deck on draw card notification		TODO
+draw card notification
+    equip item
+    fight with enemy
+fight player notification
+
+
+fix start to be synchronous			DONE
+
+close all opened subsciptions			DONE

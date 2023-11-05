@@ -1,15 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { PlayedGame } from '../../interfaces/played-game/played-game/played-game';
 import { Router } from '@angular/router';
 import { GameDataService } from '../../services/game-data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-join-game',
   templateUrl: './join-game.component.html',
   styleUrls: ['./join-game.component.css']
 })
-export class JoinGameComponent implements OnInit{
+export class JoinGameComponent implements OnInit, OnDestroy{
+  gameSubscription!: Subscription;
+  addPlayerSubscription!: Subscription;
+
   playerLogin!: string;
   gameId!: string;
 
@@ -22,12 +26,12 @@ export class JoinGameComponent implements OnInit{
   }
 
   joinGame(){
-    this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
+    this.gameSubscription = this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
       if(data.isStarted){
         window.alert('Game has already started, you cannot join it.');
       }
       else{
-        this.playedGameService.addPlayerToGameByLogin(this.gameId, this.playerLogin).subscribe();
+        this.addPlayerSubscription = this.playedGameService.addPlayerToGameByLogin(this.gameId, this.playerLogin).subscribe();
         this.dataService.chosenGame = this.gameId;
         this.router.navigate(['preparegame']);
       }
@@ -35,5 +39,10 @@ export class JoinGameComponent implements OnInit{
       (error: any) => {
       window.alert('Game not found');
     });
+  }
+
+  ngOnDestroy(): void {
+      this.addPlayerSubscription?.unsubscribe();
+      this.gameSubscription?.unsubscribe();
   }
 }

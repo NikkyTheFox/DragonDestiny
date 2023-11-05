@@ -15,5 +15,6 @@ export class PrepareGameComponent implements OnInit{
 
   ngOnInit(){
     this.shared.setRequestByID(this.dataService.getGame(), this.dataService.getPlayerLogin());
+    this.shared.initSocket(this.dataService.getGame());
   }
 }

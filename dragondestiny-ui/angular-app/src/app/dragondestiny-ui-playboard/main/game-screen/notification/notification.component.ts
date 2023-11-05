@@ -1,16 +1,22 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {PlayedGameService} from "../../../../services/played-game/played-game-service";
 import {SharedService} from "../../../../services/shared.service";
 import {GameDataStructure} from "../../../../interfaces/game-data-structure";
 import {FightResult} from "../../../../interfaces/played-game/fight-result/fight-result";
 import {Card} from "../../../../interfaces/played-game/card/card/card";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css']
 })
-export class NotificationComponent implements OnInit{
+export class NotificationComponent implements OnInit, OnDestroy{
+  drawCardSubscription!: Subscription;
+  playerFightSubscription!: Subscription;
+  enemyFightSubscription!: Subscription;
+  rollDieSubscription!: Subscription;
+
   requestStructure!: GameDataStructure;
   @Input() notificationType!: number;
   @Input() notificationData!: any;
@@ -39,7 +45,7 @@ export class NotificationComponent implements OnInit{
   }
 
   handleDrawCard(){
-    this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( (data: Card) => {
+    this.drawCardSubscription = this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( (data: Card) => {
     // Handle card draw data to display in html file
     });
   }
@@ -47,7 +53,7 @@ export class NotificationComponent implements OnInit{
   handleFightPlayer(){
     // ROLL A DIE
     let roll = 6;
-    this.playedGameService.handleFightWithPlayer(
+    this.playerFightSubscription = this.playedGameService.handleFightWithPlayer(
       this.requestStructure.game!.id,
       this.requestStructure.player!.login,
       roll,
@@ -61,7 +67,7 @@ export class NotificationComponent implements OnInit{
     // ROLL A DIE
     let roll = 6;
     let rollEnemy = 1;
-    this.playedGameService.handleFightWithEnemyCard(
+    this.enemyFightSubscription = this.playedGameService.handleFightWithEnemyCard(
       this.requestStructure.game!.id,
       this.requestStructure.player!.login,
       roll,
@@ -77,12 +83,19 @@ export class NotificationComponent implements OnInit{
   }
 
   rollDie(){
-    this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
+    this.rollDieSubscription = this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
       this.rollValue = data;
     });
   }
 
   close(){
     this.shared.sendNotificationCloseEvent();
+  }
+
+  ngOnDestroy(): void {
+    this.rollDieSubscription?.unsubscribe();
+    this.enemyFightSubscription?.unsubscribe();
+    this.playerFightSubscription?.unsubscribe();
+    this.drawCardSubscription?.unsubscribe();
   }
 }

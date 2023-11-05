@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
@@ -6,13 +6,19 @@ import { Player } from '../../../../interfaces/played-game/player/player';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { Character } from '../../../../interfaces/game-engine/character/character';
 import { SharedService } from "../../../../services/shared.service";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-context-bar-characters',
   templateUrl: './context-bar-characters.component.html',
   styleUrls: ['./context-bar-characters.component.css']
 })
-export class ContextBarCharactersComponent implements OnInit, OnChanges{
+export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestroy{
+  playersCharacterSubscription!: Subscription;
+  playersSubscription!: Subscription;
+  tempSubscription!: Subscription;
+  characterSubscritpionList: Subscription[] = [];
+
   requestStructure!: GameDataStructure;
   playersCharacter!: PlayedGameCharacter;
   otherCharacters: PlayedGameCharacter[] = [];
@@ -33,14 +39,14 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges{
   }
 
   handleCharacters(){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
+    this.playersCharacterSubscription = this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
       this.playersCharacter = data;
       this.filterOutPlayers();
     });
   }
 
   filterOutPlayers(){
-    this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
+    this.playersSubscription = this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
       let playerList = data.playerList;
       playerList.forEach( (data: Player) => {
         this.allCharacters.push(data.character);
@@ -56,9 +62,19 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges{
 
   retrieveCharacterNames(){
     this.otherCharacters.forEach((character: PlayedGameCharacter) => {
-      this.gameEngineService.getCharacter(character.id).subscribe((data: Character) => {
+      this.tempSubscription = this.gameEngineService.getCharacter(character.id).subscribe((data: Character) => {
         this.characterNames.push(data.name);
       });
+      this.characterSubscritpionList.push(this.tempSubscription);
     });
+  }
+
+  ngOnDestroy(): void {
+      this.characterSubscritpionList.forEach( (s: Subscription) => {
+        s?.unsubscribe();
+      })
+      this.tempSubscription?.unsubscribe();
+      this.playersSubscription?.unsubscribe();
+      this.playersCharacterSubscription?.unsubscribe();
   }
 }

@@ -275,14 +275,17 @@ export class SharedService{
   initSocket(playedGameId: string){
     this.wsService.connect(playedGameId);
     this.socket = this.wsService.getSocket();
+    this.socket.onmessage = (event) => {
+      this.broadcastSocketMessage(event.data);
+    }
   }
 
   getSocket(){
-    this.socket.onmessage = (event) => {
-      console.log("XD mamy socketa");
-      console.log(event.data);
-      this.broadcastSocketMessage(event.data);
-    }
+    // this.socket.onmessage = (event) => {
+    //   console.log("XD mamy socketa");
+    //   console.log(event.data);
+    //   this.broadcastSocketMessage(event.data);
+    // }
     return this.socket;
   }
 

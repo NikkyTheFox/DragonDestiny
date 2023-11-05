@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { SharedService } from '../../../../services/shared.service';
 import { Player } from '../../../../interfaces/played-game/player/player';
@@ -8,13 +8,23 @@ import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { EnemyCard } from "../../../../interfaces/played-game/card/enemy-card/enemy-card";
 import { Card } from "../../../../interfaces/game-engine/card/card/card";
 import {EnemyCardList} from "../../../../interfaces/played-game/card/enemy-card/enemy-card-list";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game-controls-options',
   templateUrl: './game-controls-options.component.html',
   styleUrls: ['./game-controls-options.component.css']
 })
-export class GameControlsOptionsComponent implements OnInit{
+export class GameControlsOptionsComponent implements OnInit, OnDestroy{
+  moveClickEventSubscription!: Subscription;
+  checkActionsSubscription!: Subscription;
+  trophiesSubscription!: Subscription;
+  playersFightSubscription!: Subscription;
+  enemyFightSubscription!: Subscription;
+  tempSubscription!: Subscription;
+  characterSubscriptionList: Subscription[] = [];
+  enemySubscriptionList: Subscription[] = [];
+
   requestStructure!: GameDataStructure;
 
   TAKE_CARD_FLAG: boolean = false;
@@ -40,7 +50,7 @@ export class GameControlsOptionsComponent implements OnInit{
     this.requestStructure = this.shared.getRequest();
     this.resetOptions();
     this.handleOptions();
-    this.shared.getMoveCharacterClickEvent().subscribe( () => {
+    this.moveClickEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( () => {
       this.resetOptions();
       this.handleOptions();
     });
@@ -51,21 +61,21 @@ export class GameControlsOptionsComponent implements OnInit{
   }
 
   getFieldOptions(){
-    this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+    this.checkActionsSubscription = this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
       this.checkOptions(data.possibleOptions);
       this.handleOptionFlags();
     });
   }
 
   handleTrophiesFlag(){
-    this.playedGameService.getTrophies(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
+    this.trophiesSubscription = this.playedGameService.getTrophies(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
       this.EXCHANGE_TROPHIES_FLAG = data.enemyCardList.length === 5; // RIGHT NOW HARDCODED, TO CHANGE LATER
     });
   }
 
   handleFightPlayerFlag(){
     if(this.FIGHT_WITH_PLAYER_FLAG){
-      this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+      this.playersFightSubscription = this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
         this.playersToAttack = data.playerList;
         this.fetchPlayersCharacter();
       });
@@ -74,7 +84,7 @@ export class GameControlsOptionsComponent implements OnInit{
 
   handleFightEnemyFlag(){
     if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
-      this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+      this.enemyFightSubscription = this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
         // to check
         this.enemiesToAttack = data.enemycardList;
         this.fetchEnemies();
@@ -84,17 +94,19 @@ export class GameControlsOptionsComponent implements OnInit{
 
   fetchPlayersCharacter(){
     this.playersToAttack.forEach( (player: Player) => {
-      this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
+      this.tempSubscription = this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
         this.playersToAttackCharacters.push(character);
       });
+      this.characterSubscriptionList.push(this.tempSubscription);
     });
   }
 
   fetchEnemies(){
     this.enemiesToAttack.forEach( (enemy: EnemyCard) => {
-      this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
+      this.tempSubscription = this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
         this.enemiesToAttackFromEngine.push(card);
       });
+      this.enemySubscriptionList.push(this.tempSubscription);
     });
   }
 
@@ -194,5 +206,20 @@ export class GameControlsOptionsComponent implements OnInit{
     this.playersToAttackCharacters = [];
     this.enemiesToAttack = [];
     this.enemiesToAttackFromEngine = [];
+  }
+
+  ngOnDestroy(): void {
+    this.enemySubscriptionList.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
+    this.characterSubscriptionList.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
+    this.tempSubscription?.unsubscribe();
+    this.enemyFightSubscription?.unsubscribe();
+    this.playersFightSubscription?.unsubscribe();
+    this.trophiesSubscription?.unsubscribe();
+    this.checkActionsSubscription?.unsubscribe();
+    this.moveClickEventSubscription?.unsubscribe();
   }
 }

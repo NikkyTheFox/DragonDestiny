@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Board } from '../../../../interfaces/game-engine/board/board';
 import { Field } from '../../../../interfaces/game-engine/field/field';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
@@ -7,18 +7,24 @@ import { FieldType } from '../../../../interfaces/game-engine/field/field-type';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { Player } from '../../../../interfaces/played-game/player/player';
-import { Subscription } from 'rxjs';
+import { Subscription, concat } from 'rxjs';
 import { SharedService } from '../../../../services/shared.service';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { FieldList } from '../../../../interfaces/game-engine/field/field-list';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
+import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
+import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 
 @Component({
   selector: 'app-board-field',
   templateUrl: './board-field.component.html',
   styleUrls: ['./board-field.component.css']
 })
-export class BoardFieldComponent implements OnInit, OnChanges{
+export class BoardFieldComponent implements OnInit, OnDestroy{
+  boardFieldsSubscription!: Subscription;
+  playersSubscription!: Subscription;
+  changePositionSubscription!: Subscription;
+
   @Input() board!: Board;
   @Input() fieldIndex!: number;
   @Input() rowIndex!: number;
@@ -31,21 +37,11 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   moveFlag: boolean = false;
   clickDiceRollEventSubscription!: Subscription;
   clickMoveCharacterEventSubscription!: Subscription;
-
-  // messages: string[] = [];
-
-  // private webSocket : WebSocket;
+  webSocketMessagePipe!: Subscription;
+  messageData!: NotificationMessage;
 
   constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService,
               private shared: SharedService){
-    // this.webSocket = new WebSocket('ws://localhost:8085/test');
-    // this.webSocket.onmessage = (event) => {
-    //   const data = JSON.parse(event.data);
-    //   const mappedData: PlayedGame = Object.assign(data);
-    //   // @ts-ignore
-    //   this.messages.push(mappedData.players[0].character.field.id.toString());
-    //   this.playersInGame = mappedData.players;
-    // };
   }
 
   ngOnInit(){
@@ -53,19 +49,24 @@ export class BoardFieldComponent implements OnInit, OnChanges{
     this.clickDiceRollEventSubscription = this.shared.getDiceRollClickEvent().subscribe( (data: any) => {
       this.handlePossibleField();
     });
-    this.clickMoveCharacterEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe((data: any) => {
-      this.resetField();
-      this.handleFieldContent();
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges){
     this.resetField();
     this.handleFieldContent()
+    // PLAYER POSITION UPDATES ON WEBSOCKET MESSAGE, MAUNAL UPDATE NOT NEEDED
+    // this.clickMoveCharacterEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( (data: any) => {
+    //   this.resetField();
+    //   this.handleFieldContent();
+    // });
+    this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
+      this.messageData = this.shared.parseNotificationMessage(data);
+      if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
+        this.resetField();
+        this.handleFieldContent()
+      }
+    })
   }
 
   handleFieldContent(){
-    this.gameService.getBoardFields(this.board.id).subscribe((data: FieldList) => {
+    this.boardFieldsSubscription = this.gameService.getBoardFields(this.board.id).subscribe((data: FieldList) => {
       this.fieldList = data.fieldList;
       this.retrieveFieldType();
       this.retrieveCharactersOnField();
@@ -83,7 +84,7 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   }
 
   retrieveCharactersOnField(){
-    this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
+    this.playersSubscription = this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
       this.playersInGame = data.playerList;
       this.playersInGame.forEach( (player: Player) => {
         this.charactersOnField.push(player.character);
@@ -91,6 +92,8 @@ export class BoardFieldComponent implements OnInit, OnChanges{
       this.charactersOnField = this.charactersOnField.filter( (c : PlayedGameCharacter) => {
         return c.field?.id === this.fieldId;
       });
+      this.charactersOnField = this.removeDuplicates(this.charactersOnField);
+      // console.log(this.charactersOnField)
     });
   }
 
@@ -110,8 +113,32 @@ export class BoardFieldComponent implements OnInit, OnChanges{
   }
 
   moveCharacter(fieldId: number){
-    this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe((data: PlayedGame) => {
+    this.changePositionSubscription = this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe((data: PlayedGame) => {
       this.shared.sendMoveCharacterClickEvent();
     });
+  }
+
+  removeDuplicates(array: PlayedGameCharacter[]) {
+    let toReturn: PlayedGameCharacter[] = [];
+    for(let i = 0; i < array.length; i++){
+      let toInsertCheck = true;
+      for(let j = 0; j < toReturn.length; j++){
+        if(array[i].id == toReturn[j].id){
+          toInsertCheck = false;
+        }
+      }
+      if(toInsertCheck){
+        toReturn.push(array[i]);
+      }
+    }
+    return toReturn;
+  }
+
+  ngOnDestroy(): void {
+      this.changePositionSubscription?.unsubscribe();
+      this.playersSubscription?.unsubscribe();
+      this.boardFieldsSubscription?.unsubscribe();
+      this.webSocketMessagePipe?.unsubscribe();
+      this.clickDiceRollEventSubscription?.unsubscribe();
   }
 }
