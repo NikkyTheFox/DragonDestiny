@@ -1372,7 +1372,7 @@ public class PlayedGameServiceTests {
         // Arrange
         when(playedGameRepositoryMock.findCardByIndexInCardDeck(eq(playedGameId), anyInt())).thenReturn(new ArrayList<>(List.of(new Card())));
         // Act
-        Optional<Card> cardFound = playedGameService.drawCard(playedGameId);
+        Optional<Card> cardFound = playedGameService.drawCard(playedGameId, playerLogin);
         // Assert
         assertTrue(cardFound.isPresent());
     }

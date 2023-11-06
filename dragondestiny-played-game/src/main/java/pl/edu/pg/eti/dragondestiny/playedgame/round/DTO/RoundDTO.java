@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class RoundDTO {
      * Player that has option to make a move.
      */
     private PlayerDTO activePlayer;
+
+    private RoundState roundState;
 
     /**
      * List of players.

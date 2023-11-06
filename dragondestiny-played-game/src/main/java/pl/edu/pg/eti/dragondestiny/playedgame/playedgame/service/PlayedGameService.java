@@ -37,6 +37,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.service.PlayerService;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -601,6 +602,7 @@ public class PlayedGameService {
         round.setPlayerList(players);
         Player startingPlayer = players.get(0);
         round.setActivePlayer(startingPlayer);
+        round.initiateRoundStates();
         game.startGame(round);
         return Optional.of(playedGameRepository.save(game));
     }
@@ -649,10 +651,49 @@ public class PlayedGameService {
                 found = true;
             }
         }
+
         round.setActivePlayer(nextPlayer);
         game.setActiveRound(round);
+        if (nextPlayer.getPositionField().getType().equals(FieldType.BOSS_FIELD)) {
+            round.initiateRoundStatesBossField();
+        } else {
+            round.initiateRoundStates();
+        }
         return Optional.of(playedGameRepository.save(game));
     }
+
+    public Optional<PlayedGame> selectRoundOption(String playedGameId, String playerLogin, FieldOption fieldOption) {
+        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (playedGame.isEmpty() || player.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!playedGame.get().getIsStarted() || playedGame.get().getActiveRound() == null) {
+            throw new IllegalArgumentException("The game is not started yet.");
+        }
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalArgumentException("Player is not an active player and cannot perform an action in this round");
+        }
+        if (activeRound.getRoundState() != RoundState.WAITING_FOR_FIELD_ACTION_CHOICE) {
+            throw new IllegalArgumentException("Player is not supposed to choose an action at this moment in round");
+        }
+        if (!activeRound.getFieldOptionList().getPossibleOptions().contains(fieldOption)) {
+            throw new IllegalArgumentException("Player is trying to choose an action not allowed in this round ");
+        }
+        switch (fieldOption) {
+            case TAKE_ONE_CARD, TAKE_TWO_CARDS -> activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
+            case FIGHT_WITH_ENEMY_ON_FIELD, FIGHT_WITH_PLAYER, BOSS_FIELD, BRIDGE_FIELD ->
+                    activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+            case LOSE_ONE_ROUND, LOSE_TWO_ROUNDS -> activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+        }
+        activeRound.setPlayerFieldOptionChosen(fieldOption);
+        activeRound.nextRoundState();
+        playedGame.get().setActiveRound(activeRound);
+
+        return Optional.of(playedGameRepository.save(playedGame.get()));
+    }
+
 
     /**
      * Adds new player to player list.
@@ -693,16 +734,18 @@ public class PlayedGameService {
         if (character.isEmpty()) {
             throw new NoSuchElementException("Character with given id was not found in the game.");
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Character character1 = character.get();
-        Optional<Field> field = findField(playedGameId, character1.getField().getId());
+        Optional<Field> field = findField(playedGameId, character.get().getField().getId());
         if (field.isEmpty()) {
             throw new NoSuchElementException("Chosen character has no position field assigned");
         }
-        player1.setCharacter(character1);
-        updatePlayer(playedGame1, player1);
-        playedGameRepository.save(playedGame1);
+        for (Player p : playedGame.get().getPlayers()) {
+            if (p.getCharacter() != null && p.getCharacter().getId().equals(characterId)) {
+                throw new IllegalArgumentException("Other player has already chosen this character in the game.");
+            }
+        }
+        player.get().setCharacter(character.get());
+        updatePlayer(playedGame.get(), player.get());
+        playedGameRepository.save(playedGame.get());
         return changePosition(playedGameId, playerLogin, field.get().getId());
     }
 
@@ -769,22 +812,25 @@ public class PlayedGameService {
         if (card.isEmpty()) {
             throw new NoSuchElementException("No card with given id found in card deck.");
         }
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalArgumentException("The game is not started yet.");
+        }
         if (!card.get().getCardType().equals(CardType.ITEM_CARD)) {
             throw new IllegalArgumentException("Only card of type ITEM CARD can be added to player's hand.");
         }
+        Round activeRound = playedGame.get().getActiveRound();
         if (!player.get().checkCardsOnHand()) {
+            activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+            activeRound.nextRoundState();
             throw new IllegalArgumentException("Player has no place on hand.");
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        if (player1.getCharacter() == null) {
+        if (player.get().getCharacter() == null) {
             throw new NoSuchElementException("Player has no character assigned.");
         }
-        Card card1 = card.get();
-        player1.moveCardToPlayer(card1);
-        playedGame1.removeCardFromDeck(card1);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        player.get().moveCardToPlayer(card.get());
+        playedGame.get().removeCardFromDeck(card.get());
+        updatePlayer(playedGame.get(), player.get());
+        return Optional.of(playedGameRepository.save(playedGame.get()));
     }
 
     /**
@@ -808,14 +854,23 @@ public class PlayedGameService {
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
             throw new IllegalArgumentException("Only card of type ENEMY CARD can be added to player's trophies.");
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Card card1 = card.get();
-        player1.moveCardToTrophies(card1);
-        playedGame1.removeCardFromDeck(card1);
-        updatePlayer(playedGame1, player1);
-        checkTrophies(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalArgumentException("Game is not started yet");
+        }
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalArgumentException("Player is not active player");
+        }
+        if (!activeRound.getRoundState().equals(RoundState.WAITING_FOR_CARD_TO_TROPHIES)) {
+            throw new IllegalArgumentException("Player is not supposed to take card to trophies now");
+        }
+        player.get().moveCardToTrophies(card.get());
+        playedGame.get().removeCardFromDeck(card.get());
+        updatePlayer(playedGame.get(), player.get());
+        checkTrophies(playedGame.get(), player.get());
+        activeRound.nextRoundState();
+        playedGame.get().setActiveRound(activeRound);
+        return Optional.of(playedGameRepository.save(playedGame.get()));
     }
 
     /**
@@ -866,12 +921,23 @@ public class PlayedGameService {
         if (field.isEmpty()) {
             throw new NoSuchElementException("Field with given id was not found on the board");
         }
-        Player player1 = player.get();
-        PlayedGame playedGame1 = playedGame.get();
-        Field field1 = field.get();
-        player1.setPositionField(field1);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        if (playedGame.get().getIsStarted()) {
+            Round activeRound = playedGame.get().getActiveRound();
+            if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+                throw new IllegalStateException("Player is not an active player and cannot perform a move");
+            }
+            if (activeRound.getRoundState() != RoundState.WAITING_FOR_MOVE) {
+                throw new IllegalStateException("Player is not supposed to perform a move at this moment");
+            }
+            if (activeRound.getFieldListToMove().stream().filter(field1 -> field1.getId().equals(fieldId)).findFirst().isEmpty()) {
+                throw new IllegalStateException("Player cannot perform a move to that field");
+            }
+            activeRound.nextRoundState();
+        }
+
+        player.get().setPositionField(field.get());
+        updatePlayer(playedGame.get(), player.get());
+        return Optional.of(playedGameRepository.save(playedGame.get()));
     }
 
     /**
@@ -894,16 +960,24 @@ public class PlayedGameService {
         if (player.get().getCharacter().getField() == null) {
             throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
-        Player player1 = player.get();
-        PlayedGame playedGame1 = playedGame.get();
-        Field currentPlayersField = player1.getPositionField();
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalArgumentException("Player is not an active player");
+        }
+        if (activeRound.getRoundState() != RoundState.WAITING_FOR_FIELDS_TO_MOVE) {
+            throw new IllegalArgumentException("Player is not supposed to check possible new positions at this moment of round");
+        }
+        if (activeRound.getPlayerMoveRoll() != rollValue) {
+            throw new IllegalArgumentException("Player did not roll that value");
+        }
+        Field currentPlayersField = player.get().getPositionField();
         List<Field> tempFieldList = new ArrayList<>();
         List<Field> fieldList = playedGameRepository.findFieldsOnBoard(playedGameId);
         int boardSize = fieldList.size() - 1; // -1 because of boss field
 
         // check forward:
         Integer firstOptionId = (currentPlayersField.getId() + rollValue - 1) % boardSize + 1;
-        Optional<Field> firstOption = this.findField(playedGame1.getId(), firstOptionId);
+        Optional<Field> firstOption = this.findField(playedGame.get().getId(), firstOptionId);
         firstOption.ifPresent(tempFieldList::add);
 
         // check backward:
@@ -911,21 +985,25 @@ public class PlayedGameService {
         if (secondOptionId <= 0) {
             secondOptionId += boardSize;
         }
-        Optional<Field> secondOption = this.findField(playedGame1.getId(), secondOptionId);
+        Optional<Field> secondOption = this.findField(playedGame.get().getId(), secondOptionId);
         secondOption.ifPresent(tempFieldList::add);
 
         // check whether a player won a fight with Bridge Guardian and can go for boss
-        if (currentPlayersField.getType() == FieldType.BRIDGE_FIELD && player1.getBridgeGuardianDefeated()) {
-            Optional<Field> thirdOption = this.findField(playedGame1.getId(), PlayedGameProperties.bossFieldID); // boss field id
+        if (currentPlayersField.getType() == FieldType.BRIDGE_FIELD && player.get().getBridgeGuardianDefeated()) {
+            Optional<Field> thirdOption = this.findField(playedGame.get().getId(), PlayedGameProperties.bossFieldID); // boss field id
             thirdOption.ifPresent(tempFieldList::add);
         }
 
         // check whether a player can move back from Boss to Bridge Guardian
         if (currentPlayersField.getType() == FieldType.BOSS_FIELD) {
-            Optional<Field> thirdOption = this.findField(playedGame1.getId(), PlayedGameProperties.guardianFieldID); // boss field id
+            Optional<Field> thirdOption = this.findField(playedGame.get().getId(), PlayedGameProperties.guardianFieldID); // boss field id
             tempFieldList = new ArrayList<>();
             thirdOption.ifPresent(tempFieldList::add);
         }
+        activeRound.nextRoundState();
+        activeRound.setFieldListToMove(tempFieldList);
+        playedGame.get().setActiveRound(activeRound);
+        playedGameRepository.save(playedGame.get());
         return Optional.of(new FieldList(tempFieldList));
     }
 
@@ -948,8 +1026,13 @@ public class PlayedGameService {
         if (player.get().getCharacter().getField() == null) {
             throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalArgumentException("The player is not active player");
+        }
+        if (activeRound.getRoundState() != RoundState.WAITING_FOR_FIELD_OPTIONS) {
+            throw new IllegalArgumentException("The player is not supposed to get field options at this moment of the round");
+        }
         Field field = player.get().getCharacter().getField();
 
         FieldOptionList list = new FieldOptionList();
@@ -957,10 +1040,10 @@ public class PlayedGameService {
         if (field.getType() == FieldType.BOSS_FIELD) {
             list.getPossibleOptions().add(FieldOption.BRIDGE_FIELD);
         }
-        if (field.getType() == FieldType.BRIDGE_FIELD && player1.getBridgeGuardianDefeated()) {
+        if (field.getType() == FieldType.BRIDGE_FIELD && player.get().getBridgeGuardianDefeated()) {
             list.getPossibleOptions().add(FieldOption.BOSS_FIELD);
         }
-        Optional<PlayerList> enemyPlayerList = findDifferentPlayersByField(playedGame1.getId(), player1.getLogin());
+        Optional<PlayerList> enemyPlayerList = findDifferentPlayersByField(playedGame.get().getId(), player.get().getLogin());
         if (enemyPlayerList.isPresent() && !enemyPlayerList.get().getPlayerList().isEmpty()) {
             list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
         }
@@ -968,6 +1051,11 @@ public class PlayedGameService {
         if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty()) {
             list.getPossibleOptions().add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
         }
+        activeRound.nextRoundState();
+        activeRound.setFieldOptionList(list);
+        playedGame.get().setActiveRound(activeRound);
+        playedGameRepository.save(playedGame.get());
+
         return Optional.of(list);
     }
 
@@ -977,10 +1065,21 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return A randomly drawn card.
      */
-    public Optional<Card> drawCard(String playedGameId) {
+    public Optional<Card> drawCard(String playedGameId, String playerLogin) {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        if (playedGame.isEmpty()) {
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
+        }
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalArgumentException("The game is not started yet");
+        }
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalStateException("Player is not active player and cannot draw a card");
+        }
+        if (!activeRound.getRoundState().equals(RoundState.WAITING_FOR_CARD_DRAWN)) {
+            throw new IllegalStateException("Player is not supposed to draw a card at this moment");
         }
         Random random = new Random();
         List<Card> cardList = playedGameRepository.findCardDeck(playedGameId);
@@ -988,8 +1087,24 @@ public class PlayedGameService {
             throw new NoSuchElementException("There are no cards in the card deck.");
         }
         int cardToDrawIndex = random.nextInt(cardList.size() - 1);
-        List<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex);
-        return cardToDraw.stream().findFirst();
+        Optional<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex).stream().findFirst();
+        activeRound.increaseNumOfCardsTaken(1);
+        if (cardToDraw.get().getCardType().equals(CardType.ENEMY_CARD)) {
+            activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+            activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
+            activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        } else {
+            activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+        }
+        if (activeRound.getPlayerNumberOfCardsTaken() >= activeRound.getPlayerFieldOptionChosen().numOfCardsToTake) {
+            activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+        } else {
+            activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
+        }
+        activeRound.nextRoundState();
+        playedGame.get().setActiveRound(activeRound);
+        playedGameRepository.save(playedGame.get());
+        return cardToDraw;
     }
 
     /**
@@ -1008,6 +1123,9 @@ public class PlayedGameService {
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
+        }
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalArgumentException("Game is not started yet");
         }
         if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
             throw new IllegalArgumentException("Player roll value is not within set values");
@@ -1031,6 +1149,14 @@ public class PlayedGameService {
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
             throw new IllegalArgumentException("Only card of type ENEMY CARD can be enemy to fight with");
         }
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalArgumentException("Player is not active player");
+        }
+        if (!activeRound.getRoundState().equals(RoundState.WAITING_FOR_FIGHT_RESULT)) {
+            throw new IllegalArgumentException("Player is not supposed to get fight result now");
+        }
+
         EnemyCard enemyCard = (EnemyCard) card.get();
         FightResult fightResult = new FightResult();
         int playerResult = player.get().getStrength() + playerRollValue;
@@ -1051,6 +1177,8 @@ public class PlayedGameService {
                 }
             }
         }
+        activeRound.nextRoundState();
+        playedGame.get().setActiveRound(activeRound);
         playedGameRepository.save(playedGame.get());
         return Optional.of(fightResult);
     }
@@ -1137,13 +1265,34 @@ public class PlayedGameService {
      * @return Random number.
      */
     public Optional<Integer> rollDice(String playedGameId, String playerLogin) {
+        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
+        if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalStateException("Game is not started yet");
+        }
+        Round activeRound = playedGame.get().getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            throw new IllegalStateException("Player is not active player and cannot roll a die");
+        }
         Random random = new Random();
-        Integer toReturn = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
-        return Optional.of(toReturn);
+        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+
+        if (activeRound.getRoundState() == RoundState.WAITING_FOR_MOVE_ROLL) {
+            activeRound.setPlayerMoveRoll(value);
+        } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_FIGHT_ROLL) {
+            activeRound.setPlayerFightRoll(value);
+        } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_ENEMY_ROLL) {
+            activeRound.setEnemyFightRoll(value);
+        } else {
+            throw new IllegalStateException("Player is not supposed to roll a die in this moment of round");
+        }
+        activeRound.nextRoundState();
+        playedGame.get().setActiveRound(activeRound);
+        playedGameRepository.save(playedGame.get());
+        return Optional.of(value);
     }
 
     /**
