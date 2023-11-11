@@ -4,7 +4,6 @@ package pl.edu.pg.eti.dragondestiny.playedgame.field.object;
  * Represent actions possible to take while standing on field.
  */
 public enum FieldOption {
-
     TAKE_ONE_CARD(1, 0),
     TAKE_TWO_CARDS(2, 0),
     LOSE_ONE_ROUND(0, 1),
@@ -21,13 +20,4 @@ public enum FieldOption {
         this.numOfCardsToTake = numOfCardsToTake;
         this.numOfTurnsToBlock = numOfTurnsToBlock;
     }
-
-}
-
-class TakeOneCardOption {
-    private final Integer numOfCardsToTake = 1;
-}
-
-class TakeTwoCardsOption {
-    private final Integer numOfCardsToTake = 2;
 }

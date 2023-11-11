@@ -49,6 +49,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.DTO.RoundDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
 
 import java.util.NoSuchElementException;
@@ -181,7 +182,7 @@ public class PlayedGameController {
             }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -236,17 +237,16 @@ public class PlayedGameController {
      * @param playedGameId An identifier of a game to be updated.
      * @return A new active round.
      */
-    @PutMapping("{playedGameId}/round/next")
+    @PutMapping("{playedGameId}/players/{playerLogin}/round/next")
     @Tag(name = "Played Game - round")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    // TODO: add round order check
-    public ResponseEntity setNextRound(@PathVariable(name = "playedGameId") String playedGameId) {
+    public ResponseEntity setNextRound(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
-            Optional<PlayedGame> playedGame = playedGameService.nextRound(playedGameId);
+            Optional<PlayedGame> playedGame = playedGameService.nextRound(playedGameId, playerLogin);
             if (playedGame.isPresent()) {
                 try {
                     gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.NEXT_ROUND));
@@ -257,12 +257,21 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
-    // TODO: DOES IT MAKES SENSE LOL
+    /**
+     * Selects a round option for the current round for the active player.
+     *
+     * @param playedGameId
+     * @param playerLogin
+     * @param fieldOption
+     * @return
+     */
     @PutMapping("{playedGameId}/player/{playerLogin}/action/{fieldOption}")
     @Tag(name = "Played Game - round")
     @ApiResponses(value = {
@@ -270,18 +279,18 @@ public class PlayedGameController {
                     schema = @Schema(implementation = RoundDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    // TODO: add round order check
     public ResponseEntity selectRoundOption(@PathVariable(name = "playedGameId") String playedGameId,
                                             @PathVariable(name = "playerLogin") String playerLogin,
                                             @PathVariable(name = "fieldOption") FieldOption fieldOption) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.selectRoundOption(playedGameId, playerLogin, fieldOption);
             return ResponseEntity.ok().body(modelMapper.map(playedGame.get().getActiveRound(), RoundDTO.class));
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
-
 
     // BOARD + FIELDS --------------------------------------------------------------------------------------------------
 
@@ -473,7 +482,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Played game not found", content = @Content)})
-    // TODO: round order check ?
     public ResponseEntity moveCardFromCardDeckToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId);
@@ -481,6 +489,8 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalGameStateException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -499,7 +509,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity moveCardFromPlayerHandToUsedCardDeck(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId);
@@ -507,6 +516,28 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalGameStateException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
+        }
+    }
+
+    @PutMapping("{playedGameId}/players/{playerFromLogin}/cards/{cardId}/players/{playerToLogin}")
+    @Tag(name = "Played Game - cards")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PlayedGameDTO.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
+    public ResponseEntity moveCardFromPlayerToPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerFromLogin") String playerFromLogin,
+                                                     @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerToLogin") String playerToLogin) {
+        try {
+            Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToPlayer(playedGameId, playerFromLogin, playerToLogin, cardId);
+            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalGameStateException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -525,7 +556,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity moveItemCardFromDeckToPlayerHand(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
@@ -541,7 +571,7 @@ public class PlayedGameController {
             }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -561,13 +591,12 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card or player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity moveCardToPlayersTrophies(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
@@ -594,7 +623,7 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalStateException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -888,7 +917,7 @@ public class PlayedGameController {
             Optional<PlayedGame> playedGame = playedGameService.addPlayer(playedGameId, playerLogin);
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -915,7 +944,7 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -942,7 +971,7 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -962,7 +991,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Field or player in played game not found", content = @Content)})
-    // TODO: round order check - changeFieldPositionOfCharacter
     public ResponseEntity changeFieldPositionOfCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "fieldId") Integer fieldId) throws JsonProcessingException {
         try {
             Optional<PlayedGame> playedGame = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
@@ -978,7 +1006,7 @@ public class PlayedGameController {
             }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalStateException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -1004,7 +1032,7 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -1030,6 +1058,8 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalGameStateException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -1054,6 +1084,8 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
+        } catch (IllegalGameStateException ex) {
+            return ResponseEntity.status(400).body(ex.toString());
         }
     }
 
@@ -1072,7 +1104,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "numOfTurnsToBlock") Integer numOfTurnsToBlock) {
         try {
             Optional<Player> player = playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
@@ -1086,8 +1117,10 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 
@@ -1105,7 +1138,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = PlayerDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity blockTurnsOfPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<Player> player = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
@@ -1121,7 +1153,7 @@ public class PlayedGameController {
             }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
 
@@ -1148,7 +1180,7 @@ public class PlayedGameController {
             Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
             return roll.map(integer -> ResponseEntity.ok().body(integer))
                     .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (IllegalStateException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
@@ -1170,7 +1202,6 @@ public class PlayedGameController {
                     schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, cardId, playerRoll, enemyRoll);
@@ -1190,7 +1221,7 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
@@ -1214,7 +1245,6 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "204", description = "Roll saved, waiting for enemy's roll", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    // TODO: round order check
     public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
         try {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
@@ -1238,11 +1268,9 @@ public class PlayedGameController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.status(204).body(ex.toString());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
         }
     }
