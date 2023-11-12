@@ -1,11 +1,27 @@
 <div *ngIf="notificationType==1">
   <button *ngIf="notificationData > 0 && conditionBoolean" class="button" type="button" (click)="drawCard()">Draw Card</button>
-  <div *ngIf="cardToDisplay">
+  <div *ngIf="cardDisplayCondition && cardToDisplay">
     <p>{{ cardToDisplay.name }} </p>
-    <p>{{ cardToDisplay.description }}</p>
-    <p>Strenght: {{ cardAttributes[1] }}</p>
+    <!-- <p>{{ cardToDisplay.description }}</p> -->
+    <p>Strength: {{ cardAttributes[1] }}</p>
     <p>Health: {{ cardAttributes[0] }}</p>
+    <div>
+      <button *ngIf="equipCondition" class="button" type="button" (click)="equip()">Equip</button>
+      <p *ngIf="handCondition">Your Hand is Full!</p>
+    </div>
+    <div>
+      <button *ngIf="fightEnemyCondition" class="button" type="button" (click)="fightEnemy()">Fight</button>
+    </div>
   </div>
+</div>
+
+<div *ngIf="fightResultCondition && fightResult">
+  <div *ngIf="fightResult.attackerWon">
+    <p> You won the fight!</p>
+    <button class="button" type="button" (click)="getTrophy()">Get Trophy</button>
+  </div>
+
+
 </div>
 
 <div *ngIf="notificationType==2">
@@ -16,8 +32,15 @@
   <p>Fight Enemy</p>
 </div>
 
-<div class="dice-container">
-  <div class="dice">Die: {{rollValue}}</div>
-  <button class="button" type="button" (click)="rollDie()">Roll</button>
+<div *ngIf="rollCondition" class="dice-container">
+  <div class="dice">Die: {{ rollValue }}</div>
+  <button *ngIf="rollValue === 0" class="button" type="button" (click)="rollDie()">Roll Die</button>
 </div>
-<button (click)="close()">Close Notification</button>
+
+<div *ngIf="!finishCondition && actionsDone > 0">
+  <button (click)="continue()">Continue</button>
+</div>
+
+<div *ngIf="finishCondition">
+  <button (click)="close()">Close Notification</button>
+</div>

@@ -34,6 +34,7 @@ export class SharedService{
   private blockTurn = new Subject();
   private exchangeTrophies = new Subject();
   private notificationClose = new Subject();
+  private updateStatistics = new Subject();
 
   // Notifications
   private drawCard = new Subject<number>();
@@ -200,6 +201,7 @@ export class SharedService{
 
   sendEquipItemCardClickEvent(){
     this.equipItemCard.next(null);
+    this.sendUpdateStatisticsEvent();
   }
 
   getEquipItemCardClickEvent(){
@@ -244,6 +246,14 @@ export class SharedService{
 
   getNotificationCloseEvent(){
     return this.notificationClose.asObservable();
+  }
+
+  sendUpdateStatisticsEvent(){
+    this.updateStatistics.next(null);
+  }
+
+  getUpdateStatisticsEvent(){
+    return this.updateStatistics.asObservable();
   }
 
 //   Notifications

@@ -29,6 +29,7 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.handleCards();
     this.equipItemSubscription = this.shared.getEquipItemCardClickEvent().subscribe( () => {
       this.handleCards();
     });

@@ -1,4 +1,4 @@
 <div class="played-character-info-container">
-  <app-character-portrait class="character-portrait" *ngIf="character" [character]="character"></app-character-portrait>
-  <app-character-statistics class="character-stats" *ngIf="character" [character]="character" [requestStructure]="requestStructure"></app-character-statistics>
+  <app-character-portrait class="character-portrait" *ngIf="player" [character]="player.character"></app-character-portrait>
+  <app-character-statistics class="character-stats" *ngIf="player" [player]="player" [requestStructure]="requestStructure"></app-character-statistics>
 </div>

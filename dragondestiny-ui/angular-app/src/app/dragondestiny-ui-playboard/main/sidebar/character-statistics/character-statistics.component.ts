@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { Player } from "../../../../interfaces/played-game/player/player";
 import { PlayedGameService } from "../../../../services/played-game/played-game-service";
@@ -10,19 +10,21 @@ import { Subscription } from 'rxjs';
   templateUrl: './character-statistics.component.html',
   styleUrls: ['./character-statistics.component.css']
 })
-export class CharacterStatisticsComponent implements OnInit, OnDestroy{
+export class CharacterStatisticsComponent implements OnInit, OnChanges, OnDestroy{
   playerSubscription!: Subscription;
 
-  @Input() character!: PlayedGameCharacter;
+  @Input() player!: Player;
   @Input() requestStructure!: GameDataStructure;
-  player!: Player;
+  character!: PlayedGameCharacter;
 
   constructor(private playedGameService: PlayedGameService){
   }
   ngOnInit(){
-    this.playerSubscription = this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
-      this.player = data;
-    });
+    this.character = this.player.character;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+      this.character = this.player.character;
   }
 
   ngOnDestroy(): void {
