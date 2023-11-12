@@ -36,7 +36,7 @@ export class SharedService{
   private notificationClose = new Subject();
 
   // Notifications
-  private drawCard = new Subject();
+  private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
   private socket!: WebSocket;
@@ -248,8 +248,8 @@ export class SharedService{
 
 //   Notifications
 
-  sendDrawCardClickEvent(){
-    this.drawCard.next(null);
+  sendDrawCardClickEvent(numberOfCards: number){
+    this.drawCard.next(numberOfCards);
   }
 
   getDrawCardClickEvent(){

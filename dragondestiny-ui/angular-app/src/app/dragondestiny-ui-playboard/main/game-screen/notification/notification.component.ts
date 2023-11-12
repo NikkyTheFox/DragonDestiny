@@ -1,28 +1,38 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import { Card as EngineCard} from './../../../../interfaces/game-engine/card/card/card';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {PlayedGameService} from "../../../../services/played-game/played-game-service";
 import {SharedService} from "../../../../services/shared.service";
 import {GameDataStructure} from "../../../../interfaces/game-data-structure";
 import {FightResult} from "../../../../interfaces/played-game/fight-result/fight-result";
 import {Card} from "../../../../interfaces/played-game/card/card/card";
 import { Subscription } from 'rxjs';
+import { GameEngineService } from 'src/app/services/game-engine/game-engine.service';
+import { CardType } from 'src/app/interfaces/played-game/card/card/card-type';
+import { ItemCard } from 'src/app/interfaces/played-game/card/item-card/item-card';
+import { EnemyCard } from 'src/app/interfaces/played-game/card/enemy-card/enemy-card';
 
 @Component({
   selector: 'app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css']
 })
-export class NotificationComponent implements OnInit, OnDestroy{
+export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   drawCardSubscription!: Subscription;
   playerFightSubscription!: Subscription;
   enemyFightSubscription!: Subscription;
   rollDieSubscription!: Subscription;
+  tempSubscription!: Subscription;
+  subscriptionToDelete: Subscription[] = [];
 
   requestStructure!: GameDataStructure;
   @Input() notificationType!: number;
   @Input() notificationData!: any;
   rollValue: number = 0;
+  conditionBoolean: boolean = false;
+  cardToDisplay!: EngineCard;
+  cardAttributes: number[] = [];
 
-  constructor(private playedGameService: PlayedGameService, private shared: SharedService) {
+  constructor(private playedGameService: PlayedGameService, private shared: SharedService, private engineService: GameEngineService) {
   }
 
   ngOnInit(){
@@ -30,10 +40,16 @@ export class NotificationComponent implements OnInit, OnDestroy{
     this.handleNotifications();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.cardAttributes = [];
+    this.handleNotifications();
+  }
+
   handleNotifications(){
     switch(this.notificationType){
       case 1:
-        this.handleDrawCard();
+        // this.handleDrawCard();
+        this.conditionBoolean = true;
         break;
       case 2:
         this.handleFightPlayer();
@@ -44,10 +60,47 @@ export class NotificationComponent implements OnInit, OnDestroy{
     }
   }
 
+  drawCard(){
+    if(this.notificationData > 0){
+      this.notificationData--;
+      this.handleDrawCard()
+    }
+  }
+
   handleDrawCard(){
     this.drawCardSubscription = this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( (data: Card) => {
-    // Handle card draw data to display in html file
+      console.log(data);
+      if(data.cardType === CardType.ITEM_CARD){
+        let c = data as ItemCard;
+        this.cardAttributes.push(c.health);
+        this.cardAttributes.push(c.strength);
+        this.handleItemCard(c);
+      }
+      else{
+        let c = data as EnemyCard;
+        this.cardAttributes.push(c.health);
+        this.cardAttributes.push(c.initialStrength);
+        this.handleEnemyCard(c);
+      }
     });
+  }
+
+  handleEnemyCard(data: EnemyCard){
+    this.subscriptionToDelete.push(
+      this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
+        this.cardToDisplay = data;
+        console.log(this.cardToDisplay);
+      })
+    );
+  }
+
+  handleItemCard(data: ItemCard){
+    this.subscriptionToDelete.push(
+      this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
+        this.cardToDisplay = data;
+        console.log(this.cardToDisplay);
+      })
+    );
   }
 
   handleFightPlayer(){

@@ -152,11 +152,11 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   takeCardClick(){
-    this.numberOfCardsToBeDrawn--;
-    this.shared.sendDrawCardClickEvent();
-    if(this.numberOfCardsToBeDrawn <= 0){
-      this.TAKE_CARD_FLAG = false;
-    }
+    // this.numberOfCardsToBeDrawn--;
+    this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
+    // if(this.numberOfCardsToBeDrawn <= 0){
+    //   this.TAKE_CARD_FLAG = false;
+    // }
     // this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( () => {
     //
     // });

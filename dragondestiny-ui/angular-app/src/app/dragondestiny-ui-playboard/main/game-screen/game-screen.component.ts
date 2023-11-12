@@ -32,9 +32,10 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processCardDraw(){
-    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( () => {
+    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: any) => {
       this.showNotification = true;
       this.notificationType = 1;
+      this.notificationData = numberOfCards;
     });
   }
 
