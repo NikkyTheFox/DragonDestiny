@@ -1095,13 +1095,12 @@ public class PlayedGameService {
         Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIGHT_RESULT);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
 
-        if (!activeRound.getPlayerFightRoll().equals(playerRollValue)) {
+        if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
             throw new IllegalGameStateException(PlayerDidNotRollMessage);
         }
-        if (!activeRound.getEnemyFightRoll().equals(enemyRollValue)) {
+        if (activeRound.getEnemyFightRoll() == null || !activeRound.getEnemyFightRoll().equals(enemyRollValue)) {
             throw new IllegalGameStateException(EnemyDidNotRollMessage);
         }
-
         if (activeRound.getEnemyFought() == null || !activeRound.getEnemyFought().getId().equals(enemyCardId)) {
             throw new IllegalGameStateException(PlayerWrongEnemyMessage);
         }
@@ -1127,7 +1126,6 @@ public class PlayedGameService {
             playedGame = decreaseHealth(playedGame, player, enemyCard, 1, fightResult);
             fightResult.setAttackerWon(true);
         } else { // player lost
-            activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
             playedGame = decreaseHealth(playedGame, player, 1, fightResult);
             fightResult.setAttackerWon(false);
             if (!player.isAlive()) {
@@ -1520,7 +1518,10 @@ public class PlayedGameService {
         } else { // decrease health card
             card.get().reduceHealth(value);
             if (card.get().isUsed()) { // remove used up card
-                moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId());
+                game.getActiveRound().addRoundState(game.getActiveRound().getRoundState());
+                game.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+                playedGameRepository.save(game);
+                game = moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId()).get();
             } else {
                 updatePlayer(game, player);
                 return playedGameRepository.save(game);
