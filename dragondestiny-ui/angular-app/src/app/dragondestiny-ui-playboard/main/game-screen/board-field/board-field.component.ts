@@ -14,6 +14,8 @@ import { FieldList } from '../../../../interfaces/game-engine/field/field-list';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
+import { Round } from 'src/app/interfaces/played-game/round/round';
+import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 
 @Component({
   selector: 'app-board-field',
@@ -24,6 +26,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   boardFieldsSubscription!: Subscription;
   playersSubscription!: Subscription;
   changePositionSubscription!: Subscription;
+  roundSubscription!: Subscription;
 
   @Input() board!: Board;
   @Input() fieldIndex!: number;
@@ -50,7 +53,8 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
       this.handlePossibleField();
     });
     this.resetField();
-    this.handleFieldContent()
+    this.handleFieldContent();
+    this.fetchRound();
     // PLAYER POSITION UPDATES ON WEBSOCKET MESSAGE, MAUNAL UPDATE NOT NEEDED
     // this.clickMoveCharacterEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( (data: any) => {
     //   this.resetField();
@@ -61,6 +65,19 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
       if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
         this.resetField();
         this.handleFieldContent()
+      }
+    })
+  }
+
+  fetchRound(){
+    this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+      console.log('test round state w polu');
+      console.log(data.roundState);
+      if(data.roundState == RoundState.WAITING_FOR_MOVE){
+        // Once implemented in backend fetch data about possible fields
+        // getPossiblefields .subscribe((data: FieldList) = > {
+        //   this.dataService.possibleFields = data.fieldList;
+        // });
       }
     })
   }
@@ -93,7 +110,6 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
         return c.field?.id === this.fieldId;
       });
       this.charactersOnField = this.removeDuplicates(this.charactersOnField);
-      // console.log(this.charactersOnField)
     });
   }
 

@@ -10,6 +10,8 @@ import { Card } from "../../../../interfaces/game-engine/card/card/card";
 import {EnemyCardList} from "../../../../interfaces/played-game/card/enemy-card/enemy-card-list";
 import { Subscription } from 'rxjs';
 import { PlayerList } from 'src/app/interfaces/played-game/player/player-list';
+import { Round } from 'src/app/interfaces/played-game/round/round';
+import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -21,6 +23,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   checkActionsSubscription!: Subscription;
   playersFightSubscription!: Subscription;
   enemyFightSubscription!: Subscription;
+  roundSubscription!: Subscription;
   tempSubscription!: Subscription;
   endTurnSubscription!: Subscription;
   characterSubscriptionList: Subscription[] = [];
@@ -42,26 +45,34 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   enemiesToAttackFromEngine: any[] = [];
 
   // Actions done flags:
-  movedFlag: boolean = false;
-  actionButtonClickFlag: boolean = false;
+  actionButtonClickFlag: boolean = true;
+  fetchOptionsFlag: boolean = false;
 
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService,private shared: SharedService){
   }
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
-    this.movedFlag = false;
-    this.actionButtonClickFlag = false;
     this.resetOptions();
-    this.handleOptions(); // ONLY FOR TEST PURPOSES (SO YOU DONT HAVE TO HIT SPECIAL FIELD)
+    this.fetchRound();
+    // this.handleOptions(); // ONLY FOR TEST PURPOSES (SO YOU DONT HAVE TO HIT SPECIAL FIELD) [not anymore?]
     this.endTurnSubscription = this.shared.getEndTurnEvent().subscribe( () => {
-      this.movedFlag = false;
-      this.actionButtonClickFlag = false;
       this.resetOptions();
+      this.fetchRound();
     });
     this.moveClickEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( () => {
       this.resetOptions();
-      this.handleOptions();
+      this.fetchRound();
+    });
+  }
+
+  fetchRound(){
+    this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+      this.fetchOptionsFlag = data.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE;
+      if(this.fetchOptionsFlag){
+        this.actionButtonClickFlag = false;
+        this.handleOptions();
+      }
     });
   }
 
@@ -204,5 +215,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.playersFightSubscription?.unsubscribe();
     this.checkActionsSubscription?.unsubscribe();
     this.moveClickEventSubscription?.unsubscribe();
+    this.roundSubscription?.unsubscribe();
   }
 }

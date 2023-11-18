@@ -59,7 +59,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   handleDrawCard(){
-    this.drawCardSubscription = this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( (data: Card) => {
+    this.drawCardSubscription = this.playedGameService.drawRandomCard(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Card) => {
       this.showDrawCardConditionBoolean = false;
       this.cardDisplayCondition = true;
       if(data.cardType == CardType.ITEM_CARD){

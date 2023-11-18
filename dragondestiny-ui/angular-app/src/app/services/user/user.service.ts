@@ -56,4 +56,8 @@ export class UserService{
   getGames(): Observable<GameList>{
     return this.http.get<GameList>(`${environment.apiUrl}/users/games`);
   }
+
+  deleteGame(gameId: string){
+    return this.http.delete(`${environment.apiUrl}/games/${gameId}`);
+  }
 }

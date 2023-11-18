@@ -28,7 +28,7 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
   }
 
   endTurn(){
-    this.endTurnSubscription = this.playedGameService.setNextRound(this.requestStructure.game!.id).subscribe( () => {
+    this.endTurnSubscription = this.playedGameService.setNextRound(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
       this.shared.sendEndTurnEvent();
       this.disableButtonFlag = true;
     });
