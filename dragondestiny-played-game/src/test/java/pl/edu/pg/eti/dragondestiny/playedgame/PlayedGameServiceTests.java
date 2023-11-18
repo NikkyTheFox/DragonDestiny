@@ -24,7 +24,9 @@ import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.service.PlayedGameServi
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.service.PlayerService;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,6 +128,9 @@ public class PlayedGameServiceTests {
 
         Round activeRound = new Round();
         activeRound.setId(1);
+        activeRound.setActivePlayer(player);
+        activeRound.setPlayerList(new ArrayList<>(Arrays.asList(player, player2)));
+        activeRound.setRoundState(RoundState.WAITING_FOR_MOVE_ROLL);
 
         playedGame = new PlayedGame();
         playedGameId = "123";
@@ -136,6 +141,7 @@ public class PlayedGameServiceTests {
         playedGame.setCharactersInGame(new ArrayList<>(Arrays.asList(character1, character2)));
         playedGame.setPlayers(new ArrayList<>(List.of(player, player2)));
         playedGame.setActiveRound(activeRound);
+        playedGame.setIsStarted(true);
 
         when(playedGameRepositoryMock.findById(anyString())).thenReturn(Optional.empty());
         when(playedGameRepositoryMock.findById(playedGameId)).thenReturn(Optional.of(playedGame));
@@ -161,6 +167,7 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findCardsInPlayerHand(anyString(), anyString())).thenReturn(new ArrayList<>());
         when(playedGameRepositoryMock.findCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(itemCard3)));
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(player)));
+        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, "albus")).thenReturn(new ArrayList<>(List.of(player2)));
         when(playedGameRepositoryMock.findPlayers(playedGameId)).thenReturn(playedGame.getPlayers());
         when(playedGameRepositoryMock.findPlayersTrophies(playedGameId, playerLogin)).thenReturn(player.getTrophies());
         when(playedGameRepositoryMock.findCharacters(anyString())).thenReturn(new ArrayList<>());
@@ -609,10 +616,11 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersField() {
+    public void testFindEnemyCardsOnPlayersField() throws IllegalGameStateException {
         // Arrange
         int fieldId = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getPositionField().getId();
         EnemyCard enemyCardListToFind = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst().map(Field::getEnemy).get();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
         // Act
         Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
         // Assert
@@ -621,13 +629,13 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindEnemyCardsOnPlayersFieldNotFound() {
+    public void testFindEnemyCardsOnPlayersFieldNotFound() throws NoSuchElementException {
         // Arrange
         String playerLogin = "nonExisting";
-        // Act
-        Optional<EnemyCardList> enemyCardListFound = playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin);
-        // Assert
-        assertTrue(enemyCardListFound.isEmpty());
+        String expectedMessage = IllegalGameStateException.PlayerNotFoundMessage;
+        // Act & Assert
+        NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> playedGameService.findEnemyCardOnPlayersField(playedGameId, playerLogin));
+        assertEquals(ex.getMessage(), expectedMessage);
     }
 
     @Test
@@ -768,14 +776,10 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testFindDifferentPlayersByField() {
+    public void testFindDifferentPlayersByField() throws IllegalGameStateException {
         // Arrange
         int fieldId = 1;
-        Player player2 = new Player();
-        player2.setLogin("hagrid");
-        player2.setCharacter(new Character());
-        player2.setPositionField(playedGame.getPlayers().get(0).getPositionField());
-        playedGame.addPlayerToGame(player2);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_PLAYER_TO_FIGHT);
         PlayerList playerListToFind = new PlayerList(playedGame.getPlayers().stream().filter(player -> player.getPositionField().getId().equals(fieldId) && !player.getLogin().equals(playerLogin)).collect(Collectors.toList()));
         when(playedGameRepositoryMock.findDifferentPlayersByField(playedGameId, playerLogin, fieldId)).thenReturn(playerListToFind.getPlayerList());
         // Act
@@ -792,10 +796,11 @@ public class PlayedGameServiceTests {
     public void testFindDifferentPlayersByFieldNotFound() {
         // Arrange
         String playedGameId = "nonExisting";
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_PLAYER_TO_FIGHT);
         // Act
-        Optional<PlayerList> playerListFound = playedGameService.findDifferentPlayersByField(playedGameId, playerLogin);
+        NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> playedGameService.findDifferentPlayersByField(playedGameId, playerLogin));
         // Assert
-        assertTrue(playerListFound.isEmpty());
+        assertEquals(ex.getMessage(), IllegalGameStateException.GameNotFoundMessage);
     }
 
     @Test
@@ -847,7 +852,8 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGame() {
+    public void testStartGame() throws IllegalGameStateException {
+        playedGame.setIsStarted(false);
         // Act
         Optional<PlayedGame> playedGameStarted = playedGameService.startGame(playedGameId, true);
         // Assert
@@ -859,7 +865,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testStartGameNotFound() {
+    public void testStartGameNotFound() throws IllegalGameStateException {
         // Arrange
         String playedGameId = "nonExisting";
         // Act
@@ -869,7 +875,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRound() {
+    public void testNextRound() throws IllegalGameStateException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -878,8 +884,9 @@ public class PlayedGameServiceTests {
         int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
         int roundsSize = playedGame.get().getRounds().size();
         Player nextPlayer = playerList.get(activePlayerId + 1);
+        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
         // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId);
+        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
         // Assert
         assertTrue(playedGameUpdated.isPresent());
         assertEquals(roundId + 1, playedGameUpdated.get().getActiveRound().getId());
@@ -888,7 +895,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayer() {
+    public void testNextRoundBlockedPlayer() throws IllegalGameStateException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -900,8 +907,9 @@ public class PlayedGameServiceTests {
         int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
         int roundsSizeExpected = playedGame.get().getRounds().size() + 1;
         Player nextPlayer = playerList.get(activePlayerId);
+        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
         // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId);
+        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
         // Assert
         assertTrue(playedGameUpdated.isPresent());
         assertEquals(roundIdExpected, playedGameUpdated.get().getActiveRound().getId());
@@ -911,7 +919,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testNextRoundBlockedPlayers() {
+    public void testNextRoundBlockedPlayers() throws IllegalGameStateException {
         // Arrange
         playedGame.setIsStarted(false);
         Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
@@ -923,8 +931,9 @@ public class PlayedGameServiceTests {
         int roundIdExpected = playedGame.get().getActiveRound().getId() + 3;
         int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
         Player nextPlayer = playerList.get(activePlayerId + 1);
+        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
         // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId);
+        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
         // Assert
         assertTrue(playedGameUpdated.isPresent());
         assertEquals(roundIdExpected, playedGameUpdated.get().getActiveRound().getId());
@@ -937,12 +946,12 @@ public class PlayedGameServiceTests {
         playedGame.setIsStarted(false);
         String expectedMessage = "The game is not started yet.";
         // Act and Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.nextRound(playedGameId));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.nextRound(playedGameId, playerLogin));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testAddPlayer() {
+    public void testAddPlayer() throws IllegalGameStateException {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -958,7 +967,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAddPlayerNotFound() {
+    public void testAddPlayerNotFound() throws IllegalGameStateException {
         // Arrange
         Player newPlayer = new Player();
         String login = "minerva";
@@ -971,10 +980,11 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testAssignCharacterToPlayer() {
+    public void testAssignCharacterToPlayer() throws IllegalGameStateException {
         // Arrange
         int characterId = 2;
         Optional<Character> characterToAdd = playedGame.getCharactersInGame().stream().filter(character -> character.getId().equals(characterId)).findFirst();
+        playedGame.setIsStarted(false);
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId);
         // Assert
@@ -992,29 +1002,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testSetFightRoll() {
-        // Arrange
-        int fightRoll = 2;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.setPlayerFightRoll(playedGameId, playerLogin, fightRoll);
-        // Assert
-        assertTrue(playedGameUpdated.isPresent());
-        assertEquals(fightRoll, playedGameUpdated.get().getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getFightRoll());
-    }
-
-    @Test
-    public void testSetFightRollNotFound() {
-        // Arrange
-        String playerLogin = "nonExisting";
-        int fightRoll = 2;
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.setPlayerFightRoll(playedGameId, playerLogin, fightRoll);
-        // Assert
-        assertTrue(playedGameUpdated.isEmpty());
-    }
-
-    @Test
-    public void testMoveCardFromCardDeckToUsed() {
+    public void testMoveCardFromCardDeckToUsed() throws IllegalGameStateException {
         // Arrange
         int cardId = 20;
         // Act
@@ -1026,56 +1014,56 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToUsedNotFound() {
-        // Arrange
-        int cardId = 142124;
-        String expectedMessage = "No card with given id found in card deck";
-        // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardFromCardDeckToUsedCardDeck(playedGameId, cardId));
-        assertEquals(expectedMessage, exception.getMessage());
-    }
-
-    @Test
-    public void testMoveCardFromCardDeckToPlayer() {
+    public void testMoveCardFromCardDeckToPlayer() throws IllegalGameStateException {
         // Arrange
         int cardId = 20;
+        ItemCard itemCard = (ItemCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(cardId)).findFirst().get();
+        playedGame.getActiveRound().setItemCardToTake(itemCard);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId);
         // Assert
         assertTrue(playedGameUpdated.isPresent());
         assertTrue(playedGameUpdated.get().getCardDeck().stream().filter(card -> card.getId().equals(cardId)).findFirst().isEmpty());
-        assertTrue(playedGameUpdated.get().getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getCardsOnHand().stream().filter(itemCard -> itemCard.getId().equals(cardId)).findFirst().isPresent());
+        assertTrue(playedGameUpdated.get().getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getCardsOnHand().stream().filter(itemCard1 -> itemCard1.getId().equals(cardId)).findFirst().isPresent());
     }
 
     @Test
     public void testMoveCardFromCardDeckToPlayerTooManyCards() {
         // Arrange
         int cardId = 20;
+        ItemCard itemCard = (ItemCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(cardId)).findFirst().get();
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
         playerToAdd.get().getCardsOnHand().add(new ItemCard());
-        String expectedMessage = "Player has no place on hand.";
+        String expectedMessage = IllegalGameStateException.PlayerHasNoPlaceOnHandMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+        playedGame.getActiveRound().setItemCardToTake(itemCard);
         // Act and Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromCardDeckToPlayerNotFound() throws Exception {
+    public void testMoveCardFromCardDeckToPlayerNotFound() {
         // Arrange
         int cardId = 142124;
-        String expectedMessage = "No card with given id found in card deck.";
+        String expectedMessage = IllegalGameStateException.CardNotFoundMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardToPlayer(playedGameId, playerLogin, cardId));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophies() {
+    public void testMoveCardFromCardDeckToTrophies() throws IllegalGameStateException {
         // Arrange
         int cardId = 2;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(cardId)).findFirst().get();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
         // Assert
@@ -1085,9 +1073,10 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() {
+    public void testMoveCardFromCardDeckToTrophiesUpdateTrophies() throws IllegalGameStateException {
         // Arrange
         int cardId = 2;
+        EnemyCard enemyCardDef = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(cardId)).findFirst().get();
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         EnemyCard enemyCard = new EnemyCard();
         enemyCard.setId(12);
@@ -1096,6 +1085,8 @@ public class PlayedGameServiceTests {
         playerToAdd.get().getTrophies().add(enemyCard);
         playerToAdd.get().getTrophies().add(enemyCard);
         int expectedStrength = playerToAdd.get().getStrength() + PlayedGameProperties.trophiesPointIncrease;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
+        playedGame.getActiveRound().setEnemyFought(enemyCardDef);
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId);
         // Assert
@@ -1110,19 +1101,21 @@ public class PlayedGameServiceTests {
     public void testMoveCardFromCardDeckToTrophiesNotFound() {
         // Arrange
         int cardId = 142124;
-        String expectedMessage = "No card with given id found in card deck.";
+        String expectedMessage = IllegalGameStateException.CardNotFoundMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardToPlayerTrophies(playedGameId, playerLogin, cardId));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testMoveCardFromPlayerToUsedDeck() {
+    public void testMoveCardFromPlayerToUsedDeck() throws IllegalGameStateException {
         // Arrange
         int cardId = 30;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Card cardToMove = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getCardsOnHand().stream().filter(card -> card.getId().equals(cardId)).findFirst().get();
         playerToAdd.get().getCardsOnHand().add((ItemCard) cardToMove);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId);
         // Assert
@@ -1135,18 +1128,21 @@ public class PlayedGameServiceTests {
     public void testMoveCardFromPlayerToUsedDeckNotFound() {
         // Arrange
         int cardId = 142124;
-        String expectedMessage = "No card with given id found in player's hand.";
+        String expectedMessage = IllegalGameStateException.CardNotFoundMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.moveCardFromPlayerToUsedCardDeck(playedGameId, playerLogin, cardId));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void testChangePosition() {
+    public void testChangePosition() throws IllegalGameStateException {
         // Arrange
         int fieldId = 2;
         Optional<Player> playerToAdd = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldToMove = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(fieldId)).findFirst();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_MOVE);
+        playedGame.getActiveRound().setFieldListToMove(new ArrayList<>(List.of(fieldToMove.get())));
         // Act
         Optional<PlayedGame> playedGameUpdated = playedGameService.changePosition(playedGameId, playerLogin, fieldId);
         // Assert
@@ -1158,20 +1154,23 @@ public class PlayedGameServiceTests {
     public void testChangePositionFieldNotFound() {
         // Arrange
         int fieldId = 231;
-        String expectedMessage = "Field with given id was not found on the board";
+        String expectedMessage = IllegalGameStateException.FieldNotFoundMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_MOVE);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.changePosition(playedGameId, playerLogin, fieldId));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void testCheckPossibleNewPositions() {
+    public void testCheckPossibleNewPositions() throws IllegalGameStateException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         List<Field> fieldsToMoveTo = new ArrayList<>();
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(4)).findFirst().get());
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(14)).findFirst().get());
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
+        playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert
@@ -1183,7 +1182,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBridgeFieldBlocked() {
+    public void testCheckPossibleNewPositionsBridgeFieldBlocked() throws IllegalGameStateException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1192,6 +1191,8 @@ public class PlayedGameServiceTests {
         List<Field> fieldsToMoveTo = new ArrayList<>();
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(3)).findFirst().get());
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(13)).findFirst().get());
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
+        playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert
@@ -1203,7 +1204,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBridgeFieldOK() {
+    public void testCheckPossibleNewPositionsBridgeFieldOK() throws IllegalGameStateException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1214,6 +1215,8 @@ public class PlayedGameServiceTests {
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(3)).findFirst().get());
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(13)).findFirst().get());
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst().get());
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
+        playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert
@@ -1225,7 +1228,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void testCheckPossibleNewPositionsBossField() {
+    public void testCheckPossibleNewPositionsBossField() throws IllegalGameStateException {
         // Arrange
         int roll = 3;
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
@@ -1233,6 +1236,8 @@ public class PlayedGameServiceTests {
         playerToCheck.get().setPositionField(fieldPos.get());
         List<Field> fieldsToMoveTo = new ArrayList<>();
         fieldsToMoveTo.add(playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst().get());
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
+        playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
         Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
         // Assert
@@ -1259,14 +1264,14 @@ public class PlayedGameServiceTests {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         playerToCheck.get().getCharacter().setField(null);
-        String expectedMessage = "There was no position field assigned to character of player with given login.";
+        String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
         // Act and Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.checkFieldOption(playedGameId, playerLogin));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void checkFieldOptionTest() {
+    public void checkFieldOptionTest() throws IllegalGameStateException {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(1)).findFirst();
@@ -1274,6 +1279,7 @@ public class PlayedGameServiceTests {
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
         fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
         // Assert
@@ -1285,7 +1291,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBossField() {
+    public void checkFieldOptionTestBossField() throws IllegalGameStateException {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(17)).findFirst();
@@ -1293,6 +1299,7 @@ public class PlayedGameServiceTests {
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.BOSS_FIELD);
         fieldsOptions.add(FieldOption.BRIDGE_FIELD);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
         // Assert
@@ -1304,13 +1311,14 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBridgeFieldBlocked() {
+    public void checkFieldOptionTestBridgeFieldBlocked() throws IllegalGameStateException {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
         playerToCheck.get().setPositionField(fieldPos.get());
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.BRIDGE_FIELD);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
         // Assert
@@ -1322,7 +1330,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestBridgeFieldOK() {
+    public void checkFieldOptionTestBridgeFieldOK() throws IllegalGameStateException {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Optional<Field> fieldPos = playedGame.getBoard().getFieldsOnBoard().stream().filter(field -> field.getId().equals(16)).findFirst();
@@ -1331,6 +1339,7 @@ public class PlayedGameServiceTests {
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.BRIDGE_FIELD);
         fieldsOptions.add(FieldOption.BOSS_FIELD);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
         // Assert
@@ -1342,7 +1351,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkFieldOptionTestFightPlayer() {
+    public void checkFieldOptionTestFightPlayer() throws IllegalGameStateException {
         // Arrange
         Optional<Player> playerToCheck = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst();
         Player newPlayer = new Player();
@@ -1357,6 +1366,7 @@ public class PlayedGameServiceTests {
         fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
         fieldsOptions.add(FieldOption.FIGHT_WITH_PLAYER);
         fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
         // Assert
@@ -1368,37 +1378,18 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void checkDrawCard() {
+    public void checkDrawCard() throws IllegalGameStateException {
         // Arrange
-        when(playedGameRepositoryMock.findCardByIndexInCardDeck(eq(playedGameId), anyInt())).thenReturn(new ArrayList<>(List.of(new Card())));
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
+        playedGame.getActiveRound().setPlayerFieldOptionChosen(FieldOption.TAKE_ONE_CARD);
+        EnemyCard card = new EnemyCard();
+        card.setId(123);
+        card.setCardType(CardType.ENEMY_CARD);
+        when(playedGameRepositoryMock.findCardByIndexInCardDeck(eq(playedGameId), anyInt())).thenReturn(new ArrayList<>(List.of(card)));
         // Act
-        Optional<Card> cardFound = playedGameService.drawCard(playedGameId);
+        Optional<Card> cardFound = playedGameService.drawCard(playedGameId, playerLogin);
         // Assert
         assertTrue(cardFound.isPresent());
-    }
-
-    @Test
-    public void calculateFightWithEnemyCardTestInvalidPlayerRollValue() {
-        // Arrange
-        int playerRoll = 1309;
-        int enemyRoll = 1;
-        int enemyCardId = 2;
-        String expectedMessage = "Player roll value is not within set values";
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
-        assertEquals(exception.getMessage(), expectedMessage);
-    }
-
-    @Test
-    public void calculateFightWithEnemyCardTestInvalidEnemyRollValue() {
-        // Arrange
-        int playerRoll = 3;
-        int enemyRoll = 1111;
-        int enemyCardId = 2;
-        String expectedMessage = "Enemy roll value is not within set values";
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
-        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
@@ -1409,7 +1400,7 @@ public class PlayedGameServiceTests {
         int enemyCardId = 2;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setCharacter(null);
-        String expectedMessage = "There was no character assigned to player with given login";
+        String expectedMessage = IllegalGameStateException.PlayerHasNoCharacterAssignedMessage;
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
@@ -1423,19 +1414,7 @@ public class PlayedGameServiceTests {
         int enemyCardId = 2;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.getCharacter().setField(null);
-        String expectedMessage = "There was no position field assigned to character of player with given login";
-        // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
-        assertEquals(exception.getMessage(), expectedMessage);
-    }
-
-    @Test
-    public void calculateFightWithEnemyCardTestCardNotFound() {
-        // Arrange
-        int playerRoll = 1;
-        int enemyRoll = 1;
-        int enemyCardId = 115;
-        String expectedMessage = "No card with given id found in game";
+        String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
@@ -1447,14 +1426,17 @@ public class PlayedGameServiceTests {
         int playerRoll = 1;
         int enemyRoll = 1;
         int enemyCardId = 10;
-        String expectedMessage = "Only card of type ENEMY CARD can be enemy to fight with";
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        String expectedMessage = IllegalGameStateException.PlayerWrongEnemyMessage;
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilled() {
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilled() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1462,6 +1444,10 @@ public class PlayedGameServiceTests {
         EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
         int expectedEnemyCardHealth = enemyCard.getHealth() - 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
         // Assert
@@ -1473,7 +1459,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilledTrophiesIncrease() {
+    public void calculateFightWithEnemyCardTestPlayerWonEnemyKilledTrophiesIncrease() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 1;
@@ -1483,6 +1469,10 @@ public class PlayedGameServiceTests {
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setTrophies(new ArrayList<>(Arrays.asList(new EnemyCard(), new EnemyCard(), new EnemyCard(), new EnemyCard())));
         int playerStrengthExpected = player.getStrength() + 1;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
         // Assert
@@ -1495,15 +1485,20 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostDead() {
+    public void calculateFightWithEnemyCardTestPlayerLostDead() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
         int enemyCardId = 2;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.getCharacter().setHealth(1);
         player.setCardsOnHand(new ArrayList<>());
         int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
         // Assert
@@ -1515,7 +1510,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostDecreaseHealthCard() {
+    public void calculateFightWithEnemyCardTestPlayerLostDecreaseHealthCard() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
@@ -1527,6 +1522,11 @@ public class PlayedGameServiceTests {
         player.setCardsOnHand(new ArrayList<>(List.of(healthCard)));
         int expectedPlayerHealth = player.getHealth();
         int expectedCardHealth = 1;
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
         // Assert
@@ -1539,7 +1539,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithEnemyCardTestPlayerLostLoseHealthCard() {
+    public void calculateFightWithEnemyCardTestPlayerLostLoseHealthCard() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         int enemyRoll = 6;
@@ -1549,6 +1549,11 @@ public class PlayedGameServiceTests {
         player.getCharacter().setHealth(1);
         player.setCardsOnHand(new ArrayList<>(List.of(healthCard)));
         int expectedPlayerHealth = player.getHealth();
+        EnemyCard enemyCard = (EnemyCard) playedGame.getCardDeck().stream().filter(card -> card.getId().equals(enemyCardId)).findFirst().get();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyFought(enemyCard);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
         // Assert
@@ -1557,23 +1562,6 @@ public class PlayedGameServiceTests {
         assertFalse(fightResult.get().getAttackerWon());
         assertEquals(expectedPlayerHealth, player.getHealth());
         assertFalse(player.getCardsOnHand().contains(healthCard));
-    }
-
-    @Test
-    public void calculateFightWithPlayerPlayerRollInvalid() {
-        // Arrange
-        int playerRoll = 113;
-        Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
-        player.setCharacter(null);
-        Player enemyPlayer = new Player();
-        String enemyPlayerLogin = "Enemy Guy";
-        enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
-        when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
-        String expectedMessage = "Player roll value is not within set values";
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
-        assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
@@ -1587,7 +1575,11 @@ public class PlayedGameServiceTests {
         enemyPlayer.setLogin(enemyPlayerLogin);
         enemyPlayer.setFightRoll(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
-        String expectedMessage = "There was no character assigned to player with given login";
+        String expectedMessage = IllegalGameStateException.PlayerHasNoCharacterAssignedMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
@@ -1604,7 +1596,11 @@ public class PlayedGameServiceTests {
         enemyPlayer.setLogin(enemyPlayerLogin);
         enemyPlayer.setFightRoll(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
-        String expectedMessage = "There was no position field assigned to character of player with given login";
+        String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act & Assert
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
@@ -1617,16 +1613,20 @@ public class PlayedGameServiceTests {
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         Player enemyPlayer = new Player();
         String enemyPlayerLogin = "Enemy Guy";
+        enemyPlayer.setCharacter(player.getCharacter());
         enemyPlayer.setLogin(enemyPlayerLogin);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
-        String expectedMessage = "Attacker roll assigned, waiting for attacked player's roll";
+        String expectedMessage = IllegalGameStateException.PlayerWaitingForEnemyRollMessage;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonEnemyDecreasedHealth() {
+    public void calculateFightWithPlayerPlayerWonEnemyDecreasedHealth() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1638,6 +1638,10 @@ public class PlayedGameServiceTests {
         enemyPlayer.getCharacter().setHealth(2);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1652,7 +1656,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonEnemyDead() {
+    public void calculateFightWithPlayerPlayerWonEnemyDead() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1664,6 +1668,10 @@ public class PlayedGameServiceTests {
         enemyPlayer.getCharacter().setHealth(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1678,7 +1686,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerPlayerWonChooseCard() {
+    public void calculateFightWithPlayerPlayerWonChooseCard() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 6;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1694,6 +1702,10 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin)).thenReturn(enemyPlayer.getCardsOnHand());
         int expectedEnemyHealth = enemyPlayer.getHealth();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1708,7 +1720,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonPlayerDecreasedHealth() {
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDecreasedHealth() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1722,6 +1734,10 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
         int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1736,7 +1752,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonPlayerDead() {
+    public void calculateFightWithPlayerEnemyPlayerWonPlayerDead() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1752,6 +1768,10 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, playerLogin)).thenReturn(new ArrayList<>(List.of(player)));
         int expectedPlayerHealth = player.getHealth() - 1 >= 0 ? player.getHealth() - 1 : 0;
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1766,7 +1786,7 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void calculateFightWithPlayerEnemyPlayerWonChooseCard() {
+    public void calculateFightWithPlayerEnemyPlayerWonChooseCard() throws IllegalGameStateException {
         // Arrange
         int playerRoll = 1;
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
@@ -1782,6 +1802,10 @@ public class PlayedGameServiceTests {
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(player.getCardsOnHand());
         int expectedEnemyHealth = enemyPlayer.getHealth();
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
+        playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
+        playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
         Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
         // Assert
@@ -1796,37 +1820,18 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void rollDiceTestPlayerNotFound() {
-        // Arrange
-        String playerLogin = "Non Existing";
-        // Act
-        Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
-        // Assert
-        assertTrue(roll.isEmpty());
-    }
-
-    @Test
-    public void rollDiceTest() {
-        // Act
-        Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
-        // Assert
-        assertTrue(roll.isPresent());
-        assertTrue(roll.get() >= PlayedGameProperties.diceLowerBound && roll.get() <= PlayedGameProperties.diceUpperBound);
-    }
-
-    @Test
     public void blockTurnsOfPlayerNumberToBlockInvalid() {
         // Arrange
         int numOfTurnsToBlock = -1;
-        String expectedMessage = "Number of turns to block must be greater than 0";
+        String expectedMessage = IllegalGameStateException.PlayerCannotBeBlockedForNegativeTurnsMessage;
         // Act
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock));
         // Assert
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    public void blockTurnsOfPlayer() {
+    public void blockTurnsOfPlayer() throws IllegalGameStateException {
         // Arrange
         int numOfTurnsToBlock = 1;
         int expectedNumOfBlocked = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getBlockedTurns() + numOfTurnsToBlock;
@@ -1842,7 +1847,7 @@ public class PlayedGameServiceTests {
         // Arrange
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setCharacter(null);
-        String expectedMessage = "There was no character assigned to player with given login";
+        String expectedMessage = IllegalGameStateException.PlayerHasNoCharacterAssignedMessage;
         // Act
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
         // Assert
@@ -1854,7 +1859,7 @@ public class PlayedGameServiceTests {
         // Arrange
         Player player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst().get();
         player.setPositionField(null);
-        String expectedMessage = "There was no position field assigned to character of player with given login";
+        String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
         // Act
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin));
         // Assert
@@ -1862,13 +1867,14 @@ public class PlayedGameServiceTests {
     }
 
     @Test
-    public void automaticallyBlockTurnsOfPlayer() {
+    public void automaticallyBlockTurnsOfPlayer() throws IllegalGameStateException {
         // Arrange
         Field field = new Field();
         field.setType(FieldType.LOSE_TWO_ROUNDS);
         int expectedNumOfBlocked = playedGame.getPlayers().stream().filter(player -> player.getLogin().equals(playerLogin)).findFirst().get().getBlockedTurns() + 2;
         Optional<Player> player = playedGame.getPlayers().stream().filter(player1 -> player1.getLogin().equals(playerLogin)).findFirst();
         player.get().setPositionField(field);
+        playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_BLOCK);
         // Act
         Optional<Player> playerFound = playedGameService.automaticallyBlockTurnsOfPlayer(playedGameId, playerLogin);
         // Assert

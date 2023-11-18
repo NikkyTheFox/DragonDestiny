@@ -18,7 +18,7 @@ public class PlayedGameProperties {
     /**
      * Number of cards player can have on hand.
      */
-    public static Integer numberOfCardsOnHand = 5;
+    public static Integer numberOfCardsOnHand = 3;
 
     /**
      * Low bound of dice roll.

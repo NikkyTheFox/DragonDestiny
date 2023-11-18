@@ -56,4 +56,17 @@ public class PlayerRepository {
                 .toEntity(Player.class)
                 .block();
     }
+
+    /**
+     * Deletes game from players repository.
+     *
+     * @param playedGameId
+     */
+    public void deleteGame(String playedGameId) {
+        client.delete()
+                .uri("/games/{gameId}", playedGameId)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
 }

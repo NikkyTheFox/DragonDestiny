@@ -156,14 +156,14 @@ VALUES
     ('TAKE_ONE_CARD', 3, 0, 1),
     ('TAKE_ONE_CARD', 4, 0, 1),
     -- x size_x
-    ('TAKE_TWO_CARDS', 4, 1, 1),
+    ('LOSE_ONE_ROUND', 4, 1, 1),
     ('TAKE_TWO_CARDS', 4, 2, 1),
-    ('TAKE_TWO_CARDS', 4, 3, 1),
+    ('LOSE_TWO_ROUNDS', 4, 3, 1),
     ('TAKE_TWO_CARDS', 4, 4, 1),
     -- y size_y
-    ('TAKE_ONE_CARD', 3, 4, 1),
+    ('LOSE_ONE_ROUND', 3, 4, 1),
     ('TAKE_ONE_CARD', 2, 4, 1),
-    ('TAKE_ONE_CARD', 1, 4, 1),
+    ('LOSE_TWO_ROUNDS', 1, 4, 1),
     ('TAKE_ONE_CARD', 0, 4, 1),
     -- x 0
     ('TAKE_TWO_CARDS', 0, 3, 1),

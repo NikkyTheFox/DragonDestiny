@@ -195,6 +195,24 @@ public class UserController {
     }
 
     /**
+     * Deletes game by gameId, also deletes from all players
+     *
+     * @param gameId
+     * @return
+     */
+    @DeleteMapping("/games/{gameId}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = Boolean.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
+    public ResponseEntity deleteGame(@PathVariable(name = "gameId") String gameId) {
+        Optional<Game> game = gameService.getGame(gameId);
+        if (game.isPresent())
+            gameService.delete(game.get());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Adds specified game to given user's list of games. In the same time adds specified user to game's user list.
      *
      * @param userLogin An identifier of a user to be linked together.
@@ -231,5 +249,4 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
-
 }

@@ -36,10 +36,14 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.PlayerList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.service.PlayerService;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
+import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
 import java.util.*;
 import java.util.stream.IntStream;
+
+import static pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException.*;
 
 /**
  * Played Game Service to manipulate played games' data retrieved from the database.
@@ -102,6 +106,7 @@ public class PlayedGameService {
             return false;
         }
         playedGameRepository.deleteById(playedGameId);
+        playerService.deleteGame(playedGameId);
         return true;
     }
 
@@ -205,7 +210,7 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("Given player does not have a character assigned.");
+            throw new NoSuchElementException(PlayerHasNoCharacterAssignedMessage);
         }
         return player.map(Player::getCharacter);
     }
@@ -345,7 +350,7 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (characterList.isEmpty()) {
-            throw new NoSuchElementException("No characters found in played game.");
+            throw new NoSuchElementException(CharactersNotFoundMessage);
         }
         List<Player> playerList = playedGameRepository.findPlayers(playedGameId);
         if (playerList.isEmpty()) {
@@ -381,29 +386,27 @@ public class PlayedGameService {
     }
 
     /**
-     * Retrieve a list of enemies on a player's position field.
+     * Retrieve a list of enemies on a player's position field. Sets first enemy as the one the player will fight.
      *
      * @param playedGameId An identifier of a played game to perform actions on.
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing a list of enemy cards.
      */
-    public Optional<EnemyCardList> findEnemyCardOnPlayersField(String playedGameId, String playerLogin) {
-        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (game.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login.");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
-        }
-        List<EnemyCard> enemyCardList = playedGameRepository.findEnemyOnField(playedGameId, player.get().getCharacter().getField().getId());
+    public Optional<EnemyCardList> findEnemyCardOnPlayersField(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
+
+        List<EnemyCard> enemyCardList = playedGameRepository.findEnemyOnField(playedGameId, player.getCharacter().getField().getId());
         if (enemyCardList.isEmpty()) {
             return Optional.of(new EnemyCardList());
         }
-        return Optional.of(new EnemyCardList(enemyCardList));
+
+        activeRound.setEnemyFought(enemyCardList.get(0));
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
+        return Optional.of(new EnemyCardList(new ArrayList<>(Collections.singletonList(enemyCardList.get(0)))));
     }
 
     /**
@@ -441,7 +444,7 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (game.get().getActiveRound() == null) {
-            throw new NoSuchElementException("The game does not have an active round started.");
+            throw new NoSuchElementException(GameNotStartedMessage);
         }
         return playedGameRepository.findActiveRound(playedGameId).stream().findFirst();
     }
@@ -509,23 +512,21 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing a list of players.
      */
-    public Optional<PlayerList> findDifferentPlayersByField(String playedGameId, String playerLogin) {
-        Optional<PlayedGame> game = playedGameRepository.findById(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (game.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login.");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
-        }
-        List<Player> playerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.get().getCharacter().getField().getId());
+    public Optional<PlayerList> findDifferentPlayersByField(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_PLAYER_TO_FIGHT);
+
+        List<Player> playerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.getCharacter().getField().getId());
         if (playerList.isEmpty()) {
             return Optional.of(new PlayerList());
         }
-        return Optional.of(new PlayerList(playerList));
+
+        activeRound.setEnemyPlayerFought(playerList.get(0));
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
+        return Optional.of(new PlayerList(new ArrayList<>(Collections.singletonList(playerList.get(0)))));
     }
 
     /**
@@ -575,24 +576,24 @@ public class PlayedGameService {
      * @param startBoolean A boolean to set if game is to be started
      * @return An updated game.
      */
-    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) {
+    public Optional<PlayedGame> startGame(String playedGameId, boolean startBoolean) throws IllegalGameStateException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         if (!startBoolean || playedGame.isEmpty()) {
             return Optional.empty();
         }
         PlayedGame game = playedGame.get();
         if (game.getIsStarted()) {
-            throw new IllegalArgumentException("The game is already started.");
+            throw new IllegalGameStateException(GameStartedMessage);
         }
         Round round = new Round();
         round.setId(1);
         List<Player> players = game.getPlayers();
         if (players.isEmpty()) {
-            throw new NoSuchElementException("There must be at least one player in game to start.");
+            throw new IllegalGameStateException(GameCannotBeStartedPlayersMessage);
         }
         for (Player player : players) {
             if (player.getCharacter() == null) {
-                throw new NoSuchElementException("All players must have a character assigned");
+                throw new IllegalGameStateException(GameCannotBeStartedCharactersMessage);
             }
         }
 
@@ -600,6 +601,7 @@ public class PlayedGameService {
         round.setPlayerList(players);
         Player startingPlayer = players.get(0);
         round.setActivePlayer(startingPlayer);
+        round.initiateRoundStates();
         game.startGame(round);
         return Optional.of(playedGameRepository.save(game));
     }
@@ -610,48 +612,95 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return An updated game.
      */
-    public Optional<PlayedGame> nextRound(String playedGameId) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        if (playedGame.isEmpty()) {
-            return Optional.empty();
-        }
-        if (!playedGame.get().getIsStarted() || playedGame.get().getActiveRound() == null) {
-            throw new IllegalArgumentException("The game is not started yet.");
-        }
-        PlayedGame game = playedGame.get();
-        game.getRounds().add(game.getActiveRound());
-        Round round = game.getActiveRound();
-        round.setId(round.getId() + 1);
-        Player activePlayer = round.getActivePlayer();
-        Optional<Player> optionalPlayer = round.getPlayerList().stream().filter(player ->
+    public Optional<PlayedGame> nextRound(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_NEXT_ROUND);
+        Player activePlayer = activeRound.getActivePlayer();
+
+        Round nextRound = new Round();
+        nextRound.setId(activeRound.getId() + 1);
+        nextRound.setPlayerList(activeRound.getPlayerList());
+
+        playedGame.getRounds().add(playedGame.getActiveRound());
+
+        Optional<Player> optionalPlayer = nextRound.getPlayerList().stream().filter(player ->
                 player.getLogin().equals(activePlayer.getLogin())
         ).findFirst();
         if (optionalPlayer.isEmpty()) {
             return Optional.empty();
         }
-        int id = round.getPlayerList().indexOf(optionalPlayer.get());
+        int id = nextRound.getPlayerList().indexOf(optionalPlayer.get());
         Player nextPlayer = null;
         boolean found = false;
         int lookedId = id;
         while (!found) {
-            if (lookedId + 1 < round.getPlayerList().size()) {
+            if (lookedId + 1 < nextRound.getPlayerList().size()) {
                 lookedId += 1;
             } else {
                 lookedId = 0;
             }
-            nextPlayer = round.getPlayerList().get(lookedId);
+            nextPlayer = nextRound.getPlayerList().get(lookedId);
             if (nextPlayer.getBlockedTurns() > 0) {
                 nextPlayer.setBlockedTurns(nextPlayer.getBlockedTurns() - 1);
-                updatePlayer(game, nextPlayer);
-                round.setId(round.getId() + 1);
+                updatePlayer(playedGame, nextPlayer);
+                nextRound.setId(nextRound.getId() + 1);
             } else {
                 found = true;
             }
         }
-        round.setActivePlayer(nextPlayer);
-        game.setActiveRound(round);
-        return Optional.of(playedGameRepository.save(game));
+        nextRound.setActivePlayer(nextPlayer);
+        if (nextPlayer.getPositionField().getType().equals(FieldType.BOSS_FIELD)) {
+            nextRound.initiateRoundStatesBossField();
+        } else {
+            nextRound.initiateRoundStates();
+        }
+        playedGame.setActiveRound(nextRound);
+        return Optional.of(playedGameRepository.save(playedGame));
     }
+
+    /**
+     * Assigns round option chosen by player to active round. Sets next steps in game.
+     *
+     * @param playedGameId An identifier of a played game to perform actions on.
+     * @param playerLogin  An identifier of player.
+     * @param fieldOption  Chosen option of action.
+     * @return Updated game.
+     */
+    public Optional<PlayedGame> selectRoundOption(String playedGameId, String playerLogin, FieldOption fieldOption) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIELD_ACTION_CHOICE);
+
+        if (!activeRound.getFieldOptionList().getPossibleOptions().contains(fieldOption)) {
+            throw new IllegalGameStateException(PlayerActionNotAllowedMessage);
+        }
+        switch (fieldOption) {
+            case TAKE_ONE_CARD, TAKE_TWO_CARDS -> activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
+            case FIGHT_WITH_ENEMY_ON_FIELD, BOSS_FIELD, BRIDGE_FIELD -> {
+                activeRound.addRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+            }
+            case FIGHT_WITH_PLAYER -> {
+                activeRound.addRoundState(RoundState.WAITING_FOR_PLAYER_TO_FIGHT);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+            }
+            case LOSE_ONE_ROUND, LOSE_TWO_ROUNDS -> {
+                activeRound.addRoundState(RoundState.WAITING_FOR_BLOCK);
+                activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+            }
+        }
+        activeRound.setPlayerFieldOptionChosen(fieldOption);
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+
+        return Optional.of(playedGameRepository.save(playedGame));
+    }
+
 
     /**
      * Adds new player to player list.
@@ -660,14 +709,14 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player to be added to the game
      * @return An updated game.
      */
-    public Optional<PlayedGame> addPlayer(String playedGameId, String playerLogin) {
+    public Optional<PlayedGame> addPlayer(String playedGameId, String playerLogin) throws IllegalGameStateException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = playerService.findByLogin(playerLogin);
         if (playedGame.isEmpty() || player.isEmpty()) {
             return Optional.empty();
         }
         if (playedGame.get().getPlayers().stream().filter(p -> p.getLogin().equals(playerLogin)).findAny().isPresent()) {
-            throw new IllegalArgumentException("The player with given login is already added to the game.");
+            throw new IllegalGameStateException(PlayerAlreadyAddedMessage);
         }
         playedGame.get().addPlayerToGame(player.get());
         playerService.addGame(playerLogin, playedGameId);
@@ -682,7 +731,7 @@ public class PlayedGameService {
      * @param characterId  An identifier of character to be assigned to the player.
      * @return An updated game.
      */
-    public Optional<PlayedGame> assignCharacterToPlayer(String playedGameId, String playerLogin, Integer characterId) {
+    public Optional<PlayedGame> assignCharacterToPlayer(String playedGameId, String playerLogin, Integer characterId) throws IllegalGameStateException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Character> character = findCharacter(playedGameId, characterId);
@@ -690,40 +739,21 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (character.isEmpty()) {
-            throw new NoSuchElementException("Character with given id was not found in the game.");
+            throw new NoSuchElementException(CharacterNotFoundMessage);
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Character character1 = character.get();
-        Optional<Field> field = findField(playedGameId, character1.getField().getId());
+        Optional<Field> field = findField(playedGameId, character.get().getField().getId());
         if (field.isEmpty()) {
-            throw new NoSuchElementException("Chosen character has no position field assigned");
+            throw new NoSuchElementException(CharacterHasNoFieldAssignedMessage);
         }
-        player1.setCharacter(character1);
-        updatePlayer(playedGame1, player1);
-        playedGameRepository.save(playedGame1);
+        for (Player p : playedGame.get().getPlayers()) {
+            if (p.getCharacter() != null && p.getCharacter().getId().equals(characterId)) {
+                throw new IllegalGameStateException(CharacterChosenMessage);
+            }
+        }
+        player.get().setCharacter(character.get());
+        updatePlayer(playedGame.get(), player.get());
+        playedGameRepository.save(playedGame.get());
         return changePosition(playedGameId, playerLogin, field.get().getId());
-    }
-
-    /**
-     * Sets roll value to Player's fight roll value.
-     *
-     * @param playedGameId An identifier of a played game to perform actions on.
-     * @param playerLogin  An identifier of a player which has FightRoll to be set
-     * @param rollValue    A value to be set as player's FightRoll
-     * @return An updated game.
-     */
-    public Optional<PlayedGame> setPlayerFightRoll(String playedGameId, String playerLogin, Integer rollValue) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        player1.setFightRoll(rollValue);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
     }
 
     /**
@@ -734,20 +764,21 @@ public class PlayedGameService {
      * @return An updated game.
      */
 
-    public Optional<PlayedGame> moveCardFromCardDeckToUsedCardDeck(String playedGameId, Integer cardId) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+    public Optional<PlayedGame> moveCardFromCardDeckToUsedCardDeck(String playedGameId, Integer cardId) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Round activeRound = playedGame.getActiveRound();
+        if (activeRound.getRoundState().equals(RoundState.WAITING_FOR_CARD_TO_USED)) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
+        }
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
-        if (playedGame.isEmpty()) {
-            return Optional.empty();
-        }
         if (card.isEmpty()) {
-            throw new NoSuchElementException("No card with given id found in card deck");
+            throw new NoSuchElementException(CardNotFoundMessage);
         }
-        PlayedGame game = playedGame.get();
-        Card card1 = card.get();
-        game.addCardToUsedDeck(card1);
-        game.removeCardFromDeck(card1);
-        return Optional.of(playedGameRepository.save(game));
+        playedGame.addCardToUsedDeck(card.get());
+        playedGame.removeCardFromDeck(card.get());
+        return Optional.of(playedGameRepository.save(playedGame));
     }
 
     /**
@@ -758,32 +789,33 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card that is to be moved to a player hand.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+    public Optional<PlayedGame> moveCardToPlayer(String playedGameId, String playerLogin, Integer cardId) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_CARD_TO_HAND);
+
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
         if (card.isEmpty()) {
-            throw new NoSuchElementException("No card with given id found in card deck.");
+            throw new NoSuchElementException(CardNotFoundMessage);
         }
         if (!card.get().getCardType().equals(CardType.ITEM_CARD)) {
-            throw new IllegalArgumentException("Only card of type ITEM CARD can be added to player's hand.");
+            throw new IllegalGameStateException(ItemInvalidTypeMessage);
         }
-        if (!player.get().checkCardsOnHand()) {
-            throw new IllegalArgumentException("Player has no place on hand.");
+        if (activeRound.getItemCardToTake() == null || !activeRound.getItemCardToTake().getId().equals(cardId)) {
+            throw new IllegalGameStateException(PlayerDidNotDrawMessage);
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        if (player1.getCharacter() == null) {
-            throw new NoSuchElementException("Player has no character assigned.");
+        if (!player.checkCardsOnHand()) {
+            activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+            playedGame.setActiveRound(activeRound);
+            playedGameRepository.save(playedGame);
+            throw new IllegalGameStateException(PlayerHasNoPlaceOnHandMessage);
         }
-        Card card1 = card.get();
-        player1.moveCardToPlayer(card1);
-        playedGame1.removeCardFromDeck(card1);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        player.moveCardToPlayer(card.get());
+        playedGame.removeCardFromDeck(card.get());
+        updatePlayer(playedGame, player);
+        return Optional.of(playedGameRepository.save(playedGame));
     }
 
     /**
@@ -794,27 +826,29 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card to be moved to player's trophy list.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardToPlayerTrophies(String playedGameId, String playerLogin, Integer cardId) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+    public Optional<PlayedGame> moveCardToPlayerTrophies(String playedGameId, String playerLogin, Integer cardId) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_CARD_TO_TROPHIES);
+
         Optional<Card> card = findCardInCardDeck(playedGameId, cardId);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
         if (card.isEmpty()) {
-            throw new NoSuchElementException("No card with given id found in card deck.");
+            throw new NoSuchElementException(CardNotFoundMessage);
         }
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
-            throw new IllegalArgumentException("Only card of type ENEMY CARD can be added to player's trophies.");
+            throw new IllegalGameStateException(EnemyInvalidTypeMessage);
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Card card1 = card.get();
-        player1.moveCardToTrophies(card1);
-        playedGame1.removeCardFromDeck(card1);
-        updatePlayer(playedGame1, player1);
-        checkTrophies(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        if (!activeRound.getEnemyFought().getId().equals(cardId)) {
+            throw new IllegalGameStateException(PlayerWrongEnemyTrophyMessage);
+        }
+
+        player.moveCardToTrophies(card.get());
+        playedGame.removeCardFromDeck(card.get());
+        checkTrophies(playedGame, player);
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        updatePlayer(playedGame, player);
+        return Optional.of(playedGameRepository.save(playedGame));
     }
 
     /**
@@ -825,23 +859,52 @@ public class PlayedGameService {
      * @param cardId       An identifier of a card to be moved.
      * @return An updated game.
      */
-    public Optional<PlayedGame> moveCardFromPlayerToUsedCardDeck(String playedGameId, String playerLogin, Integer cardId) {
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+    public Optional<PlayedGame> moveCardFromPlayerToUsedCardDeck(String playedGameId, String playerLogin, Integer cardId) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_CARD_TO_USED);
+
         Optional<ItemCard> itemCard = findCardInPlayerHand(playedGameId, playerLogin, cardId);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
         if (itemCard.isEmpty()) {
-            throw new NoSuchElementException("No card with given id found in player's hand.");
+            throw new NoSuchElementException(CardNotFoundMessage);
         }
         Card card = itemCard.get();
-        Player player1 = player.get();
-        PlayedGame playedGame1 = playedGame.get();
-        player1.removeCardFromPlayer(card);
-        playedGame1.addCardToUsedDeck(card);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        player.removeCardFromPlayer(card);
+        playedGame.addCardToUsedDeck(card);
+        updatePlayer(playedGame, player);
+        activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+        playedGame.setActiveRound(activeRound);
+        return Optional.of(playedGameRepository.save(playedGame));
+    }
+
+    /**
+     * Move card from one player's hand and add to another player's hand.
+     *
+     * @param playedGameId    An identifier of a played game to perform actions on.
+     * @param playerFromLogin An identifier of a player to take card from.
+     * @param playerToLogin   An identifier of a player to add card to.
+     * @param cardId          An identifier of card to move.
+     * @return An updated game.
+     */
+    public Optional<PlayedGame> moveCardFromPlayerToPlayer(String playedGameId, String playerFromLogin, String playerToLogin, Integer cardId) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player playerFrom = checkCompletePlayer(playedGameId, playerFromLogin);
+        Player playerTo = checkCompletePlayer(playedGameId, playerToLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerFromLogin, RoundState.WAITING_FOR_CARD_THEFT);
+
+        Optional<ItemCard> itemCard = findCardInPlayerHand(playedGameId, playerFromLogin, cardId);
+        if (itemCard.isEmpty()) {
+            throw new NoSuchElementException(CardNotFoundMessage);
+        }
+        Card card = itemCard.get();
+
+        playerFrom.removeCardFromPlayer(card);
+        playerTo.moveCardToPlayer(card);
+        updatePlayer(playedGame, playerFrom);
+        updatePlayer(playedGame, playerTo);
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        return Optional.of(playedGameRepository.save(playedGame));
     }
 
     /**
@@ -852,7 +915,7 @@ public class PlayedGameService {
      * @param fieldId      An identifier of a new player's position field.
      * @return An updated game.
      */
-    public Optional<PlayedGame> changePosition(String playedGameId, String playerLogin, Integer fieldId) {
+    public Optional<PlayedGame> changePosition(String playedGameId, String playerLogin, Integer fieldId) throws IllegalGameStateException {
         Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
         Optional<Player> player = findPlayer(playedGameId, playerLogin);
         Optional<Field> field = findField(playedGameId, fieldId);
@@ -860,17 +923,24 @@ public class PlayedGameService {
             return Optional.empty();
         }
         if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login");
+            throw new NoSuchElementException(PlayerHasNoCharacterAssignedMessage);
         }
         if (field.isEmpty()) {
-            throw new NoSuchElementException("Field with given id was not found on the board");
+            throw new NoSuchElementException(FieldNotFoundMessage);
         }
-        Player player1 = player.get();
-        PlayedGame playedGame1 = playedGame.get();
-        Field field1 = field.get();
-        player1.setPositionField(field1);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
+        if (playedGame.get().getIsStarted()) {
+            Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_MOVE);
+
+            if (activeRound.getFieldListToMove().stream().filter(field1 -> field1.getId().equals(fieldId)).findFirst().isEmpty()) {
+                throw new IllegalGameStateException(PlayerCannotMoveToGivenFieldMessage);
+            }
+            activeRound.nextRoundState();
+            playedGame.get().setActiveRound(activeRound);
+        }
+
+        player.get().setPositionField(field.get());
+        updatePlayer(playedGame.get(), player.get());
+        return Optional.of(playedGameRepository.save(playedGame.get()));
     }
 
     /**
@@ -881,28 +951,22 @@ public class PlayedGameService {
      * @param rollValue    A value that has been rolled.
      * @return A structure containing a list of fields.
      */
-    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin, Integer rollValue) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
+    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin, Integer rollValue) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIELDS_TO_MOVE);
+
+        if (activeRound.getPlayerMoveRoll() != rollValue) {
+            throw new IllegalGameStateException(PlayerDidNotRollMessage);
         }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login.");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
-        }
-        Player player1 = player.get();
-        PlayedGame playedGame1 = playedGame.get();
-        Field currentPlayersField = player1.getPositionField();
+        Field currentPlayersField = player.getPositionField();
         List<Field> tempFieldList = new ArrayList<>();
         List<Field> fieldList = playedGameRepository.findFieldsOnBoard(playedGameId);
         int boardSize = fieldList.size() - 1; // -1 because of boss field
 
         // check forward:
         Integer firstOptionId = (currentPlayersField.getId() + rollValue - 1) % boardSize + 1;
-        Optional<Field> firstOption = this.findField(playedGame1.getId(), firstOptionId);
+        Optional<Field> firstOption = this.findField(playedGame.getId(), firstOptionId);
         firstOption.ifPresent(tempFieldList::add);
 
         // check backward:
@@ -910,21 +974,25 @@ public class PlayedGameService {
         if (secondOptionId <= 0) {
             secondOptionId += boardSize;
         }
-        Optional<Field> secondOption = this.findField(playedGame1.getId(), secondOptionId);
+        Optional<Field> secondOption = this.findField(playedGame.getId(), secondOptionId);
         secondOption.ifPresent(tempFieldList::add);
 
         // check whether a player won a fight with Bridge Guardian and can go for boss
-        if (currentPlayersField.getType() == FieldType.BRIDGE_FIELD && player1.getBridgeGuardianDefeated()) {
-            Optional<Field> thirdOption = this.findField(playedGame1.getId(), PlayedGameProperties.bossFieldID); // boss field id
+        if (currentPlayersField.getType() == FieldType.BRIDGE_FIELD && player.getBridgeGuardianDefeated()) {
+            Optional<Field> thirdOption = this.findField(playedGame.getId(), PlayedGameProperties.bossFieldID); // boss field id
             thirdOption.ifPresent(tempFieldList::add);
         }
 
         // check whether a player can move back from Boss to Bridge Guardian
         if (currentPlayersField.getType() == FieldType.BOSS_FIELD) {
-            Optional<Field> thirdOption = this.findField(playedGame1.getId(), PlayedGameProperties.guardianFieldID); // boss field id
+            Optional<Field> thirdOption = this.findField(playedGame.getId(), PlayedGameProperties.guardianFieldID); // boss field id
             tempFieldList = new ArrayList<>();
             thirdOption.ifPresent(tempFieldList::add);
         }
+        activeRound.nextRoundState();
+        activeRound.setFieldListToMove(tempFieldList);
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
         return Optional.of(new FieldList(tempFieldList));
     }
 
@@ -935,38 +1003,38 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player whose position field is to be checked.
      * @return A structure containing list of possible options.
      */
-    public Optional<FieldOptionList> checkFieldOption(String playedGameId, String playerLogin) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login.");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login.");
-        }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Field field = player.get().getCharacter().getField();
+    public Optional<FieldOptionList> checkFieldOption(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIELD_OPTIONS);
+
+        Field field = player.getCharacter().getField();
 
         FieldOptionList list = new FieldOptionList();
+        List<Player> enemyPlayerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, field.getId());
         list.getPossibleOptions().add(FieldOption.valueOf(field.getType().toString()));
+        
+        if (field.getType() == FieldType.BOSS_FIELD && !enemyPlayerList.isEmpty()) {
+            list.getPossibleOptions().remove(0);
+        }
         if (field.getType() == FieldType.BOSS_FIELD) {
             list.getPossibleOptions().add(FieldOption.BRIDGE_FIELD);
         }
-        if (field.getType() == FieldType.BRIDGE_FIELD && player1.getBridgeGuardianDefeated()) {
+        if (field.getType() == FieldType.BRIDGE_FIELD && player.getBridgeGuardianDefeated()) {
             list.getPossibleOptions().add(FieldOption.BOSS_FIELD);
         }
-        Optional<PlayerList> enemyPlayerList = findDifferentPlayersByField(playedGame1.getId(), player1.getLogin());
-        if (enemyPlayerList.isPresent() && !enemyPlayerList.get().getPlayerList().isEmpty()) {
+        if (!enemyPlayerList.isEmpty()) {
             list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
         }
         Optional<EnemyCardList> enemyCardList = findEnemyCardsOnField(playedGameId, field.getId());
-        if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty()) {
+        if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty() && field.getType() != FieldType.BOSS_FIELD && field.getType() != FieldType.BRIDGE_FIELD) {
             list.getPossibleOptions().add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
         }
+        activeRound.nextRoundState();
+        activeRound.setFieldOptionList(list);
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
+
         return Optional.of(list);
     }
 
@@ -976,19 +1044,42 @@ public class PlayedGameService {
      * @param playedGameId An identifier of a played game to perform actions on.
      * @return A randomly drawn card.
      */
-    public Optional<Card> drawCard(String playedGameId) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        if (playedGame.isEmpty()) {
-            return Optional.empty();
-        }
+    public Optional<Card> drawCard(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_CARD_DRAWN);
+
         Random random = new Random();
         List<Card> cardList = playedGameRepository.findCardDeck(playedGameId);
         if (cardList.isEmpty()) {
-            throw new NoSuchElementException("There are no cards in the card deck.");
+            if (playedGame.getUsedCardDeck().isEmpty()) {
+                throw new NoSuchElementException("There are no cards in the card deck.");
+            }
+            Collections.shuffle(playedGame.getUsedCardDeck());
+            cardList.addAll(playedGame.getUsedCardDeck());
+            playedGame.getUsedCardDeck().clear();
         }
         int cardToDrawIndex = random.nextInt(cardList.size() - 1);
-        List<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex);
-        return cardToDraw.stream().findFirst();
+        Optional<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex).stream().findFirst();
+        activeRound.increaseNumOfCardsTaken(1);
+        if (cardToDraw.get().getCardType().equals(CardType.ENEMY_CARD)) {
+            activeRound.setEnemyFought((EnemyCard) cardToDraw.get());
+            activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+            activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
+            activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+        } else {
+            activeRound.setItemCardToTake((ItemCard) cardToDraw.get());
+            activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+        }
+        if (activeRound.getPlayerNumberOfCardsTaken() >= activeRound.getPlayerFieldOptionChosen().numOfCardsToTake) {
+            activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+        } else {
+            activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
+        }
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
+        return cardToDraw;
     }
 
     /**
@@ -1001,56 +1092,63 @@ public class PlayedGameService {
      * @param enemyRollValue  A value rolled by an enemy (rolled by server).
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId, Integer playerRollValue, Integer enemyRollValue) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId, Integer playerRollValue, Integer enemyRollValue) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIGHT_RESULT);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
+        Boolean fieldEnemy = false;
+
+        if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
+            throw new IllegalGameStateException(PlayerDidNotRollMessage);
         }
-        if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new IllegalArgumentException("Player roll value is not within set values");
+        if (activeRound.getEnemyFightRoll() == null || !activeRound.getEnemyFightRoll().equals(enemyRollValue)) {
+            throw new IllegalGameStateException(EnemyDidNotRollMessage);
         }
-        if (!(enemyRollValue >= PlayedGameProperties.diceLowerBound && enemyRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new IllegalArgumentException("Enemy roll value is not within set values");
-        }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
+        if (activeRound.getEnemyFought() == null || !activeRound.getEnemyFought().getId().equals(enemyCardId)) {
+            throw new IllegalGameStateException(PlayerWrongEnemyMessage);
         }
         if (card.isEmpty()) {
-            if (player.get().getCharacter().getField().getEnemy() != null && player.get().getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
-                card = Optional.of(player.get().getCharacter().getField().getEnemy());
+            if (player.getCharacter().getField().getEnemy() != null && player.getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
+                card = Optional.of(player.getCharacter().getField().getEnemy());
+                fieldEnemy = true;
             } else {
-                throw new NoSuchElementException("No card with given id found in game");
+                throw new NoSuchElementException(CardNotFoundMessage);
             }
         }
         if (!card.get().getCardType().equals(CardType.ENEMY_CARD)) {
-            throw new IllegalArgumentException("Only card of type ENEMY CARD can be enemy to fight with");
+            throw new IllegalGameStateException(EnemyInvalidTypeMessage);
         }
+
         EnemyCard enemyCard = (EnemyCard) card.get();
         FightResult fightResult = new FightResult();
-        int playerResult = player.get().getStrength() + playerRollValue;
+        int playerResult = player.getStrength() + playerRollValue;
         int enemyResult = enemyCard.getInitialStrength() + enemyRollValue;
         if (playerResult >= enemyResult) { // player won
-            decreaseHealth(playedGame.get(), player.get(), enemyCard, 1, fightResult);
+            if (!fieldEnemy) {
+                activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
+                playedGame.setActiveRound(activeRound);
+                playedGameRepository.save(playedGame);
+            }
+            playedGame = decreaseHealth(playedGame, player, enemyCard, 1, fightResult);
             fightResult.setAttackerWon(true);
         } else { // player lost
-            decreaseHealth(playedGame.get(), player.get(), 1, fightResult);
+            playedGame = decreaseHealth(playedGame, player, 1, fightResult);
             fightResult.setAttackerWon(false);
-            if (!player.get().isAlive()) {
+            if (!player.isAlive()) {
                 fightResult.setPlayerDead(true);
-                for (Player p : playedGame.get().getPlayers()) {
-                    if (checkIfPlayerLastStanding(playedGame.get(), p)) {
+                for (Player p : playedGame.getPlayers()) {
+                    if (checkIfPlayerLastStanding(playedGame, p)) {
                         fightResult.setGameWon(true);
                         fightResult.setWonPlayer(p.getLogin());
                     }
                 }
             }
+            activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+            activeRound.nextRoundState();
         }
-        playedGameRepository.save(playedGame.get());
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
         return Optional.of(fightResult);
     }
 
@@ -1063,68 +1161,85 @@ public class PlayedGameService {
      * @param playerRollValue  A value rolled by player (defender)
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin, Integer playerRollValue) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        Optional<Player> enemyPlayer = findPlayer(playedGameId, enemyPlayerLogin);
-        if (playedGame.isEmpty() || player.isEmpty() || enemyPlayer.isEmpty()) {
-            return Optional.empty();
-        }
+    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin, Integer playerRollValue) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Player enemyPlayer = checkCompletePlayer(playedGameId, enemyPlayerLogin);
+        Round activeRound = playedGame.getActiveRound();
+
         if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new IllegalArgumentException("Player roll value is not within set values");
+            throw new IllegalGameStateException(PlayerInvalidRollRangeMessage);
         }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login");
+        if (activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            if (activeRound.getEnemyPlayerFought() == null || !activeRound.getEnemyPlayerFought().getLogin().equals(enemyPlayerLogin)) {
+                throw new IllegalGameStateException(PlayerWrongEnemyMessage);
+            }
+            if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
+                throw new IllegalGameStateException(PlayerDidNotRollMessage);
+            }
+            if (enemyPlayer.getFightRoll() == 0 && player.getFightRoll() == 0) {
+                setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
+                throw new IllegalGameStateException(PlayerWaitingForEnemyRollMessage);
+            }
+        } else if (activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
+            if (activeRound.getActivePlayer() == null || !activeRound.getActivePlayer().getLogin().equals(enemyPlayerLogin)) {
+                throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+            }
+            if (activeRound.getEnemyFightRoll() == null || !activeRound.getEnemyFightRoll().equals(playerRollValue)) {
+                throw new IllegalGameStateException(PlayerDidNotRollMessage);
+            }
+            if (player.getFightRoll() == 0 && enemyPlayer.getFightRoll() == 0) {
+                setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
+                throw new IllegalGameStateException(PlayerWaitingForEnemyRollMessage);
+            }
+        } else {
+            throw new IllegalGameStateException(PlayerIsNotActiveMessage);
         }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
-        }
-        setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
-        if (enemyPlayer.get().getFightRoll() == 0) { // call from the attacker, wait for attacked roll
-            throw new IllegalStateException("Attacker roll assigned, waiting for attacked player's roll");
-        }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        Player enemyPlayer1 = enemyPlayer.get();
 
         FightResult fightResult = new FightResult();
-        int playerResult = player1.getStrength() + playerRollValue;
-        int enemyResult = enemyPlayer1.getStrength() + enemyPlayer1.getFightRoll();
+        int playerResult = player.getStrength() + playerRollValue;
+        int enemyResult = enemyPlayer.getStrength() + enemyPlayer.getFightRoll();
         setPlayerFightRoll(playedGameId, playerLogin, 0);
         setPlayerFightRoll(playedGameId, enemyPlayerLogin, 0);
         if (playerResult >= enemyResult) { // DEFENDER (PLAYER) WON
             fightResult.setAttackerWon(false);
-            fightResult.setWonPlayer(player1.getLogin());
-            fightResult.setLostPlayer(enemyPlayer1.getLogin());
+            fightResult.setWonPlayer(player.getLogin());
+            fightResult.setLostPlayer(enemyPlayer.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin);
             if (loserHealthCards.isEmpty()) { // no health cards
-                decreaseHealth(playedGame1, enemyPlayer1, 1, fightResult);
-                if (!enemyPlayer1.isAlive()) {
+                decreaseHealth(playedGame, enemyPlayer, 1, fightResult);
+                if (!enemyPlayer.isAlive()) {
                     fightResult.setEnemyKilled(true);
-                    if (checkIfPlayerLastStanding(playedGame1, player1)) {
+                    if (checkIfPlayerLastStanding(playedGame, player)) {
                         fightResult.setGameWon(true);
                     }
                 }
             } else {
+                activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
         } else { // ATTACKER (ENEMY) WON
             fightResult.setAttackerWon(true);
-            fightResult.setWonPlayer(enemyPlayer1.getLogin());
-            fightResult.setLostPlayer(player1.getLogin());
+            fightResult.setWonPlayer(enemyPlayer.getLogin());
+            fightResult.setLostPlayer(player.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, playerLogin);
             if (loserHealthCards.isEmpty()) { // no health cards
-                decreaseHealth(playedGame1, player1, 1, fightResult);
-                if (!player1.isAlive()) {
+                decreaseHealth(playedGame, player, 1, fightResult);
+                if (!player.isAlive()) {
                     fightResult.setPlayerDead(true);
-                    if (checkIfPlayerLastStanding(playedGame1, enemyPlayer1)) {
+                    if (checkIfPlayerLastStanding(playedGame, enemyPlayer)) {
                         fightResult.setGameWon(true);
                     }
                 }
             } else {
+                activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
         }
+        activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
         return Optional.of(fightResult);
     }
 
@@ -1135,14 +1250,31 @@ public class PlayedGameService {
      * @param playerLogin  The ID of a player performing a die roll.
      * @return Random number.
      */
-    public Optional<Integer> rollDice(String playedGameId, String playerLogin) {
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
-            return Optional.empty();
-        }
+    public Optional<Integer> rollDice(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer toReturn = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
-        return Optional.of(toReturn);
+        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+
+        Round activeRound = playedGame.getActiveRound();
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin) && activeRound.getEnemyPlayerFought() != null && !activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
+            throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+        }
+        if (activeRound.getEnemyPlayerFought() != null && activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin) && activeRound.getRoundState() == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL) {
+            activeRound.setEnemyFightRoll(value);
+        } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_MOVE_ROLL) {
+            activeRound.setPlayerMoveRoll(value);
+        } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_FIGHT_ROLL) {
+            activeRound.setPlayerFightRoll(value);
+        } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_ENEMY_ROLL) {
+            activeRound.setEnemyFightRoll(value);
+        } else {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
+        }
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
+        return Optional.of(value);
     }
 
     /**
@@ -1153,21 +1285,17 @@ public class PlayedGameService {
      * @param numOfTurnsToBlock A number of turns to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
+    public Optional<Player> blockTurnsOfPlayer(String playedGameId, String playerLogin, Integer numOfTurnsToBlock) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+
         if (numOfTurnsToBlock <= 0) {
-            throw new IllegalArgumentException("Number of turns to block must be greater than 0");
+            throw new IllegalGameStateException(PlayerCannotBeBlockedForNegativeTurnsMessage);
         }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        player1.setBlockedTurns(player1.getBlockedTurns() + numOfTurnsToBlock);
-        updatePlayer(playedGame1, player1);
-        playedGameRepository.save(playedGame1);
-        return Optional.of(player1);
+        player.setBlockedTurns(player.getBlockedTurns() + numOfTurnsToBlock);
+        updatePlayer(playedGame, player);
+        playedGameRepository.save(playedGame);
+        return Optional.of(player);
     }
 
     /**
@@ -1177,28 +1305,66 @@ public class PlayedGameService {
      * @param playerLogin  An identifier of a player to be blocked.
      * @return An updated player.
      */
-    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) {
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (player.isEmpty()) {
-            return Optional.empty();
-        }
-        if (player.get().getCharacter() == null) {
-            throw new NoSuchElementException("There was no character assigned to player with given login");
-        }
-        if (player.get().getCharacter().getField() == null) {
-            throw new NoSuchElementException("There was no position field assigned to character of player with given login");
-        }
-        Field field = player.get().getCharacter().getField();
+    public Optional<Player> automaticallyBlockTurnsOfPlayer(String playedGameId, String playerLogin) throws IllegalGameStateException {
+        PlayedGame playedGame = checkGame(playedGameId);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_BLOCK);
+
+        Field field = player.getCharacter().getField();
         int numOfTurnsToBlock = 0;
         if (field.getType() == FieldType.LOSE_ONE_ROUND) {
             numOfTurnsToBlock = 1;
         } else if (field.getType() == FieldType.LOSE_TWO_ROUNDS) {
             numOfTurnsToBlock = 2;
         } else {
-            throw new IllegalArgumentException("The player is not located on blocking field");
+            throw new IllegalGameStateException(PlayerCannotBeBlockedMessage);
         }
+        activeRound.nextRoundState();
+        playedGame.setActiveRound(activeRound);
+        playedGameRepository.save(playedGame);
         return blockTurnsOfPlayer(playedGameId, playerLogin, numOfTurnsToBlock);
     }
+
+    private PlayedGame checkGame(String playedGameId) throws IllegalGameStateException {
+        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+        if (playedGame.isEmpty()) {
+            throw new NoSuchElementException(GameNotFoundMessage);
+        }
+        if (!playedGame.get().getIsStarted()) {
+            throw new IllegalGameStateException(GameNotStartedMessage);
+        }
+        return playedGame.get();
+    }
+
+    private Player checkCompletePlayer(String playedGameId, String playerLogin) {
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (player.isEmpty()) {
+            throw new NoSuchElementException(PlayerNotFoundMessage);
+        }
+        if (player.get().getCharacter() == null) {
+            throw new NoSuchElementException(PlayerHasNoCharacterAssignedMessage);
+        }
+        if (player.get().getCharacter().getField() == null) {
+            throw new NoSuchElementException(CharacterHasNoFieldAssignedMessage);
+        }
+        return player.get();
+    }
+
+    private Round checkActiveRound(String playedGameId, String playerLogin, RoundState roundState) throws IllegalGameStateException {
+        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+        if (playedGame.isPresent() && playedGame.get().getIsStarted()) {
+            Round activeRound = playedGame.get().getActiveRound();
+            if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+                throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+            }
+            if (!activeRound.getRoundState().equals(roundState)) {
+                throw new IllegalGameStateException(PlayerWrongActionMessage);
+            }
+            return activeRound;
+        }
+        throw new IllegalGameStateException(GameNotFoundMessage);
+    }
+
 
     /**
      * Converts PlayedGameList into PlayedGameListDTO.
@@ -1312,6 +1478,7 @@ public class PlayedGameService {
         return new PlayerListDTO(playerDTOList);
     }
 
+
     /**
      * Decreases health points of specified enemy card by given value.
      *
@@ -1320,7 +1487,7 @@ public class PlayedGameService {
      * @param enemyCard The enemy card which health points are to be reduced.
      * @param value     A number that is to be subtracted from enemy's health points.
      */
-    private void decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) {
+    private PlayedGame decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) throws IllegalGameStateException {
         enemyCard.reduceHealth(value);
         if (!enemyCard.isAlive()) {
             if (Objects.equals(enemyCard.getId(), PlayedGameProperties.guardianID)) {
@@ -1335,13 +1502,12 @@ public class PlayedGameService {
                 fightResult.setEnemyKilled(true);
                 if (updatedGame.isPresent()) {
                     checkTrophies(updatedGame.get(), player);
-                    playedGameRepository.save(updatedGame.get());
-                    return;
+                    return playedGameRepository.save(updatedGame.get());
                 }
             }
         }
         updateCardDeck(game, enemyCard);
-        playedGameRepository.save(game);
+        return playedGameRepository.save(game);
     }
 
     /**
@@ -1351,7 +1517,7 @@ public class PlayedGameService {
      * @param player The player whose health points are to be reduced.
      * @param value  A number that is to be subtracted from player's health.
      */
-    private void decreaseHealth(PlayedGame game, Player player, Integer value, FightResult fightResult) {
+    private PlayedGame decreaseHealth(PlayedGame game, Player player, Integer value, FightResult fightResult) throws IllegalGameStateException {
         Optional<ItemCard> card = player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0 && !itemCard.isUsed()).findFirst();
         if (card.isEmpty()) { // no health cards
             player.reduceHealth(value);
@@ -1359,12 +1525,37 @@ public class PlayedGameService {
         } else { // decrease health card
             card.get().reduceHealth(value);
             if (card.get().isUsed()) { // remove used up card
-                moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId());
+                game.getActiveRound().addRoundState(game.getActiveRound().getRoundState());
+                game.getActiveRound().setRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+                playedGameRepository.save(game);
+                game = moveCardFromPlayerToUsedCardDeck(game.getId(), player.getLogin(), card.get().getId()).get();
             } else {
                 updatePlayer(game, player);
-                playedGameRepository.save(game);
+                return playedGameRepository.save(game);
             }
         }
+        return game;
+    }
+
+    /**
+     * Sets roll value to Player's fight roll value.
+     *
+     * @param playedGameId An identifier of a played game to perform actions on.
+     * @param playerLogin  An identifier of a player which has FightRoll to be set
+     * @param rollValue    A value to be set as player's FightRoll
+     * @return An updated game.
+     */
+    private Optional<PlayedGame> setPlayerFightRoll(String playedGameId, String playerLogin, Integer rollValue) {
+        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
+        Optional<Player> player = findPlayer(playedGameId, playerLogin);
+        if (playedGame.isEmpty() || player.isEmpty()) {
+            return Optional.empty();
+        }
+        PlayedGame playedGame1 = playedGame.get();
+        Player player1 = player.get();
+        player1.setFightRoll(rollValue);
+        updatePlayer(playedGame1, player1);
+        return Optional.of(playedGameRepository.save(playedGame1));
     }
 
     /**
@@ -1411,6 +1602,13 @@ public class PlayedGameService {
         if (index.isPresent()) {
             players.set(index.getAsInt(), player);
             game.setPlayers(players);
+        }
+        if (game.getIsStarted()) {
+            for (int d = 0; d < game.getActiveRound().getPlayerList().size(); d++) {
+                Player p = game.getActiveRound().getPlayerList().get(d);
+                game.getActiveRound().getPlayerList().set(d, players.stream().filter(p1 -> p1.getLogin().equals(p.getLogin())).findFirst().get());
+            }
+            game.getActiveRound().setActivePlayer(players.stream().filter(p1 -> p1.getLogin().equals(game.getActiveRound().getActivePlayer().getLogin())).findFirst().get());
         }
     }
 
