@@ -1,0 +1,29 @@
+<!-- DRAW CARD -->
+<div>
+    <button *ngIf="notificationData > 0 && showDrawCardConditionBoolean" class="button" type="button" (click)="drawCard()">Draw Card</button>
+    <div *ngIf="cardDisplayCondition && cardToDisplay">
+      <p>{{ cardToDisplay.name }} </p>
+      <!-- <p>{{ cardToDisplay.description }}</p> -->
+      <p>Strength: {{ cardAttributes[1] }}</p>
+      <p>Health: {{ cardAttributes[0] }}</p>
+      <div>
+        <button *ngIf="equipCondition" class="button" type="button" (click)="equip()">Equip</button>
+        <p *ngIf="handCondition">Your Hand is Full!</p>
+        <button *ngIf="handCondition" class="button" type="button" (click)="discard()">Discard</button>
+      </div>
+      <div>
+        <button *ngIf="dieData.fightEnemyCondition" class="button" type="button" (click)="fightEnemy()">Fight</button>
+      </div>
+    </div>
+    
+    <div *ngIf="fightResultCondition && fightResult">
+      <div *ngIf="fightResult.attackerWon">
+        <p> You won the fight!</p>
+        <button class="button" type="button" (click)="getTrophy()">Get Trophy</button>
+      </div>
+      <div *ngIf="!fightResult.attackerWon">
+        <p>You lost the battle! :c</p>
+        <button class="button" type="button" (click)="acceptLoss()">Accept Loss</button>
+      </div>
+    </div>
+</div>

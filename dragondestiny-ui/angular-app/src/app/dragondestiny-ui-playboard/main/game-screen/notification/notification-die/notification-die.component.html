@@ -1,0 +1,5 @@
+<!-- ROLL DIE WHEN NEEDED -->
+<div class="dice-container">
+    <div class="dice">Die: {{ rollValue }}</div>
+    <button *ngIf="rollValue === 0" class="button" type="button" (click)="rollDie()">Roll Die</button>
+  </div>

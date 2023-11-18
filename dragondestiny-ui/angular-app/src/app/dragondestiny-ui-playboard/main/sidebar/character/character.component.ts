@@ -33,8 +33,6 @@ export class CharacterComponent implements OnInit, OnDestroy{
   fetchPlayer(){
     this.characterSubscription = this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
       this.player = data;
-      console.log('player fetched');
-      console.log(this.player);
     });
   }
 

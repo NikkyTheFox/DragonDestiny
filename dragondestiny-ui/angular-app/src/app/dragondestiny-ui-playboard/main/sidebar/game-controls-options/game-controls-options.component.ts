@@ -9,6 +9,7 @@ import { EnemyCard } from "../../../../interfaces/played-game/card/enemy-card/en
 import { Card } from "../../../../interfaces/game-engine/card/card/card";
 import {EnemyCardList} from "../../../../interfaces/played-game/card/enemy-card/enemy-card-list";
 import { Subscription } from 'rxjs';
+import { PlayerList } from 'src/app/interfaces/played-game/player/player-list';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -18,13 +19,12 @@ import { Subscription } from 'rxjs';
 export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   moveClickEventSubscription!: Subscription;
   checkActionsSubscription!: Subscription;
-  trophiesSubscription!: Subscription;
   playersFightSubscription!: Subscription;
   enemyFightSubscription!: Subscription;
   tempSubscription!: Subscription;
+  endTurnSubscription!: Subscription;
   characterSubscriptionList: Subscription[] = [];
   enemySubscriptionList: Subscription[] = [];
-
   requestStructure!: GameDataStructure;
 
   TAKE_CARD_FLAG: boolean = false;
@@ -36,20 +36,29 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   FIGHT_WITH_PLAYER_FLAG: boolean = false;
   FIGHT_WITH_ENEMY_ON_FIELD_FLAG: boolean = false;
 
-  EXCHANGE_TROPHIES_FLAG: boolean = false;
-
   playersToAttack: Player[] = [];
   playersToAttackCharacters: Character[] = [];
   enemiesToAttack: EnemyCard[] = [];
   enemiesToAttackFromEngine: any[] = [];
+
+  // Actions done flags:
+  movedFlag: boolean = false;
+  actionButtonClickFlag: boolean = false;
 
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService,private shared: SharedService){
   }
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.movedFlag = false;
+    this.actionButtonClickFlag = false;
     this.resetOptions();
-    this.handleOptions();
+    this.handleOptions(); // ONLY FOR TEST PURPOSES (SO YOU DONT HAVE TO HIT SPECIAL FIELD)
+    this.endTurnSubscription = this.shared.getEndTurnEvent().subscribe( () => {
+      this.movedFlag = false;
+      this.actionButtonClickFlag = false;
+      this.resetOptions();
+    });
     this.moveClickEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( () => {
       this.resetOptions();
       this.handleOptions();
@@ -63,19 +72,14 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   getFieldOptions(){
     this.checkActionsSubscription = this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
       this.checkOptions(data.possibleOptions);
+      console.log(data);
       this.handleOptionFlags();
-    });
-  }
-
-  handleTrophiesFlag(){
-    this.trophiesSubscription = this.playedGameService.getTrophies(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-      this.EXCHANGE_TROPHIES_FLAG = data.enemyCardList.length === 5; // RIGHT NOW HARDCODED, TO CHANGE LATER
     });
   }
 
   handleFightPlayerFlag(){
     if(this.FIGHT_WITH_PLAYER_FLAG){
-      this.playersFightSubscription = this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+      this.playersFightSubscription = this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayerList) => {
         this.playersToAttack = data.playerList;
         this.fetchPlayersCharacter();
       });
@@ -84,9 +88,9 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   handleFightEnemyFlag(){
     if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
-      this.enemyFightSubscription = this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+      this.enemyFightSubscription = this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
         // to check
-        this.enemiesToAttack = data.enemycardList;
+        this.enemiesToAttack = data.enemyCardList;
         this.fetchEnemies();
       });
     }
@@ -148,48 +152,28 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   handleOptionFlags(){
     this.handleFightPlayerFlag();
     this.handleFightEnemyFlag();
-    this.handleTrophiesFlag();
   }
 
   takeCardClick(){
-    // this.numberOfCardsToBeDrawn--;
     this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
-    // if(this.numberOfCardsToBeDrawn <= 0){
-    //   this.TAKE_CARD_FLAG = false;
-    // }
-    // this.playedGameService.drawRandomCard(this.requestStructure.game!.id).subscribe( () => {
-    //
-    // });
+    this.actionButtonClickFlag = true;
   }
 
-  loseTurnClick(){
-    this.shared.sendBlockTurnEvent();
-    // this.playedGameService.automaticallyBlockTurnsOfPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
-    //   console.log('Player: ' + this.requestStructure.player!.login + ' blocked for ' + this.numberOfTurnsToBeLost + ' turns.');
-    // });
-  }
-
-  bridgeMoveClick(){
-    // to implement check if bridge guardian is defeated
-    // GetBridgeFieldId() needed in backend
-    // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
-  }
-
-  bossMoveClick(){
-    // GetBossFieldId() needed in backend
-    // this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, this.)
-  }
+  // loseTurnClick(){
+  //   this.shared.sendBlockTurnEvent();
+  //   // this.playedGameService.automaticallyBlockTurnsOfPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
+  //   //   console.log('Player: ' + this.requestStructure.player!.login + ' blocked for ' + this.numberOfTurnsToBeLost + ' turns.');
+  //   // });
+  // }
 
   attackPlayedClick(enemyPlayedLogin: string){
     this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
+    this.actionButtonClickFlag = true;
   }
 
   attackEnemyClick(enemyCardId: number){
     this.shared.sendFightEnemyCardClickEvent(enemyCardId);
-  }
-
-  exchangeTrophiesClick(){
-    // this.shared.sendExchangeTrophiesEvent();
+    this.actionButtonClickFlag = true;
   }
 
   resetOptions(){
@@ -218,7 +202,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.tempSubscription?.unsubscribe();
     this.enemyFightSubscription?.unsubscribe();
     this.playersFightSubscription?.unsubscribe();
-    this.trophiesSubscription?.unsubscribe();
     this.checkActionsSubscription?.unsubscribe();
     this.moveClickEventSubscription?.unsubscribe();
   }

@@ -1,0 +1,26 @@
+<!-- FIGHT ENEMY [BRIDGE OR BOSS] -->
+<div>
+    <div *ngIf="showFightEnemyCardConditionBoolean && cardToDisplay">
+        <p>{{ cardToDisplay.name }} </p>
+        <!-- <p>{{ cardToDisplay.description }}</p> -->
+        <p>Strength: {{ cardAttributes[1] }}</p>
+        <p>Health: {{ cardAttributes[0] }}</p>
+        <div>
+            <button *ngIf="dieData.fightEnemyCondition" class="button" type="button" (click)="fightEnemyFromField()">Fight</button>
+        </div>
+    </div>
+
+    <div *ngIf="fightResultCondition && fightResult">
+        <div *ngIf="fightResult.attackerWon">
+            <p> You won the fight!</p>
+            <!-- WONT BE HAPPENING -->
+            <!-- <button *ngIf="!bridgeFlag && !bossRoomFlag" class="button" type="button" (click)="getTrophy()">Get Trophy</button> --> 
+            <button *ngIf="bridgeFlag" class="button" type="button" (click)="goToBoss()">Go To Boss Room</button>
+        </div>
+        <div *ngIf="!fightResult.attackerWon">
+            <p>You lost the battle! :c</p>
+            <button *ngIf="bossRoomFlag" class="button" type="button" (click)="stayOnBoss()">Stay</button>
+            <button *ngIf="bossRoomFlag" class="button" type="button" (click)="goToBridge()">Go To Bridge</button>
+        </div>
+    </div>
+</div>

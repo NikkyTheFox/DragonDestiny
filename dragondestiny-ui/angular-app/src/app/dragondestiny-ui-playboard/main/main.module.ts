@@ -11,6 +11,9 @@ import { PawnComponent } from './game-screen/pawn/pawn.component';
 import { BoardRowComponent } from './game-screen/board-row/board-row.component';
 import { SidebarModule } from './sidebar/sidebar.module';
 import { NotificationComponent } from './game-screen/notification/notification.component';
+import { NotificationDrawCardComponent } from './game-screen/notification/notification-draw-card/notification-draw-card.component';
+import { NotificationDieComponent } from './game-screen/notification/notification-die/notification-die.component';
+import { NotificationFightEnemyComponent } from './game-screen/notification/notification-fight-enemy/notification-fight-enemy.component';
 
 
 
@@ -25,7 +28,10 @@ import { NotificationComponent } from './game-screen/notification/notification.c
     BoardFieldComponent,
     PawnComponent,
     BoardRowComponent,
-    NotificationComponent
+    NotificationComponent,
+    NotificationDrawCardComponent,
+    NotificationDieComponent,
+    NotificationFightEnemyComponent
   ],
   imports: [
     CommonModule,

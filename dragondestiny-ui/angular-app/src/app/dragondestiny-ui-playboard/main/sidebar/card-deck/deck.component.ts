@@ -39,7 +39,7 @@ export class DeckComponent implements OnInit, OnDestroy{
     )
     this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
       this.messageData = this.shared.parseNotificationMessage(data);
-      if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
+      if(this.messageData.notificationOption === NotificationEnum.NEXT_ROUND){
         this.fetchDeck();
       }
     })

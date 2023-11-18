@@ -6,6 +6,8 @@ export interface Player{
   login: string;
   fightRoll: number;
   blockedTurns: number;
+  bridgeGuardianDefeated: boolean;
+  bossDefeated: boolean;
   character: PlayedGameCharacter;
   cardsOnHand: ItemCard[];
   trophies: EnemyCard[];

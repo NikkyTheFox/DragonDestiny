@@ -32,7 +32,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processCardDraw(){
-    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: any) => {
+    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: number) => {
       this.showNotification = true;
       this.notificationType = 1;
       this.notificationData = numberOfCards;
@@ -40,7 +40,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processPlayerFight(){
-    this.playerFightSubscription = this.shared.getFightPlayerClickEvent().subscribe( (playerToFightWithLogin: any ) => {
+    this.playerFightSubscription = this.shared.getFightPlayerClickEvent().subscribe( (playerToFightWithLogin: string ) => {
       this.showNotification = true;
       this.notificationType = 2;
       this.notificationData = playerToFightWithLogin;
@@ -48,7 +48,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processEnemyFight(){
-    this.enemyFightSubscription = this.shared.getFightEnemyOnFieldClickEvent().subscribe( (cardToFightWithID: any) => {
+    this.enemyFightSubscription = this.shared.getFightEnemyCardClickEvent().subscribe( (cardToFightWithID: number) => {
       this.showNotification = true;
       this.notificationType = 3;
       this.notificationData = cardToFightWithID;

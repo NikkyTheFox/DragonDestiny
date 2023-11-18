@@ -38,7 +38,8 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestr
     this.handleCharacters();
     this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
       this.messageData = this.shared.parseNotificationMessage(data);
-      if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
+      if(this.messageData.notificationOption === NotificationEnum.NEXT_ROUND){
+        this.reset();
         this.handleCharacters();
       }
     })
@@ -46,6 +47,12 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestr
 
   ngOnChanges(changes: SimpleChanges){
     this.handleCharacters();
+  }
+
+  reset(){
+    this.otherCharacters = [];
+    this.allCharacters = [];
+    this.characterNames = [];
   }
 
   handleCharacters(){

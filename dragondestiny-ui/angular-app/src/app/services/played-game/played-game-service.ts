@@ -202,7 +202,7 @@ export class PlayedGameService{
   }
 
   getEnemiesToFightWith(playedGameId: string, playerLogin: string): Observable<EnemyCardList>{
-    return this.http.get<EnemyCardList>(`${environment.apiUrl}/playedGames/${playedGameId}/players/${playerLogin}/field/options/enemies`);
+    return this.http.get<EnemyCardList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/options/enemies`);
   }
 
   blockTurnsOfPlayerByNumber(playedGameId: string, playerLogin: string, blockedNum: number): Observable<Player>{

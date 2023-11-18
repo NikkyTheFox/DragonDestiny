@@ -33,13 +33,16 @@ export class SharedService{
   private endTurn = new Subject();
   private blockTurn = new Subject();
   private exchangeTrophies = new Subject();
-  private notificationClose = new Subject();
   private updateStatistics = new Subject();
 
   // Notifications
+  private notificationClose = new Subject();
   private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
+  private continue = new Subject();
+
+  // Web Socket
   private socket!: WebSocket;
   private socketMessage = new Subject<NotificationMessage>();
 
@@ -270,7 +273,7 @@ export class SharedService{
   }
 
   getFightPlayerClickEvent(){
-    return this.fightEnemyCard.asObservable();
+    return this.fightPlayer.asObservable();
   }
 
   sendFightEnemyCardClickEvent(cardToFightWithID: number){
@@ -279,6 +282,14 @@ export class SharedService{
 
   getFightEnemyCardClickEvent(){
     return this.fightEnemyCard.asObservable();
+  }
+
+  sendContinueClickEvent(){
+    this.continue.next(null);
+  }
+
+  getContinueClickEvent(){
+    return this.continue.asObservable();
   }
 
   //    Socket Handling

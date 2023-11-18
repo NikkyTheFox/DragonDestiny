@@ -11,24 +11,31 @@ import { Subscription } from 'rxjs';
 })
 export class GameControlsConfirmComponent implements OnInit, OnDestroy{
   endTurnSubscription!: Subscription;
-
+  notificationClosedSubscription!: Subscription;
   requestStructure!: GameDataStructure;
 
+  disableButtonFlag: boolean = true;
   constructor(private shared: SharedService, private playedGameService: PlayedGameService){
 
   }
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
+    this.disableButtonFlag = true;
+    this.notificationClosedSubscription = this.shared.getNotificationCloseEvent().subscribe( () => {
+      this.disableButtonFlag = false;
+    });
   }
 
   endTurn(){
     this.endTurnSubscription = this.playedGameService.setNextRound(this.requestStructure.game!.id).subscribe( () => {
       this.shared.sendEndTurnEvent();
+      this.disableButtonFlag = true;
     });
   }
 
   ngOnDestroy(): void {
+    this.notificationClosedSubscription?.unsubscribe();
     this.endTurnSubscription?.unsubscribe();
   }
 }
