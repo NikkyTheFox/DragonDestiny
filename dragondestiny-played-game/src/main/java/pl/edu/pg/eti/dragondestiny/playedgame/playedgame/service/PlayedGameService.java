@@ -1011,15 +1011,18 @@ public class PlayedGameService {
         Field field = player.getCharacter().getField();
 
         FieldOptionList list = new FieldOptionList();
+        List<Player> enemyPlayerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, field.getId());
         list.getPossibleOptions().add(FieldOption.valueOf(field.getType().toString()));
+        
+        if (field.getType() == FieldType.BOSS_FIELD && !enemyPlayerList.isEmpty()) {
+            list.getPossibleOptions().remove(0);
+        }
         if (field.getType() == FieldType.BOSS_FIELD) {
             list.getPossibleOptions().add(FieldOption.BRIDGE_FIELD);
         }
         if (field.getType() == FieldType.BRIDGE_FIELD && player.getBridgeGuardianDefeated()) {
             list.getPossibleOptions().add(FieldOption.BOSS_FIELD);
         }
-        List<Player> enemyPlayerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, field.getId());
-
         if (!enemyPlayerList.isEmpty()) {
             list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
         }
@@ -1094,6 +1097,7 @@ public class PlayedGameService {
         Player player = checkCompletePlayer(playedGameId, playerLogin);
         Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIGHT_RESULT);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
+        Boolean fieldEnemy = false;
 
         if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
             throw new IllegalGameStateException(PlayerDidNotRollMessage);
@@ -1107,6 +1111,7 @@ public class PlayedGameService {
         if (card.isEmpty()) {
             if (player.getCharacter().getField().getEnemy() != null && player.getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
                 card = Optional.of(player.getCharacter().getField().getEnemy());
+                fieldEnemy = true;
             } else {
                 throw new NoSuchElementException(CardNotFoundMessage);
             }
@@ -1120,9 +1125,11 @@ public class PlayedGameService {
         int playerResult = player.getStrength() + playerRollValue;
         int enemyResult = enemyCard.getInitialStrength() + enemyRollValue;
         if (playerResult >= enemyResult) { // player won
-            activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
-            playedGame.setActiveRound(activeRound);
-            playedGameRepository.save(playedGame);
+            if (!fieldEnemy) {
+                activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_TROPHIES);
+                playedGame.setActiveRound(activeRound);
+                playedGameRepository.save(playedGame);
+            }
             playedGame = decreaseHealth(playedGame, player, enemyCard, 1, fightResult);
             fightResult.setAttackerWon(true);
         } else { // player lost
