@@ -1172,7 +1172,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
         playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
-        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
+        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin);
         // Assert
         assertTrue(fieldsToMoveToFound.isPresent());
         assertEquals(fieldsToMoveTo.size(), fieldsToMoveToFound.get().getFieldList().size());
@@ -1194,7 +1194,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
         playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
-        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
+        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin);
         // Assert
         assertTrue(fieldsToMoveToFound.isPresent());
         assertEquals(fieldsToMoveTo.size(), fieldsToMoveToFound.get().getFieldList().size());
@@ -1218,7 +1218,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
         playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
-        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
+        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin);
         // Assert
         assertTrue(fieldsToMoveToFound.isPresent());
         assertEquals(fieldsToMoveTo.size(), fieldsToMoveToFound.get().getFieldList().size());
@@ -1239,7 +1239,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELDS_TO_MOVE);
         playedGame.getActiveRound().setPlayerMoveRoll(roll);
         // Act
-        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, roll);
+        Optional<FieldList> fieldsToMoveToFound = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin);
         // Assert
         assertTrue(fieldsToMoveToFound.isPresent());
         assertEquals(fieldsToMoveTo.size(), fieldsToMoveToFound.get().getFieldList().size());
@@ -1402,7 +1402,7 @@ public class PlayedGameServiceTests {
         player.setCharacter(null);
         String expectedMessage = IllegalGameStateException.PlayerHasNoCharacterAssignedMessage;
         // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1416,7 +1416,7 @@ public class PlayedGameServiceTests {
         player.getCharacter().setField(null);
         String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
         // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1431,7 +1431,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         String expectedMessage = IllegalGameStateException.PlayerWrongEnemyMessage;
         // Act & Assert
-        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1449,7 +1449,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setEnemyFought(enemyCard);
         playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId);
         // Assert
         assertTrue(fightResult.isPresent());
         assertTrue(fightResult.get().getEnemyKilled());
@@ -1474,7 +1474,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         playedGame.getActiveRound().setEnemyFought(enemyCard);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId);
         // Assert
         assertTrue(fightResult.isPresent());
         assertTrue(fightResult.get().getEnemyKilled());
@@ -1500,7 +1500,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         playedGame.getActiveRound().setEnemyFought(enemyCard);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId);
         // Assert
         assertTrue(fightResult.isPresent());
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1528,7 +1528,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId);
         // Assert
         assertTrue(fightResult.isPresent());
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1555,7 +1555,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(enemyRoll);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId, playerRoll, enemyRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, enemyCardId);
         // Assert
         assertTrue(fightResult.isPresent());
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1573,7 +1573,6 @@ public class PlayedGameServiceTests {
         Player enemyPlayer = new Player();
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = IllegalGameStateException.PlayerHasNoCharacterAssignedMessage;
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
@@ -1581,7 +1580,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1594,7 +1593,6 @@ public class PlayedGameServiceTests {
         Player enemyPlayer = new Player();
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         String expectedMessage = IllegalGameStateException.CharacterHasNoFieldAssignedMessage;
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
@@ -1602,7 +1600,7 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act & Assert
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1616,12 +1614,12 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         enemyPlayer.setLogin(enemyPlayerLogin);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
-        String expectedMessage = IllegalGameStateException.PlayerWaitingForEnemyRollMessage;
+        String expectedMessage = IllegalGameStateException.PlayerWrongActionMessage;
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
         playedGame.getActiveRound().setEnemyPlayerFought(enemyPlayer);
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         // Act & Assert
-        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll));
+        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin));
         assertEquals(exception.getMessage(), expectedMessage);
     }
 
@@ -1634,7 +1632,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
         enemyPlayer.getCharacter().setHealth(2);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
@@ -1643,12 +1640,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertFalse(fightResult.get().getAttackerWon());
+        assertTrue(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getWonPlayer(), playerLogin);
         assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1664,7 +1659,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
         enemyPlayer.getCharacter().setHealth(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         int expectedEnemyHealth = enemyPlayer.getHealth() - 1 >= 0 ? enemyPlayer.getHealth() - 1 : 0;
@@ -1673,12 +1667,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertFalse(fightResult.get().getAttackerWon());
+        assertTrue(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getWonPlayer(), playerLogin);
         assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
         assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
@@ -1694,7 +1686,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(1);
         enemyPlayer.getCharacter().setHealth(1);
         ItemCard card = new ItemCard();
         card.setHealth(1);
@@ -1707,12 +1698,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(1);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertFalse(fightResult.get().getAttackerWon());
+        assertTrue(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getWonPlayer(), playerLogin);
         assertEquals(fightResult.get().getLostPlayer(), enemyPlayerLogin);
         assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());
@@ -1729,7 +1718,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(6);
         enemyPlayer.getCharacter().setHealth(2);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
@@ -1739,12 +1727,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertTrue(fightResult.get().getAttackerWon());
+        assertFalse(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getLostPlayer(), playerLogin);
         assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1762,7 +1748,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(6);
         enemyPlayer.getCharacter().setHealth(2);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(new ArrayList<>(player.getCardsOnHand().stream().filter(itemCard -> itemCard.getHealth() > 0).collect(Collectors.toList())));
@@ -1773,12 +1758,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertTrue(fightResult.get().getAttackerWon());
+        assertFalse(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getLostPlayer(), playerLogin);
         assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
         assertFalse(fightResult.get().getEnemyKilled());
@@ -1797,7 +1780,6 @@ public class PlayedGameServiceTests {
         enemyPlayer.setCharacter(player.getCharacter());
         String enemyPlayerLogin = "Enemy Guy";
         enemyPlayer.setLogin(enemyPlayerLogin);
-        enemyPlayer.setFightRoll(6);
         enemyPlayer.getCharacter().setHealth(1);
         when(playedGameRepositoryMock.findPlayerByLogin(playedGameId, enemyPlayerLogin)).thenReturn(new ArrayList<>(List.of(enemyPlayer)));
         when(playedGameRepositoryMock.findHealthCardsInPlayerHand(playedGameId, playerLogin)).thenReturn(player.getCardsOnHand());
@@ -1807,12 +1789,10 @@ public class PlayedGameServiceTests {
         playedGame.getActiveRound().setPlayerFightRoll(playerRoll);
         playedGame.getActiveRound().setEnemyFightRoll(6);
         // Act
-        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+        Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
         // Assert
         assertTrue(fightResult.isPresent());
-        assertEquals(0, player.getFightRoll());
-        assertEquals(0, enemyPlayer.getFightRoll());
-        assertTrue(fightResult.get().getAttackerWon());
+        assertFalse(fightResult.get().getAttackerWon());
         assertEquals(fightResult.get().getLostPlayer(), playerLogin);
         assertEquals(fightResult.get().getWonPlayer(), enemyPlayerLogin);
         assertEquals(expectedEnemyHealth, enemyPlayer.getHealth());

@@ -22,7 +22,6 @@ public class IllegalGameStateException extends Exception {
     public static String PlayerDidNotRollMessage = "The player with given Login did not roll this value.";
     public static String PlayerDidNotDrawMessage = "The player with given Login did not draw this card.";
     public static String PlayerActionNotAllowedMessage = "The player with given Login is trying to choose an action not allowed in this round.";
-    public static String EnemyDidNotRollMessage = "The enemy with given ID did not roll this value";
     public static String PlayerWrongEnemyMessage = "The player with given Login is not supposed to fight this enemy.";
     public static String PlayerWrongEnemyTrophyMessage = "The player with given Login did not defeat this enemy.";
     public static String EnemyInvalidTypeMessage = "Only card of type ENEMY CARD can be treated as enemy.";

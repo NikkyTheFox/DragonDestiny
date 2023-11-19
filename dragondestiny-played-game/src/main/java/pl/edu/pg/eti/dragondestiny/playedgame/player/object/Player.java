@@ -31,12 +31,7 @@ public class Player implements HealthCalculable {
      */
     @Id
     private String login;
-
-    /**
-     * Most recent result for Player's fight roll.
-     */
-    private Integer fightRoll = 0;
-
+    
     /**
      * Number of turns the player is blocked for (cannot make a move).
      */

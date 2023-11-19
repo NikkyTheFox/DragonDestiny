@@ -890,7 +890,13 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         Player playerFrom = checkCompletePlayer(playedGameId, playerFromLogin);
         Player playerTo = checkCompletePlayer(playedGameId, playerToLogin);
-        Round activeRound = checkActiveRound(playedGameId, playerFromLogin, RoundState.WAITING_FOR_CARD_THEFT);
+        if (!playedGame.getIsStarted()) {
+            throw new IllegalGameStateException(GameNotStartedMessage);
+        }
+        Round activeRound = playedGame.getActiveRound();
+        if (!activeRound.getRoundState().equals(RoundState.WAITING_FOR_CARD_THEFT)) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
+        }
 
         Optional<ItemCard> itemCard = findCardInPlayerHand(playedGameId, playerFromLogin, cardId);
         if (itemCard.isEmpty()) {
@@ -948,17 +954,17 @@ public class PlayedGameService {
      *
      * @param playedGameId An identifier of a played game to perform actions on.
      * @param playerLogin  An identifier of a player that has rolled a die.
-     * @param rollValue    A value that has been rolled.
      * @return A structure containing a list of fields.
      */
-    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin, Integer rollValue) throws IllegalGameStateException {
+    public Optional<FieldList> checkPossibleNewPositions(String playedGameId, String playerLogin) throws IllegalGameStateException {
         PlayedGame playedGame = checkGame(playedGameId);
         Player player = checkCompletePlayer(playedGameId, playerLogin);
         Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIELDS_TO_MOVE);
 
-        if (activeRound.getPlayerMoveRoll() != rollValue) {
-            throw new IllegalGameStateException(PlayerDidNotRollMessage);
+        if (activeRound.getPlayerMoveRoll() == null) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
         }
+        Integer rollValue = activeRound.getPlayerMoveRoll();
         Field currentPlayersField = player.getPositionField();
         List<Field> tempFieldList = new ArrayList<>();
         List<Field> fieldList = playedGameRepository.findFieldsOnBoard(playedGameId);
@@ -1013,7 +1019,7 @@ public class PlayedGameService {
         FieldOptionList list = new FieldOptionList();
         List<Player> enemyPlayerList = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, field.getId());
         list.getPossibleOptions().add(FieldOption.valueOf(field.getType().toString()));
-        
+
         if (field.getType() == FieldType.BOSS_FIELD && !enemyPlayerList.isEmpty()) {
             list.getPossibleOptions().remove(0);
         }
@@ -1085,29 +1091,27 @@ public class PlayedGameService {
     /**
      * Calculates fight result between Player and Enemy from card.
      *
-     * @param playedGameId    An identifier of a played game to perform actions on.
-     * @param playerLogin     An identifier of a player that participates in a fight.
-     * @param enemyCardId     An identifier of en enemy that participates in a fight.
-     * @param playerRollValue A value rolled by a player.
-     * @param enemyRollValue  A value rolled by an enemy (rolled by server).
+     * @param playedGameId An identifier of a played game to perform actions on.
+     * @param playerLogin  An identifier of a player that participates in a fight.
+     * @param enemyCardId  An identifier of en enemy that participates in a fight.
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId, Integer playerRollValue, Integer enemyRollValue) throws IllegalGameStateException {
+    public Optional<FightResult> calculateFightWithEnemyCard(String playedGameId, String playerLogin, Integer enemyCardId) throws IllegalGameStateException {
         PlayedGame playedGame = checkGame(playedGameId);
         Player player = checkCompletePlayer(playedGameId, playerLogin);
         Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIGHT_RESULT);
         Optional<Card> card = findCardInCardDeck(playedGameId, enemyCardId);
         Boolean fieldEnemy = false;
 
-        if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
-            throw new IllegalGameStateException(PlayerDidNotRollMessage);
-        }
-        if (activeRound.getEnemyFightRoll() == null || !activeRound.getEnemyFightRoll().equals(enemyRollValue)) {
-            throw new IllegalGameStateException(EnemyDidNotRollMessage);
-        }
         if (activeRound.getEnemyFought() == null || !activeRound.getEnemyFought().getId().equals(enemyCardId)) {
             throw new IllegalGameStateException(PlayerWrongEnemyMessage);
         }
+        if (activeRound.getEnemyFightRoll() == null || activeRound.getPlayerFightRoll() == null) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
+        }
+        Integer playerRollValue = activeRound.getPlayerFightRoll();
+        Integer enemyRollValue = activeRound.getEnemyFightRoll();
+
         if (card.isEmpty()) {
             if (player.getCharacter().getField().getEnemy() != null && player.getCharacter().getField().getEnemy().getId().equals(enemyCardId)) {
                 card = Optional.of(player.getCharacter().getField().getEnemy());
@@ -1144,9 +1148,9 @@ public class PlayedGameService {
                     }
                 }
             }
-            activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
-            activeRound.nextRoundState();
         }
+        activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
+        activeRound.nextRoundState();
         playedGame.setActiveRound(activeRound);
         playedGameRepository.save(playedGame);
         return Optional.of(fightResult);
@@ -1156,53 +1160,31 @@ public class PlayedGameService {
      * Calculates fight result between two players. Player is treated as a defender and Enemy is treated as an attacker.
      *
      * @param playedGameId     An identifier of a played game to perform actions on.
-     * @param playerLogin      An identifier of a player (defender) that participates in a fight.
-     * @param enemyPlayerLogin An identifier of a player (attacker) that participates in a fight.
-     * @param playerRollValue  A value rolled by player (defender)
+     * @param playerLogin      An identifier of a player (attacker) that participates in a fight.
+     * @param enemyPlayerLogin An identifier of a player (victim) that participates in a fight.
      * @return A result of a fight.
      */
-    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin, Integer playerRollValue) throws IllegalGameStateException {
+    public Optional<FightResult> calculateFightWithPlayer(String playedGameId, String playerLogin, String enemyPlayerLogin) throws IllegalGameStateException {
         PlayedGame playedGame = checkGame(playedGameId);
         Player player = checkCompletePlayer(playedGameId, playerLogin);
         Player enemyPlayer = checkCompletePlayer(playedGameId, enemyPlayerLogin);
-        Round activeRound = playedGame.getActiveRound();
+        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIGHT_RESULT);
 
-        if (!(playerRollValue >= PlayedGameProperties.diceLowerBound && playerRollValue <= PlayedGameProperties.diceUpperBound)) {
-            throw new IllegalGameStateException(PlayerInvalidRollRangeMessage);
+        if (activeRound.getEnemyPlayerFought() == null || !activeRound.getEnemyPlayerFought().getLogin().equals(enemyPlayerLogin)) {
+            throw new IllegalGameStateException(PlayerWrongEnemyMessage);
         }
-        if (activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
-            if (activeRound.getEnemyPlayerFought() == null || !activeRound.getEnemyPlayerFought().getLogin().equals(enemyPlayerLogin)) {
-                throw new IllegalGameStateException(PlayerWrongEnemyMessage);
-            }
-            if (activeRound.getPlayerFightRoll() == null || !activeRound.getPlayerFightRoll().equals(playerRollValue)) {
-                throw new IllegalGameStateException(PlayerDidNotRollMessage);
-            }
-            if (enemyPlayer.getFightRoll() == 0 && player.getFightRoll() == 0) {
-                setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
-                throw new IllegalGameStateException(PlayerWaitingForEnemyRollMessage);
-            }
-        } else if (activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
-            if (activeRound.getActivePlayer() == null || !activeRound.getActivePlayer().getLogin().equals(enemyPlayerLogin)) {
-                throw new IllegalGameStateException(PlayerIsNotActiveMessage);
-            }
-            if (activeRound.getEnemyFightRoll() == null || !activeRound.getEnemyFightRoll().equals(playerRollValue)) {
-                throw new IllegalGameStateException(PlayerDidNotRollMessage);
-            }
-            if (player.getFightRoll() == 0 && enemyPlayer.getFightRoll() == 0) {
-                setPlayerFightRoll(playedGameId, playerLogin, playerRollValue);
-                throw new IllegalGameStateException(PlayerWaitingForEnemyRollMessage);
-            }
-        } else {
-            throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+        if (activeRound.getPlayerFightRoll() == null || activeRound.getEnemyFightRoll() == null) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
         }
+
+        Integer playerRollValue = activeRound.getPlayerFightRoll();
+        Integer enemyPlayerRollValue = activeRound.getEnemyFightRoll();
 
         FightResult fightResult = new FightResult();
         int playerResult = player.getStrength() + playerRollValue;
-        int enemyResult = enemyPlayer.getStrength() + enemyPlayer.getFightRoll();
-        setPlayerFightRoll(playedGameId, playerLogin, 0);
-        setPlayerFightRoll(playedGameId, enemyPlayerLogin, 0);
-        if (playerResult >= enemyResult) { // DEFENDER (PLAYER) WON
-            fightResult.setAttackerWon(false);
+        int enemyResult = enemyPlayer.getStrength() + enemyPlayerRollValue;
+        if (playerResult >= enemyResult) { // ATTACKER WON
+            fightResult.setAttackerWon(true);
             fightResult.setWonPlayer(player.getLogin());
             fightResult.setLostPlayer(enemyPlayer.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, enemyPlayerLogin);
@@ -1218,8 +1200,8 @@ public class PlayedGameService {
                 activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
-        } else { // ATTACKER (ENEMY) WON
-            fightResult.setAttackerWon(true);
+        } else { // VICTIM WON
+            fightResult.setAttackerWon(false);
             fightResult.setWonPlayer(enemyPlayer.getLogin());
             fightResult.setLostPlayer(player.getLogin());
             List<ItemCard> loserHealthCards = playedGameRepository.findHealthCardsInPlayerHand(playedGameId, playerLogin);
@@ -1254,14 +1236,21 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = 1;//random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
-        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin) && activeRound.getEnemyPlayerFought() != null && !activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
-            throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            if (activeRound.getEnemyPlayerFought() == null || !activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
+                throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+            }
         }
-        if (activeRound.getEnemyPlayerFought() != null && activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin) && activeRound.getRoundState() == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL) {
-            activeRound.setEnemyFightRoll(value);
+
+        if (activeRound.getEnemyPlayerFought() != null && activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
+            if (activeRound.getRoundState() == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL) {
+                activeRound.setEnemyFightRoll(value);
+            } else {
+                throw new IllegalGameStateException(PlayerWrongActionMessage);
+            }
         } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_MOVE_ROLL) {
             activeRound.setPlayerMoveRoll(value);
         } else if (activeRound.getRoundState() == RoundState.WAITING_FOR_FIGHT_ROLL) {
@@ -1535,27 +1524,6 @@ public class PlayedGameService {
             }
         }
         return game;
-    }
-
-    /**
-     * Sets roll value to Player's fight roll value.
-     *
-     * @param playedGameId An identifier of a played game to perform actions on.
-     * @param playerLogin  An identifier of a player which has FightRoll to be set
-     * @param rollValue    A value to be set as player's FightRoll
-     * @return An updated game.
-     */
-    private Optional<PlayedGame> setPlayerFightRoll(String playedGameId, String playerLogin, Integer rollValue) {
-        Optional<PlayedGame> playedGame = findPlayedGame(playedGameId);
-        Optional<Player> player = findPlayer(playedGameId, playerLogin);
-        if (playedGame.isEmpty() || player.isEmpty()) {
-            return Optional.empty();
-        }
-        PlayedGame playedGame1 = playedGame.get();
-        Player player1 = player.get();
-        player1.setFightRoll(rollValue);
-        updatePlayer(playedGame1, player1);
-        return Optional.of(playedGameRepository.save(playedGame1));
     }
 
     /**
