@@ -940,8 +940,16 @@ public class PlayedGameController {
     public ResponseEntity selectCharacter(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "characterId") Integer characterId) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.assignCharacterToPlayer(playedGameId, playerLogin, characterId);
-            return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playedGame.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.CHARACTER_CHOSEN));
+                    return ResponseEntity.ok().body(modelMapper.map(playedGame.get(), PlayedGameDTO.class));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
         } catch (IllegalGameStateException ex) {
@@ -954,19 +962,18 @@ public class PlayedGameController {
      *
      * @param playedGameId An identifier of a game to retrieve data about.
      * @param playerLogin  An identifier of a player whose possible new positions are to be calculated.
-     * @param rollValue    A number corresponding to the number rolled on a die.
      * @return A structure containing a list of fields.
      */
-    @GetMapping("{playedGameId}/players/{playerLogin}/field/move/{rollValue}/fields")
+    @GetMapping("{playedGameId}/players/{playerLogin}/field/move/fields")
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = PlayedGameDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity checkPossibleNewPositions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "rollValue") Integer rollValue) {
+    public ResponseEntity checkPossibleNewPositions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
-            Optional<FieldList> fieldList = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin, rollValue);
+            Optional<FieldList> fieldList = playedGameService.checkPossibleNewPositions(playedGameId, playerLogin);
             return fieldList.map(list -> ResponseEntity.ok().body(playedGameService.convertFieldListToDTO(modelMapper, list)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
@@ -1191,20 +1198,18 @@ public class PlayedGameController {
      * @param playedGameId An identifier of a game to be updated.
      * @param playerLogin  An identifier of a player participating in a fight.
      * @param cardId       An identifier of an enemy card participating in a fight.
-     * @param playerRoll   A number that player has rolled on a die.
-     * @param enemyRoll    A number that an enemy (server) has rolled on a die.
      * @return A result of a fight between a player and enemy card.
      */
-    @PutMapping("{playedGameId}/players/{playerLogin}/fight/roll/{playerRoll}/enemy/{cardId}/roll/{enemyRoll}")
+    @PutMapping("{playedGameId}/players/{playerLogin}/fight/enemy/{cardId}")
     @Tag(name = "Played Game - actions")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = FightResultDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyRoll") Integer enemyRoll) {
+    public ResponseEntity handleFightWithEnemyCard(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "cardId") Integer cardId) {
         try {
-            Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, cardId, playerRoll, enemyRoll);
+            Optional<FightResult> fightResult = playedGameService.calculateFightWithEnemyCard(playedGameId, playerLogin, cardId);
             if (fightResult.isPresent()) {
                 try {
                     gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, playerLogin, cardId, fightResult.get().getAttackerWon()));
@@ -1233,11 +1238,10 @@ public class PlayedGameController {
      *
      * @param playedGameId     An identifier of a game to retrieve data about.
      * @param playerLogin      An identifier of a player (defender) participating in a fight.
-     * @param playerRoll       A number that player (defender) has rolled on a die.
      * @param enemyPlayerLogin An identifier of an enemy player (attacker) participating in a fight.
      * @return A result of a fight between attacking and defending player.
      */
-    @PutMapping("{playedGameId}/players/{playerLogin}/fight/roll/{playerRoll}/player/{enemyPlayerLogin}")
+    @PutMapping("{playedGameId}/players/{playerLogin}/fight/player/{enemyPlayerLogin}")
     @Tag(name = "Played Game - actions")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
@@ -1245,9 +1249,9 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "204", description = "Roll saved, waiting for enemy's roll", content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
-    public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "playerRoll") Integer playerRoll, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
+    public ResponseEntity handleFightWithPlayer(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin, @PathVariable(name = "enemyPlayerLogin") String enemyPlayerLogin) {
         try {
-            Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin, playerRoll);
+            Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
             if (fightResult.isPresent()) {
                 try {
                     gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_ATTACKED));
