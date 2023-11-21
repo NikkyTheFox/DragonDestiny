@@ -73,7 +73,7 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
   }
 
   checkPositions(){
-    this.checkPositionSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login, this.rollValue).subscribe((data: any) => {
+    this.checkPositionSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: any) => {
       this.dataService.possibleFields = data.fieldList;
       this.shared.sendDiceRollClickEvent();
     });

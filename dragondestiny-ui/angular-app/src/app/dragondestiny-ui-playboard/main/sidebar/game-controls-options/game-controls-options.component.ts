@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { PlayerList } from 'src/app/interfaces/played-game/player/player-list';
 import { Round } from 'src/app/interfaces/played-game/round/round';
 import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
+import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -26,6 +27,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   roundSubscription!: Subscription;
   tempSubscription!: Subscription;
   endTurnSubscription!: Subscription;
+  selectOptionSubscription!: Subscription;
   characterSubscriptionList: Subscription[] = [];
   enemySubscriptionList: Subscription[] = [];
   requestStructure!: GameDataStructure;
@@ -68,16 +70,31 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   fetchRound(){
     this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      this.fetchOptionsFlag = data.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE;
-      if(this.fetchOptionsFlag){
+      this.fetchOptionsFlag = data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS;
+      console.log(data);
+      console.log(this.fetchOptionsFlag);
+      if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
         this.actionButtonClickFlag = false;
         this.handleOptions();
+      }
+      else{
+        this.handleGameContinue(data);
       }
     });
   }
 
   handleOptions(){
     this.getFieldOptions();
+  }
+
+  handleGameContinue(round: Round){
+    if(round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
+      this.actionButtonClickFlag = false;
+      console.log(round)
+      this.checkOptions(round.fieldOptionList.possibleOptions as [])
+      this.handleOptionFlags();
+    }
+    // Handle other options here!
   }
 
   getFieldOptions(){
@@ -166,8 +183,24 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   takeCardClick(){
-    this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
-    this.actionButtonClickFlag = true;
+    if(this.numberOfCardsToBeDrawn == 1){
+      this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id, 
+        this.requestStructure.player!.login, 
+        FieldOption.TAKE_ONE_CARD).subscribe( () => {
+          this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
+          this.actionButtonClickFlag = true;
+      });
+    };
+    if(this.numberOfCardsToBeDrawn == 2){
+      this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id, 
+        this.requestStructure.player!.login, 
+        FieldOption.TAKE_TWO_CARDS).subscribe( () => {
+          this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
+          this.actionButtonClickFlag = true;
+      });
+    };
   }
 
   // loseTurnClick(){
@@ -178,13 +211,24 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   // }
 
   attackPlayedClick(enemyPlayedLogin: string){
-    this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
-    this.actionButtonClickFlag = true;
+    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
+      this.requestStructure.game!.id,
+      this.requestStructure.player!.login,
+      FieldOption.FIGHT_WITH_PLAYER).subscribe( () => {
+        this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
+        this.actionButtonClickFlag = true;
+      }
+    );
   }
 
   attackEnemyClick(enemyCardId: number){
-    this.shared.sendFightEnemyCardClickEvent(enemyCardId);
-    this.actionButtonClickFlag = true;
+    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
+      this.requestStructure.game!.id,
+      this.requestStructure.player!.login,
+      FieldOption.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
+        this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+        this.actionButtonClickFlag = true;
+      });
   }
 
   resetOptions(){
@@ -216,5 +260,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.checkActionsSubscription?.unsubscribe();
     this.moveClickEventSubscription?.unsubscribe();
     this.roundSubscription?.unsubscribe();
+    this.selectOptionSubscription?.unsubscribe();
   }
 }

@@ -111,9 +111,9 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        this.playerRoll,
+        // this.playerRoll,
         this.cardToDisplay.id,
-        this.enemyRoll
+        // this.enemyRoll
       ).subscribe( (data: FightResult) => {
         console.log(data);
         this.fightResult = data;

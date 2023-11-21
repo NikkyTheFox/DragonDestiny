@@ -4,7 +4,6 @@ import { EnemyCard } from '../card/enemy-card/enemy-card';
 
 export interface Player{
   login: string;
-  fightRoll: number;
   blockedTurns: number;
   bridgeGuardianDefeated: boolean;
   bossDefeated: boolean;

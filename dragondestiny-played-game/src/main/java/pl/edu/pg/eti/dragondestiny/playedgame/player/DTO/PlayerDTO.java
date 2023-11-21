@@ -23,11 +23,6 @@ public class PlayerDTO {
     private String login;
 
     /**
-     * Most recent result for Player's fight roll.
-     */
-    private Integer fightRoll;
-
-    /**
      * Number of turns the player is blocked for (cannot make a move).
      */
     private Integer blockedTurns;

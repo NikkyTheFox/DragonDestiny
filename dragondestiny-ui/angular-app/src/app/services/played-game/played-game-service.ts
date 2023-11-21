@@ -194,8 +194,8 @@ export class PlayedGameService{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/character/${characterId}`, null);
   }
 
-  checkPossibleNewPositions(playedGameId: string, playerLogin: string, rollValue: number): Observable<FieldList>{
-    return this.http.get<FieldList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/move/${rollValue}/fields`);
+  checkPossibleNewPositions(playedGameId: string, playerLogin: string): Observable<FieldList>{
+    return this.http.get<FieldList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/move/fields`);
   }
 
   changeFieldPositionOfCharacter(playedGameId: string, playerLogin: string, fieldId: number): Observable<PlayedGame>{
@@ -228,8 +228,8 @@ export class PlayedGameService{
     return this.http.get<number>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll`);
   }
 
-  handleFightWithEnemyCard(playedGameId: string, playerLogin: string, playerRoll: number, enemyCardId: number, enemyRoll: number): Observable<FightResult>{
-    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
+  handleFightWithEnemyCard(playedGameId: string, playerLogin: string, enemyCardId: number): Observable<FightResult>{
+    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/enemy/${enemyCardId}`, null);
   }
 
   /*
@@ -237,8 +237,8 @@ export class PlayedGameService{
     return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}/enemy/roll/${enemyRoll}`, null);
   }*/
 
-  handleFightWithPlayer(playedGameId: string, playerLogin: string, playerRoll: number, enemyPlayerLogin: string): Observable<FightResult>{
-    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/roll/${playerRoll}/${enemyPlayerLogin}`, null);
+  handleFightWithPlayer(playedGameId: string, playerLogin: string, enemyPlayerLogin: string): Observable<FightResult>{
+    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/player/${enemyPlayerLogin}`, null);
   }
 
 }

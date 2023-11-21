@@ -200,8 +200,8 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     this.playerFightSubscription = this.playedGameService.handleFightWithPlayer(
       this.requestStructure.game!.id,
       this.requestStructure.player!.login,
-      roll,
-      this.notificationData
+      // roll,
+      this.notificationData // login of a Player to fight with
     ).subscribe( (data: FightResult) => {
     // Handle fightResult data to be displayed in html file.
     });

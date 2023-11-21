@@ -142,9 +142,9 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        this.playerRoll,
+        // this.playerRoll,
         this.cardToDisplay.id,
-        this.enemyRoll
+        // this.enemyRoll
       ).subscribe( (data: FightResult) => {
         this.fightResult = data;
         this.reset();

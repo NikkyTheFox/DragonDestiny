@@ -7,5 +7,6 @@ export enum NotificationEnum{
     PLAYER_DIED,
     PLAYER_BLOCKED,
     PLAYER_FIGHT,
-    PLAYER_GOT_ITEM
+    PLAYER_GOT_ITEM,
+    CHARACTER_CHOSEN,
 }

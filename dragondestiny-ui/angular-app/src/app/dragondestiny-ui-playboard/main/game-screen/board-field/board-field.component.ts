@@ -10,7 +10,8 @@ import { Player } from '../../../../interfaces/played-game/player/player';
 import { Subscription, concat } from 'rxjs';
 import { SharedService } from '../../../../services/shared.service';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { FieldList } from '../../../../interfaces/game-engine/field/field-list';
+import { FieldList as EngineFieldList} from '../../../../interfaces/game-engine/field/field-list';
+import { FieldList } from '../../../../interfaces/played-game/field/field-list';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
@@ -27,6 +28,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   playersSubscription!: Subscription;
   changePositionSubscription!: Subscription;
   roundSubscription!: Subscription;
+  fetchPossibleFieldSubscription!: Subscription;
 
   @Input() board!: Board;
   @Input() fieldIndex!: number;
@@ -71,19 +73,18 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
 
   fetchRound(){
     this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      console.log('test round state w polu');
-      console.log(data.roundState);
+      // console.log('test round state w polu');
+      // console.log(data.roundState);
       if(data.roundState == RoundState.WAITING_FOR_MOVE){
-        // Once implemented in backend fetch data about possible fields
-        // getPossiblefields .subscribe((data: FieldList) = > {
-        //   this.dataService.possibleFields = data.fieldList;
-        // });
+        this.fetchPossibleFieldSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+          this.dataService.possibleFields = data.fieldList;
+        })
       }
     })
   }
 
   handleFieldContent(){
-    this.boardFieldsSubscription = this.gameService.getBoardFields(this.board.id).subscribe((data: FieldList) => {
+    this.boardFieldsSubscription = this.gameService.getBoardFields(this.board.id).subscribe((data: EngineFieldList) => {
       this.fieldList = data.fieldList;
       this.retrieveFieldType();
       this.retrieveCharactersOnField();
@@ -129,7 +130,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   }
 
   moveCharacter(fieldId: number){
-    this.changePositionSubscription = this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe((data: PlayedGame) => {
+    this.changePositionSubscription = this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe( () => {
       this.shared.sendMoveCharacterClickEvent();
     });
   }

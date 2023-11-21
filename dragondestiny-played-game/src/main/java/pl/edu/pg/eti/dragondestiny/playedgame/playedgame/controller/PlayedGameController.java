@@ -272,7 +272,7 @@ public class PlayedGameController {
      * @param fieldOption
      * @return
      */
-    @PutMapping("{playedGameId}/player/{playerLogin}/action/{fieldOption}")
+    @PutMapping("{playedGameId}/players/{playerLogin}/action/{fieldOption}")
     @Tag(name = "Played Game - round")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
