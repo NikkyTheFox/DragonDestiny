@@ -1,10 +1,12 @@
-import { Component, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../interfaces/played-game/character/character';
 import { Character } from '../../interfaces/game-engine/character/character';
 import { GameEngineService } from '../../services/game-engine/game-engine.service';
-import { SharedService } from "../../services/shared.service";
+import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
+import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
+import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 
 @Component({
   selector: 'app-select-character',
@@ -26,6 +28,9 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
   availableCharacters: PlayedGameCharacter[] = [];
   charactersToDisplay: Character[] = [];
 
+  webSocketMessagePipe!: Subscription;
+  messageData!: NotificationMessage;
+
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService, private shared: SharedService){
 
   }
@@ -35,12 +40,14 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
     this.playerLogin = this.shared.getPlayer()!.login;
     this.resetAllTables();
     this.handleCharacterTiles();
+    this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
+      this.messageData = this.shared.parseNotificationMessage(data);
+      if(this.messageData.notificationOption === NotificationEnum.CHARACTER_CHOSEN){
+        this.resetAllTables();
+        this.handleCharacterTiles();
+      }
+    });
   }
-
-  // ngOnChanges(){
-  //   this.resetAllTables();
-  //   this.handleCharacterTiles();
-  // }
 
   resetAllTables(){
     this.availableCharacters = [];
@@ -78,14 +85,10 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
   handleChosenCharacter(){
     this.getCharacterSubscription = this.gameEngineService.getCharacter(this.selectedCharacterId).subscribe( (data: Character) => {
       this.charactersToDisplay.push(data);
+      this.charactersToDisplay = this.removeDuplicates(this.charactersToDisplay)
       this.isSelectedFlag = true;
     });
   }
-
-  // isEmpty(character: any): boolean {
-  //   // Check if character is null, undefined, or an empty object
-  //   return character === null || character === undefined || Object.keys(character).length === 0;
-  // }
 
   select(character: Character){
     this.SelectCharacterSubscription = this.playedGameService.selectCharacter(this.gameId, this.playerLogin, character.id).subscribe( (data: any) => {
@@ -93,6 +96,22 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
       this.resetAllTables();
       this.handleCharacterTiles();
     });
+  }
+
+  removeDuplicates(array: Character[]) {
+    let toReturn: Character[] = [];
+    for(let i = 0; i < array.length; i++){
+      let toInsertCheck = true;
+      for(let j = 0; j < toReturn.length; j++){
+        if(array[i].id == toReturn[j].id){
+          toInsertCheck = false;
+        }
+      }
+      if(toInsertCheck){
+        toReturn.push(array[i]);
+      }
+    }
+    return toReturn;
   }
 
   ngOnDestroy(): void {

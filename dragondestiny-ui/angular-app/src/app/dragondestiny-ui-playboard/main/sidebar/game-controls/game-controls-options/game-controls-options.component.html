@@ -5,9 +5,9 @@
     (click)="takeCardClick()">Take A Card {{numberOfCardsToBeDrawn}}</button>
   </div>
 
-  <!-- <div *ngIf="LOSE_ROUND_FLAG">
+  <div *ngIf="LOSE_ROUND_FLAG">
     <button (click)="loseTurnClick()">Confirm loss of {{numberOfTurnsToBeLost}} rounds</button>
-  </div> -->
+  </div>
 
   <div *ngIf="FIGHT_WITH_PLAYER_FLAG">
     <div *ngFor="let player of playersToAttack; let i = index">

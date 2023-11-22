@@ -16,7 +16,7 @@ export interface Round{
   fieldListToMove: Field[];
   fieldOptionList: FieldOptionList;
   fieldOptionChosen: FieldOption;
-  playerNumberOfCards: number;
+  playerNumberOfCardsTaken: number;
   itemCardToTake: ItemCard;
   enemyFought: EnemyCard;
   enemyPlayerFought: Player;

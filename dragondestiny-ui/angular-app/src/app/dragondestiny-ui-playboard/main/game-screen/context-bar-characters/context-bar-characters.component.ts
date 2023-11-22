@@ -6,7 +6,7 @@ import { PlayedGameService } from '../../../../services/played-game/played-game-
 import { Player } from '../../../../interfaces/played-game/player/player';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { Character } from '../../../../interfaces/game-engine/character/character';
-import { SharedService } from "../../../../services/shared.service";
+import { SharedService } from '../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 

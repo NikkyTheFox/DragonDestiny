@@ -1,10 +1,10 @@
 import { NotificationEnum } from './../interfaces/played-game/notification/notification-enum';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { GameDataStructure } from "../interfaces/game-data-structure";
-import { PlayedGameService } from "./played-game/played-game-service";
-import { PlayedGame } from "../interfaces/played-game/played-game/played-game";
-import { Player } from "../interfaces/played-game/player/player";
+import { GameDataStructure } from '../interfaces/game-data-structure';
+import { PlayedGameService } from './played-game/played-game-service';
+import { PlayedGame } from '../interfaces/played-game/played-game/played-game';
+import { Player } from '../interfaces/played-game/player/player';
 import { WebsocketService } from './websocket.service';
 import { NotificationMessage } from '../interfaces/played-game/notification/notification-message';
 
@@ -40,6 +40,7 @@ export class SharedService{
   private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
+  private continueGame = new Subject();
   private continue = new Subject();
 
   // Web Socket
@@ -284,6 +285,14 @@ export class SharedService{
     return this.fightEnemyCard.asObservable();
   }
 
+  sendContinuteGameEvent(){
+    this.continueGame.next(null);
+  }
+
+  getContinuteGameEvent(){
+    return this.continueGame.asObservable();
+  }
+
   sendContinueClickEvent(){
     this.continue.next(null);
   }
@@ -302,11 +311,6 @@ export class SharedService{
   }
 
   getSocket(){
-    // this.socket.onmessage = (event) => {
-    //   console.log("XD mamy socketa");
-    //   console.log(event.data);
-    //   this.broadcastSocketMessage(event.data);
-    // }
     return this.socket;
   }
 
@@ -330,7 +334,7 @@ export class SharedService{
         notificationOption: NotificationEnum[notificationOption as keyof typeof NotificationEnum],
         name,
         number: parseInt(number, 10),
-        bool: bool === "true",
+        bool: bool === 'true',
       };
     }
   

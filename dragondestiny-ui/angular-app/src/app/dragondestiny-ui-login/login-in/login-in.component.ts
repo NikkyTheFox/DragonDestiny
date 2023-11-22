@@ -31,7 +31,7 @@ export class LoginInComponent implements OnDestroy{
 
       this.router.navigate(['/dashboard']);
     },
-      (error: any) =>{ // Handle 404 and others
+      (error: any) =>{
         window.alert('User not found');
       });
   }

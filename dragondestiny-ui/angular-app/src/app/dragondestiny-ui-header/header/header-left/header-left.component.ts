@@ -1,5 +1,5 @@
 import { Component, DoCheck } from '@angular/core';
-import { GameDataService} from "../../services/game-data.service";
+import { GameDataService } from '../../../services/game-data.service';
 
 @Component({
   selector: 'app-header-left',

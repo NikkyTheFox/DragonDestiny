@@ -32,7 +32,7 @@ export class SignupComponent implements OnDestroy{
         this.dataService.loginFlag = true;
         this.router.navigate(['/dashboard']);
       },
-      (error: any) =>{ // Handle 404 and other
+      (error: any) =>{
         window.alert('Could not create user account');
       });
   }

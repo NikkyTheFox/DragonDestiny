@@ -4,7 +4,7 @@ import { GameEngineService } from '../../../../services/game-engine/game-engine.
 import { ItemCard } from '../../../../interfaces/played-game/card/item-card/item-card';
 import { Card } from '../../../../interfaces/game-engine/card/card/card';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { SharedService } from "../../../../services/shared.service";
+import { SharedService } from '../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({

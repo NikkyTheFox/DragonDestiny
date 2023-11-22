@@ -1,6 +1,6 @@
 import { PlayedGameService } from './../../../../../services/played-game/played-game-service';
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { GameDataStructure } from 'src/app/interfaces/game-data-structure';
 import { SharedService } from 'src/app/services/shared.service';
 

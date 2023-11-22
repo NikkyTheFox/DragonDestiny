@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { User } from '../interfaces/user/user/user';
-import { Field } from '../interfaces/game-engine/field/field';
+import { Field } from '../interfaces/played-game/field/field';
 
 @Injectable({
   providedIn: 'root'

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../services/user/user.service';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { User } from '../../interfaces/user/user/user';
-import { SharedService } from "../../services/shared.service";
+import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({

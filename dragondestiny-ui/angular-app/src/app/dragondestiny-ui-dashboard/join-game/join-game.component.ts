@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
 export class JoinGameComponent implements OnInit, OnDestroy{
   gameSubscription!: Subscription;
   addPlayerSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   playerLogin!: string;
   gameId!: string;
 

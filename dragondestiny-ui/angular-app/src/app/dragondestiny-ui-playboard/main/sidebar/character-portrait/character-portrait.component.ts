@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Character } from '../../../../interfaces/game-engine/character/character';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';

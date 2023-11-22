@@ -66,7 +66,6 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   fetchEnemy(){
-    console.log(this.bridgeFlag);
     this.subscriptionToDelete.push(
       this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
         let chosenEnemy!: EnemyCard;
@@ -89,8 +88,6 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
     this.subscriptionToDelete.push(
       this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
         this.cardToDisplay = data;
-        console.log('card to display test V')
-        console.log(this.cardToDisplay);
         this.cardFightCondition.emit(true); // show Roll Die Button in Parent Component
       })
     );
@@ -111,11 +108,8 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        // this.playerRoll,
         this.cardToDisplay.id,
-        // this.enemyRoll
       ).subscribe( (data: FightResult) => {
-        console.log(data);
         this.fightResult = data;
         this.reset();
         this.fightResultCondition = true;
@@ -165,8 +159,6 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   reset(){
     this.fightResultCondition = false;
     this.showFightEnemyCardConditionBoolean = false;
-    // this.bridgeFlag = false;
-    // this.bossRoomFlag = false;
     this.dieData = {fightEnemyCondition: false, rollValue: 0};
   }
 

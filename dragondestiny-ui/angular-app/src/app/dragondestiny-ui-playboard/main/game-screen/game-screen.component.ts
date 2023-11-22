@@ -1,6 +1,6 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
-import {SharedService} from "../../../services/shared.service";
-import {Observable, Subscription, share} from "rxjs";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SharedService } from '../../../services/shared.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game-screen',
@@ -23,11 +23,11 @@ export class GameScreenComponent implements OnInit, OnDestroy{
     this.processEvents();
   }
 
-
   processEvents(){
     this.processCardDraw();
     this.processPlayerFight();
     this.processEnemyFight();
+    this.processContinue();
     this.processNotificationClose();
   }
 
@@ -53,6 +53,10 @@ export class GameScreenComponent implements OnInit, OnDestroy{
       this.notificationType = 3;
       this.notificationData = cardToFightWithID;
     });
+  }
+
+  processContinue(){
+
   }
 
   processNotificationClose(){

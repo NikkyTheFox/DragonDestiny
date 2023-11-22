@@ -4,7 +4,7 @@ import { Board } from '../../../../interfaces/game-engine/board/board';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { SharedService } from "../../../../services/shared.service";
+import { SharedService } from '../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({

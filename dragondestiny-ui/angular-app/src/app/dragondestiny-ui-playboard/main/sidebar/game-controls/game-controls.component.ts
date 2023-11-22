@@ -1,8 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {PlayedGameService} from "../../../../services/played-game/played-game-service";
-import {SharedService} from "../../../../services/shared.service";
-import {GameDataStructure} from "../../../../interfaces/game-data-structure";
-import {Round} from "../../../../interfaces/played-game/round/round";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { PlayedGameService } from '../../../../services/played-game/played-game-service';
+import { SharedService } from '../../../../services/shared.service';
+import { GameDataStructure } from '../../../../interfaces/game-data-structure';
+import { Round } from '../../../../interfaces/played-game/round/round';
 import { Subscription } from 'rxjs';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';

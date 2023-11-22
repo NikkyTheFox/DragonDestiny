@@ -1,13 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { SharedService } from '../../../../services/shared.service';
-import { Player } from '../../../../interfaces/played-game/player/player';
-import { Character } from '../../../../interfaces/game-engine/character/character';
-import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
-import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { EnemyCard } from "../../../../interfaces/played-game/card/enemy-card/enemy-card";
-import { Card } from "../../../../interfaces/game-engine/card/card/card";
-import {EnemyCardList} from "../../../../interfaces/played-game/card/enemy-card/enemy-card-list";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
+import { SharedService } from '../../../../../services/shared.service';
+import { Player } from '../../../../../interfaces/played-game/player/player';
+import { Character } from '../../../../../interfaces/game-engine/character/character';
+import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
+import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
+import { EnemyCard } from '../../../../../interfaces/played-game/card/enemy-card/enemy-card';
+import { Card } from '../../../../../interfaces/game-engine/card/card/card';
+import { EnemyCardList } from '../../../../../interfaces/played-game/card/enemy-card/enemy-card-list';
 import { Subscription } from 'rxjs';
 import { PlayerList } from 'src/app/interfaces/played-game/player/player-list';
 import { Round } from 'src/app/interfaces/played-game/round/round';
@@ -28,6 +28,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   tempSubscription!: Subscription;
   endTurnSubscription!: Subscription;
   selectOptionSubscription!: Subscription;
+  loseRoundSubscription!: Subscription;
   characterSubscriptionList: Subscription[] = [];
   enemySubscriptionList: Subscription[] = [];
   requestStructure!: GameDataStructure;
@@ -70,10 +71,11 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   fetchRound(){
     this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      this.fetchOptionsFlag = data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS;
-      console.log(data);
-      console.log(this.fetchOptionsFlag);
       if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
+        /*
+        1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
+        2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
+        */
         this.actionButtonClickFlag = false;
         this.handleOptions();
       }
@@ -88,13 +90,58 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   handleGameContinue(round: Round){
+    console.log(round)
     if(round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
       this.actionButtonClickFlag = false;
-      console.log(round)
       this.checkOptions(round.fieldOptionList.possibleOptions as [])
       this.handleOptionFlags();
     }
-    // Handle other options here!
+    if(round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
+      /*
+      1. WAITING_FOR_CARD_DRAWN => drawRandomCard()
+      (EnemyCard):
+        2. WAITING_FOR_FIGHT_ROLL => rollDice()
+        3. WAITING_FOR_ENEMY_ROLL => rollDice()
+        4. WAITING_FOR_FIGHT_RESULT => handleFightWithEnemyCard()
+      (ItemCard):
+        2. WAITING_FOR_CARD_TO_HAND => moveItemCardFromDeckToPlayerHand()
+          3. (optional) WAITING_FOR_CARD_TO_USED => moveCardFromPlayerHandToUsedCardDeck() | only when hand is full, queued by method above
+      */
+      if(round.fieldOptionChosen == FieldOption.TAKE_ONE_CARD){ // Draw one card field
+        this.shared.sendDrawCardClickEvent(1 - round.playerNumberOfCardsTaken);
+      }
+      else{ // Draw two cards field
+        this.shared.sendDrawCardClickEvent(2 - round.playerNumberOfCardsTaken);
+      }
+    }
+    if(round.roundState == RoundState.WAITING_FOR_ENEMIES_TO_FIGHT){ // Fight Field Enemy [Boss/Bridge]
+      /*
+      1. WAITING_FOR_ENEMIES_TO_FIGHT => getEnemiesToFightWith()
+      2. WAITING_FOR_FIGHT_ROLL => rollDie()
+      3. WAITING_FOR_ENEMY_ROLL => rollDie()
+      4. WAITING_FOR_FIGHT_RESULT => handleFightWithEnemyCard()
+      */ 
+    }
+    if(round.roundState == RoundState.WAITING_FOR_PLAYER_TO_FIGHT){ // Fight Player
+      /*
+      1. WAITING_FOR_PLAYER_TO_FIGHT => getPlayersToFightWith() | should notifiy chosen player by 
+      2. WAITING_FOR_FIGHT_ROLL => rollDie()
+      3. WAITING_FOR_ENEMY_PLAYER_ROLL =>
+      4. WAITING_FOR_FIGHT_RESULT => handleFightWithPlayer() | this sends info via websocket
+      5. WAITING_FOR_CARD_THEFT => 
+      */
+    }
+    if(round.roundState == RoundState.WAITING_FOR_FIGHT_ROLL || // Enemy Or EnemyCard Or Player
+      round.roundState == RoundState.WAITING_FOR_ENEMY_ROLL || // Enemy Or EnemyCard
+      round.roundState == RoundState.WAITING_FOR_FIGHT_RESULT || // Enemy Or EnemyCard OrPlayer
+      round.roundState == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL || // Player
+      round.roundState == RoundState.WAITING_FOR_CARD_TO_HAND || // Item Card 
+      round.roundState == RoundState.WAITING_FOR_CARD_TO_USED || // Item Card but hand is full
+      round.roundState == RoundState.WAITING_FOR_CARD_TO_TROPHIES || // EnemyCard
+      round.roundState == RoundState.WAITING_FOR_CARD_THEFT // Player
+      ){
+
+      }
   }
 
   getFieldOptions(){
@@ -117,7 +164,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   handleFightEnemyFlag(){
     if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
       this.enemyFightSubscription = this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-        // to check
         this.enemiesToAttack = data.enemyCardList;
         this.fetchEnemies();
       });
@@ -203,12 +249,21 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     };
   }
 
-  // loseTurnClick(){
-  //   this.shared.sendBlockTurnEvent();
-  //   // this.playedGameService.automaticallyBlockTurnsOfPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
-  //   //   console.log('Player: ' + this.requestStructure.player!.login + ' blocked for ' + this.numberOfTurnsToBeLost + ' turns.');
-  //   // });
-  // }
+  loseTurnClick(){
+    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
+      this.requestStructure.game!.id,
+      this.requestStructure.player!.login,
+      FieldOption.LOSE_ONE_ROUND).subscribe( () => {
+        this.loseRoundSubscription = this.playedGameService.automaticallyBlockTurnsOfPlayer(
+          this.requestStructure.game!.id, 
+          this.requestStructure.player!.login).subscribe( () => {
+            this.shared.sendBlockTurnEvent();
+            this.actionButtonClickFlag = true;
+          });
+      });
+    
+
+  }
 
   attackPlayedClick(enemyPlayedLogin: string){
     this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(

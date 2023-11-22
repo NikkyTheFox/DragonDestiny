@@ -1,12 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { GameDataService } from '../../../../services/game-data.service';
-import { SharedService } from '../../../../services/shared.service';
-import { GameDataStructure } from '../../../../interfaces/game-data-structure';
+import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
+import { GameDataService } from '../../../../../services/game-data.service';
+import { SharedService } from '../../../../../services/shared.service';
+import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
 import { Subscription } from 'rxjs';
 import { Player } from 'src/app/interfaces/played-game/player/player';
 import { Round } from 'src/app/interfaces/played-game/round/round';
 import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
+import { Field as EngineField} from 'src/app/interfaces/game-engine/field/field';
+import { Field } from 'src/app/interfaces/played-game/field/field';
+import { FieldList } from 'src/app/interfaces/played-game/field/field-list';
 
 @Component({
   selector: 'app-game-controls-dice',
@@ -19,6 +22,7 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
   endTurnSubscription!: Subscription;
   fetchFieldDataSubscription!: Subscription;
   fetchRoundSubscription!: Subscription;
+  fetchPossibleFieldSubscription!: Subscription;
 
   requestStructure!: GameDataStructure;
   rollValue: number = 0;
@@ -57,10 +61,13 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
 
   fetchRound(){
     this.fetchRoundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      // Disables rollDie button if roundState does not allow rolling for move
-      // console.log('test round state w kostce:');
-      // console.log(data.roundState);
-      this.disableRoll = !(data.roundState == RoundState.WAITING_FOR_MOVE_ROLL)
+      console.log('test round state w kostce:');
+      console.log(data.roundState);
+      // Disables rollDie button if roundState does not allow rolling for move, If so, display roll value from Round
+      this.disableRoll = !(data.roundState == RoundState.WAITING_FOR_MOVE_ROLL);
+      if(this.disableRoll){
+        this.rollValue = data.playerMoveRoll;
+      }
     });
   }
 
@@ -73,7 +80,7 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
   }
 
   checkPositions(){
-    this.checkPositionSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: any) => {
+    this.checkPositionSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: FieldList) => {
       this.dataService.possibleFields = data.fieldList;
       this.shared.sendDiceRollClickEvent();
     });

@@ -11,6 +11,8 @@ import { EnemyCard } from 'src/app/interfaces/played-game/card/enemy-card/enemy-
 import { Card } from 'src/app/interfaces/played-game/card/card/card';
 import { GameEngineService } from 'src/app/services/game-engine/game-engine.service';
 import { ItemCardList } from 'src/app/interfaces/played-game/card/item-card/item-card-list';
+import { Round } from 'src/app/interfaces/played-game/round/round';
+import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 
 @Component({
   selector: 'app-notification-draw-card',
@@ -41,6 +43,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
 
   playerRoll: number = 0;
   enemyRoll: number = 0;
+  dataFetchFlag: boolean = false;
 
   constructor(private engineService: GameEngineService, private playedGameService: PlayedGameService, private shared: SharedService){
 
@@ -48,6 +51,17 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.requestStructure = this.shared.getRequest();
+    this.fetchRound();
+  }
+
+  fetchRound(){
+    this.subscriptionToDelete.push(
+      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        if(data.roundState == RoundState.WAITING_FOR_CARD_DRAWN){
+          this.dataFetchFlag = true;
+        }
+      })
+    )
   }
 
   drawCard(){
@@ -108,7 +122,6 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
           this.shared.sendEquipItemCardClickEvent();
           this.reset();
           this.actionFinished.emit();
-          // this.handleNotifications(); // not needed?
         }
       )
     )
@@ -142,33 +155,23 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        // this.playerRoll,
         this.cardToDisplay.id,
-        // this.enemyRoll
       ).subscribe( (data: FightResult) => {
         this.fightResult = data;
         this.reset();
         this.fightResultCondition = true;
-        this.shared.sendUpdateStatisticsEvent();
       })
     )
   }
 
   getTrophy(){
-    this.subscriptionToDelete.push(
-      this.playedGameService.moveCardToPlayerTrophies(
-        this.requestStructure.game!.id,
-        this.requestStructure.player!.login,
-        this.cardToDisplay.id
-      ).subscribe( () => {
-        this.shared.sendUpdateStatisticsEvent();
-        this.reset();
-        this.actionFinished.emit()
-      })
-    )
+    this.shared.sendUpdateStatisticsEvent();
+    this.reset();
+    this.actionFinished.emit()
   }
 
   acceptLoss(){
+    this.shared.sendUpdateStatisticsEvent();
     this.actionFinished.emit();
   }
 

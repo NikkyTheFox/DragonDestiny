@@ -3,10 +3,10 @@ import { UserService } from '../../services/user/user.service';
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
 import { GameList } from '../../interfaces/user/game/game-list';
-import { SharedService } from "../../services/shared.service";
-import { PlayedGameService } from "../../services/played-game/played-game-service";
-import { Game } from "../../interfaces/user/game/game";
-import { PlayedGame } from "../../interfaces/played-game/played-game/played-game";
+import { SharedService } from '../../services/shared.service';
+import { PlayedGameService } from '../../services/played-game/played-game-service';
+import { Game } from '../../interfaces/user/game/game';
+import { PlayedGame } from '../../interfaces/played-game/played-game/played-game';
 import { Subscription } from 'rxjs';
 
 @Component({
