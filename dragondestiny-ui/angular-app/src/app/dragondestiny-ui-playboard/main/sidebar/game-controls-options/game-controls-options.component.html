@@ -1,33 +1,30 @@
 <div class="control-buttons-container">
   <div *ngIf="TAKE_CARD_FLAG">
-    <button (click)="takeCardClick()">Take A Card {{numberOfCardsToBeDrawn}}</button>
+    <button 
+    [disabled]="actionButtonClickFlag"
+    (click)="takeCardClick()">Take A Card {{numberOfCardsToBeDrawn}}</button>
   </div>
 
-  <div *ngIf="LOSE_ROUND_FLAG">
+  <!-- <div *ngIf="LOSE_ROUND_FLAG">
     <button (click)="loseTurnClick()">Confirm loss of {{numberOfTurnsToBeLost}} rounds</button>
-  </div>
-
-  <div *ngIf="BRIDGE_FIELD_FLAG">
-    <button (click)="bridgeMoveClick()">Go To Boss Room</button>
-  </div>
-
-  <div *ngIf="BOSS_FIELD_FLAG">
-    <button (click)="bossMoveClick()">Go Back To Bridge</button>
-  </div>
+  </div> -->
 
   <div *ngIf="FIGHT_WITH_PLAYER_FLAG">
     <div *ngFor="let player of playersToAttack; let i = index">
-      <button (click)="attackPlayedClick(player.login)">Attack {{player.login}} ({{ playersToAttackCharacters[i].name }})</button>
+      <button 
+      *ngIf="playersToAttackCharacters[i]" 
+      [disabled]="actionButtonClickFlag"
+      (click)="attackPlayedClick(player.login)">Attack {{player.login}} ({{ playersToAttackCharacters[i].name }})</button>
     </div>
   </div>
 
   <div *ngIf="FIGHT_WITH_ENEMY_ON_FIELD_FLAG">
     <div *ngFor="let enemy of enemiesToAttack; let i = index">
-      <button (click)="attackEnemyClick(enemy.id)">Attack {{enemiesToAttackFromEngine[i].name}} | HP: {{enemy.health}} | S: {{enemy.initialStrength}}</button>
+      <!-- Attack normal -->
+      <button *ngIf="enemiesToAttackFromEngine[i]" 
+      [disabled]="actionButtonClickFlag"
+      (click)="attackEnemyClick(enemy.id)"
+      >Attack {{enemiesToAttackFromEngine[i].name}} | HP: {{enemy.health}} | S: {{enemy.initialStrength}}</button>
     </div>
-  </div>
-
-  <div *ngIf="EXCHANGE_TROPHIES_FLAG">
-    <button (click)="exchangeTrophiesClick()">Exchange Trophies</button>
   </div>
 </div>

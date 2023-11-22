@@ -1,3 +1,7 @@
 <div class="end-turn-container">
-  <button class="button" type="button" (click)="endTurn()">End turn</button>
+  <button 
+  class="button" 
+  type="button" 
+  [disabled]="disableButtonFlag"
+  (click)="endTurn()">End turn</button>
 </div>

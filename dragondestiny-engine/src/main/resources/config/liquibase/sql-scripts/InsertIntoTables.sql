@@ -173,7 +173,7 @@ INSERT INTO fields (type, x_position, y_position, board_id, enemy_id)
 VALUES ('BRIDGE_FIELD', 0, 1, 1, 8);
 
 INSERT INTO fields (type, x_position, y_position, board_id, enemy_id)
-VALUES ('BOSS_FIELD', -1, -1, 1, 9);
+VALUES ('BOSS_FIELD', 1, 1, 1, 9);
 
 -- CHARACTERS
 INSERT INTO characters

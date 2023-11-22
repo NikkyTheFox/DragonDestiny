@@ -1,9 +1,12 @@
+import { NotificationEnum } from './../interfaces/played-game/notification/notification-enum';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { GameDataStructure } from "../interfaces/game-data-structure";
 import { PlayedGameService } from "./played-game/played-game-service";
 import { PlayedGame } from "../interfaces/played-game/played-game/played-game";
 import { Player } from "../interfaces/played-game/player/player";
+import { WebsocketService } from './websocket.service';
+import { NotificationMessage } from '../interfaces/played-game/notification/notification-message';
 
 @Injectable({
   providedIn: 'root'
@@ -30,15 +33,21 @@ export class SharedService{
   private endTurn = new Subject();
   private blockTurn = new Subject();
   private exchangeTrophies = new Subject();
-  private notificationClose = new Subject();
+  private updateStatistics = new Subject();
 
   // Notifications
-  private drawCard = new Subject();
+  private notificationClose = new Subject();
+  private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
+  private continue = new Subject();
+
+  // Web Socket
+  private socket!: WebSocket;
+  private socketMessage = new Subject<NotificationMessage>();
 
 
-  constructor(private playedGameService: PlayedGameService){
+  constructor(private playedGameService: PlayedGameService, private wsService: WebsocketService){
 
   }
 
@@ -195,6 +204,7 @@ export class SharedService{
 
   sendEquipItemCardClickEvent(){
     this.equipItemCard.next(null);
+    this.sendUpdateStatisticsEvent();
   }
 
   getEquipItemCardClickEvent(){
@@ -241,10 +251,18 @@ export class SharedService{
     return this.notificationClose.asObservable();
   }
 
+  sendUpdateStatisticsEvent(){
+    this.updateStatistics.next(null);
+  }
+
+  getUpdateStatisticsEvent(){
+    return this.updateStatistics.asObservable();
+  }
+
 //   Notifications
 
-  sendDrawCardClickEvent(){
-    this.drawCard.next(null);
+  sendDrawCardClickEvent(numberOfCards: number){
+    this.drawCard.next(numberOfCards);
   }
 
   getDrawCardClickEvent(){
@@ -255,7 +273,7 @@ export class SharedService{
   }
 
   getFightPlayerClickEvent(){
-    return this.fightEnemyCard.asObservable();
+    return this.fightPlayer.asObservable();
   }
 
   sendFightEnemyCardClickEvent(cardToFightWithID: number){
@@ -265,4 +283,63 @@ export class SharedService{
   getFightEnemyCardClickEvent(){
     return this.fightEnemyCard.asObservable();
   }
+
+  sendContinueClickEvent(){
+    this.continue.next(null);
+  }
+
+  getContinueClickEvent(){
+    return this.continue.asObservable();
+  }
+
+  //    Socket Handling
+  initSocket(playedGameId: string){
+    this.wsService.connect(playedGameId);
+    this.socket = this.wsService.getSocket();
+    this.socket.onmessage = (event) => {
+      this.broadcastSocketMessage(event.data);
+    }
+  }
+
+  getSocket(){
+    // this.socket.onmessage = (event) => {
+    //   console.log("XD mamy socketa");
+    //   console.log(event.data);
+    //   this.broadcastSocketMessage(event.data);
+    // }
+    return this.socket;
+  }
+
+  broadcastSocketMessage(message: NotificationMessage){
+    this.socketMessage.next(message);
+  }
+
+  getSocketMessage(){
+    return this.socketMessage.asObservable();
+  }
+
+  parseNotificationMessage(data: string): NotificationMessage {
+    const regex = /NotificationMessage\(notificationOption=(.*), name=(.*), number=(.*), bool=(.*)\)/;
+    const matches = data.match(regex);
+  
+    if (matches) {
+      const [, notificationOption, name, number, bool] = matches;
+  
+
+      return {
+        notificationOption: NotificationEnum[notificationOption as keyof typeof NotificationEnum],
+        name,
+        number: parseInt(number, 10),
+        bool: bool === "true",
+      };
+    }
+  
+    return {
+      notificationOption: 0,
+      name: '',
+      number: 0,
+      bool: false,
+    };
+  }
+  
 }

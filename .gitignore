@@ -55,6 +55,7 @@ yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
+.vscode
 /.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -78,8 +79,10 @@ Thumbs.db
 */.mvn/
 /.idea/
 /dragondestiny-user/.mvn/
-/dragondestiny-ui/angular-app/.vscode/
+dragondestiny-ui/angular-app/.vscode/
 /dragondestiny-played-game/.mvn/
 /dragondestiny-gateway/.mvn/
 /dragondestiny-engine/.mvn/
 /dragondestiny-discovery/.mvn/
+.angular
+node_modules

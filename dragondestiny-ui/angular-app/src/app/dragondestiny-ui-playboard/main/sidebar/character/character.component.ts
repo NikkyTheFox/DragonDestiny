@@ -1,17 +1,22 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { SharedService } from "../../../../services/shared.service";
+import { Subscription } from 'rxjs';
+import { Player } from 'src/app/interfaces/played-game/player/player';
 
 @Component({
   selector: 'app-character',
   templateUrl: './character.component.html',
   styleUrls: ['./character.component.css']
 })
-export class CharacterComponent implements OnInit{
+export class CharacterComponent implements OnInit, OnDestroy{
+  updateStatisticsSubscription!: Subscription;
+  characterSubscription!: Subscription;
+
   requestStructure!: GameDataStructure;
-  character!: PlayedGameCharacter;
+  player!: Player;
 
   constructor(private playedGameService: PlayedGameService, private shared: SharedService){
 
@@ -19,15 +24,20 @@ export class CharacterComponent implements OnInit{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
-    this.handleCharacter();
-    this.shared.getEquipItemCardClickEvent().subscribe( () => {
-      this.handleCharacter();
+    this.fetchPlayer();
+    this.updateStatisticsSubscription = this.shared.getUpdateStatisticsEvent().subscribe( () => {
+      this.fetchPlayer();
     });
   }
 
-  handleCharacter(){
-    this.playedGameService.getPlayersCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayedGameCharacter) => {
-      this.character = data;
+  fetchPlayer(){
+    this.characterSubscription = this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
+      this.player = data;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.characterSubscription?.unsubscribe();
+    this.updateStatisticsSubscription?.unsubscribe();
   }
 }

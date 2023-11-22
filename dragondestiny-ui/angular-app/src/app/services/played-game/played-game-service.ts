@@ -19,6 +19,7 @@ import { PlayerList } from '../../interfaces/played-game/player/player-list';
 import { ItemCardList } from '../../interfaces/played-game/card/item-card/item-card-list';
 import { EnemyCardList } from '../../interfaces/played-game/card/enemy-card/enemy-card-list';
 import { FieldOptionList } from '../../interfaces/played-game/field/field-option-list';
+import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
 
 @Injectable({
   providedIn: 'root'
@@ -57,8 +58,12 @@ export class PlayedGameService{
     return this.http.get<Round>(`${environment.apiUrl}/playedgames/${playedGameId}/round`);
   }
 
-  setNextRound(playedGameId: string): Observable<Round>{
-    return this.http.put<Round>(`${environment.apiUrl}/playedgames/${playedGameId}/round/next`, null);
+  setNextRound(playedGameId: string, playerLogin: string): Observable<Round>{
+    return this.http.put<Round>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/round/next`, null);
+  }
+
+  selectRoundOpiton(playedGameId: string, playerLogin: string, fieldOption: FieldOption){
+    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/action/${fieldOption}`, null);
   }
 
   // BOARD + FIELDS ----------------------------------------------------------
@@ -109,6 +114,10 @@ export class PlayedGameService{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/used/${cardId}`, null);
   }
 
+  moveCardFromPlayerToPlayer(playedGameId: string, playerFromLogin: string, cardId: number, playerToLogin: string){
+    return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerFromLogin}/cards/${cardId}/players/${playerToLogin}`, null)
+  }
+
   moveItemCardFromDeckToPlayerHand(playedGameId: string, cardId: number, playerLogin: string): Observable<PlayedGame>{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/hand/${cardId}`, null);
   }
@@ -117,8 +126,8 @@ export class PlayedGameService{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/trophies/${cardId}`, null);
   }
 
-  drawRandomCard(playedGameId: string): Observable<Card>{
-    return this.http.get<Card>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/deck/draw`);
+  drawRandomCard(playedGameId: string, playerLogin: string): Observable<Card>{
+    return this.http.get<Card>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/deck/draw`);
   }
 
   // CHARACTERS -------------------------------------------------------
@@ -185,8 +194,8 @@ export class PlayedGameService{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/character/${characterId}`, null);
   }
 
-  checkPossibleNewPositions(playedGameId: string, playerLogin: string, rollValue: number): Observable<FieldList>{
-    return this.http.get<FieldList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/move/${rollValue}/fields`);
+  checkPossibleNewPositions(playedGameId: string, playerLogin: string): Observable<FieldList>{
+    return this.http.get<FieldList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/move/fields`);
   }
 
   changeFieldPositionOfCharacter(playedGameId: string, playerLogin: string, fieldId: number): Observable<PlayedGame>{
@@ -202,7 +211,7 @@ export class PlayedGameService{
   }
 
   getEnemiesToFightWith(playedGameId: string, playerLogin: string): Observable<EnemyCardList>{
-    return this.http.get<EnemyCardList>(`${environment.apiUrl}/playedGames/${playedGameId}/players/${playerLogin}/field/options/enemies`);
+    return this.http.get<EnemyCardList>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/field/options/enemies`);
   }
 
   blockTurnsOfPlayerByNumber(playedGameId: string, playerLogin: string, blockedNum: number): Observable<Player>{
@@ -219,8 +228,8 @@ export class PlayedGameService{
     return this.http.get<number>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll`);
   }
 
-  handleFightWithEnemyCard(playedGameId: string, playerLogin: string, playerRoll: number, enemyCardId: number, enemyRoll: number): Observable<FightResult>{
-    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/roll/${playerRoll}/enemy/${enemyCardId}/roll/${enemyRoll}`, null);
+  handleFightWithEnemyCard(playedGameId: string, playerLogin: string, enemyCardId: number): Observable<FightResult>{
+    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/enemy/${enemyCardId}`, null);
   }
 
   /*
@@ -228,8 +237,8 @@ export class PlayedGameService{
     return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/roll/${playerRoll}/enemy/roll/${enemyRoll}`, null);
   }*/
 
-  handleFightWithPlayer(playedGameId: string, playerLogin: string, playerRoll: number, enemyPlayerLogin: string): Observable<FightResult>{
-    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/roll/${playerRoll}/${enemyPlayerLogin}`, null);
+  handleFightWithPlayer(playedGameId: string, playerLogin: string, enemyPlayerLogin: string): Observable<FightResult>{
+    return this.http.put<FightResult>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/fight/player/${enemyPlayerLogin}`, null);
   }
 
 }

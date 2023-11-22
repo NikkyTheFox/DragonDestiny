@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../services/user/user.service';
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
@@ -7,13 +7,18 @@ import { SharedService } from "../../services/shared.service";
 import { PlayedGameService } from "../../services/played-game/played-game-service";
 import { Game } from "../../interfaces/user/game/game";
 import { PlayedGame } from "../../interfaces/played-game/played-game/played-game";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-played-games-list',
   templateUrl: './played-game-list.component.html',
   styleUrls: ['./played-game-list.component.css']
 })
-export class PlayedGameListComponent implements OnInit{
+export class PlayedGameListComponent implements OnInit, OnDestroy{
+  usersGamesSubscription!: Subscription;
+  gameSubscription!: Subscription;
+  dataLoadedEventSubscription!: Subscription;
+
   playerLogin!: string;
   gameList: PlayedGame[] = [];
 
@@ -31,7 +36,7 @@ export class PlayedGameListComponent implements OnInit{
   }
 
   fetchUserGames(){
-    this.userService.getUsersGames(this.playerLogin).subscribe((data: GameList)=>{
+    this.usersGamesSubscription = this.userService.getUsersGames(this.playerLogin).subscribe((data: GameList)=>{
       data.gameList.forEach( (game: Game) => {
         this.fetchGameData(game.id);
       });
@@ -39,7 +44,7 @@ export class PlayedGameListComponent implements OnInit{
   }
 
   fetchGameData(playedGameId: string){
-    this.playedGameService.getGame(playedGameId).subscribe( (data: PlayedGame) => {
+    this.gameSubscription = this.playedGameService.getGame(playedGameId).subscribe( (data: PlayedGame) => {
       this.gameList.push(data);
     });
   }
@@ -47,7 +52,7 @@ export class PlayedGameListComponent implements OnInit{
   continueGame(clickedGameId: string){
     this.dataService.chosenGame = clickedGameId;
     this.shared.setRequestByID(this.dataService.chosenGame, this.dataService.getPlayerLogin());
-    this.shared.getDataLoadedEvent().subscribe( () => {
+    this.dataLoadedEventSubscription = this.shared.getDataLoadedEvent().subscribe( () => {
       this.router.navigate(['/main']);
     });
   }
@@ -55,8 +60,14 @@ export class PlayedGameListComponent implements OnInit{
   joinGame(clickedGameId: string){
     this.dataService.chosenGame = clickedGameId;
     this.shared.setRequestByID(clickedGameId, this.playerLogin);
-    this.shared.getDataLoadedEvent().subscribe( () => {
+    this.dataLoadedEventSubscription = this.shared.getDataLoadedEvent().subscribe( () => {
       this.router.navigate(['/preparegame']);
     });
+  }
+
+  ngOnDestroy(): void {
+      this.dataLoadedEventSubscription?.unsubscribe();
+      this.gameSubscription?.unsubscribe();
+      this.usersGamesSubscription?.unsubscribe();
   }
 }

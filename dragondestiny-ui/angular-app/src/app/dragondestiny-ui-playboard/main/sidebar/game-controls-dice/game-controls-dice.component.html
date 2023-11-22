@@ -1,5 +1,9 @@
 <div class="dice-container">
   <div class="dice">dice.jpg {{rollValue}}</div>
-  <button class="button" type="button" (click)="rollDice()">Roll</button>
+  <button 
+  class="button" 
+  type="button" 
+  [disabled]="disableRoll"
+  (click)="rollDice()">Roll</button>
 </div>
 

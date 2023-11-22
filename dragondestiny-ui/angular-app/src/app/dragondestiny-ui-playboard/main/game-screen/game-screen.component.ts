@@ -1,31 +1,28 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {SharedService} from "../../../services/shared.service";
-import {Observable, share} from "rxjs";
+import {Observable, Subscription, share} from "rxjs";
 
 @Component({
   selector: 'app-game-screen',
   templateUrl: './game-screen.component.html',
   styleUrls: ['./game-screen.component.css']
 })
-export class GameScreenComponent implements OnInit{
+export class GameScreenComponent implements OnInit, OnDestroy{
   showNotification: boolean = false;
   notificationType: number = 0;
   notificationData: any = null;
-  playerFight!: Observable<any>;
-  cardDraw!: Observable<any>;
-  enemyFight!: Observable<any>;
-  notificationClose!: Observable<any>;
+  playerFightSubscription!: Subscription;
+  cardDrawSubscription!: Subscription;
+  enemyFightSubscription!: Subscription;
+  notificationCloseSubscription!: Subscription ;
 
   constructor(private shared: SharedService) {
   }
 
   ngOnInit() {
-    this.cardDraw = this.shared.getDrawCardClickEvent();
-    this.playerFight = this.shared.getFightPlayerClickEvent();
-    this.enemyFight = this.shared.getFightEnemyOnFieldClickEvent();
-    this.notificationClose = this.shared.getNotificationCloseEvent();
     this.processEvents();
   }
+
 
   processEvents(){
     this.processCardDraw();
@@ -35,14 +32,15 @@ export class GameScreenComponent implements OnInit{
   }
 
   processCardDraw(){
-    this.cardDraw.subscribe( () => {
+    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: number) => {
       this.showNotification = true;
       this.notificationType = 1;
+      this.notificationData = numberOfCards;
     });
   }
 
   processPlayerFight(){
-    this.playerFight.subscribe( (playerToFightWithLogin: string) => {
+    this.playerFightSubscription = this.shared.getFightPlayerClickEvent().subscribe( (playerToFightWithLogin: string ) => {
       this.showNotification = true;
       this.notificationType = 2;
       this.notificationData = playerToFightWithLogin;
@@ -50,7 +48,7 @@ export class GameScreenComponent implements OnInit{
   }
 
   processEnemyFight(){
-    this.enemyFight.subscribe( (cardToFightWithID: number) => {
+    this.enemyFightSubscription = this.shared.getFightEnemyCardClickEvent().subscribe( (cardToFightWithID: number) => {
       this.showNotification = true;
       this.notificationType = 3;
       this.notificationData = cardToFightWithID;
@@ -58,7 +56,7 @@ export class GameScreenComponent implements OnInit{
   }
 
   processNotificationClose(){
-    this.notificationClose.subscribe( () => {
+    this.notificationCloseSubscription = this.shared.getNotificationCloseEvent().subscribe( () => {
       this.resetNotification();
     });
   }
@@ -66,5 +64,12 @@ export class GameScreenComponent implements OnInit{
   resetNotification(){
     this.notificationType = 0;
     this.showNotification = false;
+  }
+
+  ngOnDestroy(): void {
+      this.notificationCloseSubscription?.unsubscribe();
+      this.enemyFightSubscription?.unsubscribe();
+      this.playerFightSubscription?.unsubscribe();
+      this.cardDrawSubscription?.unsubscribe();
   }
 }

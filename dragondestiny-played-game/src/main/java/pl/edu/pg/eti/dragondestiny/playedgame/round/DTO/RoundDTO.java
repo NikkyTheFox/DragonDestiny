@@ -9,6 +9,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOption;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOptionList;
+import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
@@ -31,12 +32,12 @@ public class RoundDTO {
     /**
      * Player that has option to make a move
      */
-    private Player activePlayer;
+    private PlayerDTO activePlayer;
 
     /**
      * List of players
      */
-    private List<Player> playerList;
+    private List<PlayerDTO> playerList;
 
     /**
      * Current round state - what action should be performed now
@@ -86,7 +87,7 @@ public class RoundDTO {
     /**
      * Enemy Player fought by active player
      */
-    private Player enemyPlayerFought;
+    private PlayerDTO enemyPlayerFought;
 
     /**
      * Value of player's fight roll

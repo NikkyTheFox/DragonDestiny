@@ -1,16 +1,103 @@
-<div *ngIf="notificationType==1">
-  <p>Draw Card</p>
+<!-- DRAW CARD -->
+<!-- <div *ngIf="notificationType==1">
+  <button *ngIf="notificationData > 0 && showDrawCardConditionBoolean" class="button" type="button" (click)="drawCard()">Draw Card</button>
+  <div *ngIf="cardDisplayCondition && cardToDisplay">
+    <p>{{ cardToDisplay.name }} </p>
+    <p>Strength: {{ cardAttributes[1] }}</p>
+    <p>Health: {{ cardAttributes[0] }}</p>
+    <div>
+      <button *ngIf="equipCondition" class="button" type="button" (click)="equip()">Equip</button>
+      <p *ngIf="handCondition">Your Hand is Full!</p>
+    </div>
+    <div>
+      <button *ngIf="dieData.fightEnemyCondition" class="button" type="button" (click)="fightEnemy()">Fight</button>
+    </div>
+  </div>
+  
+  <div *ngIf="fightResultCondition && fightResult">
+    <div *ngIf="fightResult.attackerWon">
+      <p> You won the fight!</p>
+      <button class="button" type="button" (click)="getTrophy()">Get Trophy</button>
+    </div>
+    <div *ngIf="!fightResult.attackerWon">
+      <p>You lost the battle! :c</p>
+    </div>
+  </div>
+</div> -->
+
+<div *ngIf="notificationType == 1 && showDrawCardConditionBoolean">
+  <app-notification-draw-card
+  [notificationData]="notificationData"
+  [(cardsDrawn)]="cardsDrawn"
+  [dieData]="dieData"
+  [showDrawCardConditionBoolean]="showDrawCardConditionBoolean"
+  (actionFinished)="receiveCardActionFinished()"
+  (rollFightCondition)="receiveRollFightEvent($event)"
+  >
+  </app-notification-draw-card>
 </div>
 
+<!-- FIGHT PLAYER -->
 <div *ngIf="notificationType==2">
   <p>Fight Player</p>
 </div>
 
-<div *ngIf="notificationType==3">
-  <p>Fight Enemy</p>
+<!-- FIGHT ENEMY [BRIDGE OR BOSS] -->
+<!-- <div *ngIf="notificationType==3">
+  <div *ngIf="showFightEnemyCardConditionBoolean && cardToDisplay">
+    <p>{{ cardToDisplay.name }} </p>
+    <p>Strength: {{ cardAttributes[1] }}</p>
+    <p>Health: {{ cardAttributes[0] }}</p>
+    <div>
+      <button *ngIf="dieData.fightEnemyCondition" class="button" type="button" (click)="fightEnemyFromField()">Fight</button>
+    </div>cardsDrawn
+  </div>
+
+  <div *ngIf="fightResultCondition && fightResult">
+    <div *ngIf="fightResult.attackerWon">
+      <p> You won the fight!</p>
+      <button *ngIf="bridgeFlag" class="button" type="button" (click)="goToBoss()">Go To Boss Room</button>
+    </div>
+    <div *ngIf="!fightResult.attackerWon">
+      <p>You lost the battle! :c</p>
+      <button *ngIf="bossRoomFlag" class="button" type="button" (click)="stayOnBoss()">Stay</button>
+      <button *ngIf="bossRoomFlag" class="button" type="button" (click)="goToBridge()">Go To Bridge</button>
+    </div>
+  </div>
+</div> -->
+
+<div *ngIf="notificationType == 3 && showFightEnemyCardConditionBoolean">
+  <app-notification-fight-enemy
+  [notificationData]="notificationData"
+  [dieData]="dieData"
+  [finishCondition]="finishCondition"
+  [showFightEnemyCardConditionBoolean]="showFightEnemyCardConditionBoolean"
+  (finishConditionChange)="recieveFinishConditionChange($event)"
+  (cardFightCondition)="receiveRollFightEvent($event)"
+  >
+  </app-notification-fight-enemy>
+
 </div>
-<div class="dice-container">
-  <div class="dice">dice.jpg {{rollValue}}</div>
-  <button class="button" type="button" (click)="rollDie()">Roll</button>
+
+<!-- ROLL DIE WHEN NEEDED -->
+<!-- <div *ngIf="rollCondition" class="dice-container">
+  <div class="dice">Die: {{ rollValue }}</div>
+  <button *ngIf="rollValue === 0" class="button" type="button" (click)="rollDie()">Roll Die</button>
+</div> -->
+
+<!-- ROLL DIE WHEN NEEDED -->
+<div *ngIf="rollCondition">
+  <app-notification-die
+  (outputCondition)="recieveDieData($event)"
+  ></app-notification-die>
 </div>
-<button (click)="close()">Close Notification</button>
+
+<!-- PROCEED TO (OPTIONAL) NEXT MOVE -->
+<div *ngIf="!finishCondition && actionsDone > 0">
+  <button (click)="continue()">Continue</button>
+</div>
+
+<!-- CLOSE NOTIFICATION WINDOW -->
+<div *ngIf="finishCondition">
+  <button (click)="close()">Close Notification</button>
+</div>

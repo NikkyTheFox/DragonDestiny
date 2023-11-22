@@ -1,16 +1,24 @@
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { PlayedGameCharacter } from '../../interfaces/played-game/character/character';
 import { Character } from '../../interfaces/game-engine/character/character';
 import { GameEngineService } from '../../services/game-engine/game-engine.service';
 import { SharedService } from "../../services/shared.service";
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-select-character',
   templateUrl: './select-character.component.html',
   styleUrls: ['./select-character.component.css']
 })
-export class SelectCharacterComponent implements OnInit, OnChanges{
+export class SelectCharacterComponent implements OnInit, OnDestroy{
+  playersCharacterSubscription!: Subscription;
+  characterNotInUserSubscription!: Subscription;
+  tempSubscription!: Subscription;
+  characterSubscriptionList: Subscription[] = [];
+  getCharacterSubscription!: Subscription;
+  SelectCharacterSubscription!: Subscription;
+
   gameId!: string;
   playerLogin!: string;
   isSelectedFlag: boolean = false;
@@ -29,37 +37,49 @@ export class SelectCharacterComponent implements OnInit, OnChanges{
     this.handleCharacterTiles();
   }
 
-  ngOnChanges(){
-    this.resetAllTables();
-    this.handleCharacterTiles();
-  }
+  // ngOnChanges(){
+  //   this.resetAllTables();
+  //   this.handleCharacterTiles();
+  // }
 
   resetAllTables(){
     this.availableCharacters = [];
     this.charactersToDisplay = [];
   }
 
+  handleCharacterTiles(){
+    this.checkOwnCharacter();
+  }
+  
+  checkOwnCharacter(){
+    this.playersCharacterSubscription = this.playedGameService.getPlayersCharacter(this.gameId, this.playerLogin).subscribe( (data: PlayedGameCharacter) => {
+      this.selectedCharacterId = data.id;
+      this.handleChosenCharacter()
+    },
+    (error: any) => {
+      this.findCharactersToDisplay();
+    });
+  }
+
   findCharactersToDisplay(){
-    this.playedGameService.getCharacterNotInUse(this.gameId).subscribe( (data: any) => {
+    this.characterNotInUserSubscription = this.playedGameService.getCharacterNotInUse(this.gameId).subscribe( (data: any) => {
       this.availableCharacters = data.characterList;
       this.availableCharacters.forEach( (pgCharacter: PlayedGameCharacter) => {
-        this.gameEngineService.getCharacter(pgCharacter.id).subscribe( (geCharacter: Character) => {
+        this.tempSubscription = this.gameEngineService.getCharacter(pgCharacter.id).subscribe( (geCharacter: Character) => {
           this.charactersToDisplay.push(geCharacter);
         });
+        this.characterSubscriptionList.push(this.tempSubscription);
       })
     })
   }
 
-  handleCharacterTiles(){
-    if(this.selectedCharacterId !== undefined){
-      this.gameEngineService.getCharacter(this.selectedCharacterId).subscribe( (data: Character) => {
-        this.charactersToDisplay.push(data);
-        this.isSelectedFlag = true;
-      });
-    }
-    else{
-      this.findCharactersToDisplay();
-    }
+
+  
+  handleChosenCharacter(){
+    this.getCharacterSubscription = this.gameEngineService.getCharacter(this.selectedCharacterId).subscribe( (data: Character) => {
+      this.charactersToDisplay.push(data);
+      this.isSelectedFlag = true;
+    });
   }
 
   // isEmpty(character: any): boolean {
@@ -68,10 +88,21 @@ export class SelectCharacterComponent implements OnInit, OnChanges{
   // }
 
   select(character: Character){
-    this.playedGameService.selectCharacter(this.gameId, this.playerLogin, character.id).subscribe( (data: any) => {
+    this.SelectCharacterSubscription = this.playedGameService.selectCharacter(this.gameId, this.playerLogin, character.id).subscribe( (data: any) => {
       this.selectedCharacterId = character.id;
       this.resetAllTables();
       this.handleCharacterTiles();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.SelectCharacterSubscription?.unsubscribe();
+    this.getCharacterSubscription?.unsubscribe();
+    this.characterSubscriptionList.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
+    this.tempSubscription?.unsubscribe();
+    this.characterNotInUserSubscription?.unsubscribe();
+    this.playersCharacterSubscription?.unsubscribe();
   }
 }
