@@ -1047,7 +1047,10 @@ public class PlayedGameService {
             list.getPossibleOptions().add(FieldOption.BOSS_FIELD);
         }
         if (!enemyPlayerList.isEmpty()) {
-            list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
+            Player enemyPlayer = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.getCharacter().getField().getId()).get(0);
+            FieldOption fieldOption = FieldOption.FIGHT_WITH_PLAYER;
+            fieldOption.enemyPlayer = enemyPlayer;
+            list.getPossibleOptions().add(fieldOption);
         }
         Optional<EnemyCardList> enemyCardList = findEnemyCardsOnField(playedGameId, field.getId());
         if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty() && field.getType() != FieldType.BOSS_FIELD && field.getType() != FieldType.BRIDGE_FIELD) {
@@ -1259,7 +1262,7 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = 2; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
         if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
