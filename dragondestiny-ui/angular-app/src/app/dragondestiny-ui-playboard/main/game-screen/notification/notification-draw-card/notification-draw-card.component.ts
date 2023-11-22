@@ -30,8 +30,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
 
   requestStructure!: GameDataStructure;
   
-  drawCardSubscription!: Subscription;
-  subscriptionToDelete: Subscription[] = [];
+  toDeleteSubscription: Subscription[] = [];
 
   cardDisplayCondition: boolean = false;
   cardToDisplay!: EngineCard;
@@ -55,7 +54,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   fetchRound(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
         if(data.roundState == RoundState.WAITING_FOR_CARD_DRAWN){
           this.dataFetchFlag = true;
@@ -73,26 +72,28 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   handleDrawCard(){
-    this.drawCardSubscription = this.playedGameService.drawRandomCard(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Card) => {
-      this.showDrawCardConditionBoolean = false;
-      this.cardDisplayCondition = true;
-      if(data.cardType == CardType.ITEM_CARD){
-        let c = data as ItemCard;
-        this.cardAttributes.push(c.health);
-        this.cardAttributes.push(c.strength);
-        this.handleItemCard(c);
-      }
-      if(data.cardType == CardType.ENEMY_CARD){
-        let c = data as EnemyCard;
-        this.cardAttributes.push(c.health);
-        this.cardAttributes.push(c.initialStrength);
-        this.handleEnemyCard(c);
-      }
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.drawRandomCard(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Card) => {
+        this.showDrawCardConditionBoolean = false;
+        this.cardDisplayCondition = true;
+        if(data.cardType == CardType.ITEM_CARD){
+          let c = data as ItemCard;
+          this.cardAttributes.push(c.health);
+          this.cardAttributes.push(c.strength);
+          this.handleItemCard(c);
+        }
+        if(data.cardType == CardType.ENEMY_CARD){
+          let c = data as EnemyCard;
+          this.cardAttributes.push(c.health);
+          this.cardAttributes.push(c.initialStrength);
+          this.handleEnemyCard(c);
+        }
+      })
+    );
   }
 
   handleItemCard(data: ItemCard){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
         this.cardToDisplay = data;
         this.checkHandCards();
@@ -101,7 +102,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   checkHandCards(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: ItemCardList) => {
         if(data.itemCardList.length < 5){
           this.equipCondition = true;
@@ -114,7 +115,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   equip(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.moveItemCardFromDeckToPlayerHand(
         this.requestStructure.game!.id, 
         this.cardToDisplay!.id, 
@@ -132,7 +133,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   handleEnemyCard(data: EnemyCard){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
         this.cardToDisplay = data;
         this.rollFightCondition.emit(true); // show Roll Die Button in Parent Component
@@ -142,7 +143,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
 
   fightEnemy(){
     this.playerRoll = this.dieData.rollValue;
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: number) => {
         this.enemyRoll = data;
         this.handleFightAfterDraw();
@@ -151,7 +152,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   handleFightAfterDraw(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
@@ -185,9 +186,8 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.subscriptionToDelete.forEach( (s: Subscription) => {
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
       s.unsubscribe();
     });
-    this.drawCardSubscription?.unsubscribe();
   }
 }

@@ -11,8 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./login-in.component.css']
 })
 export class LoginInComponent implements OnDestroy{
-  loginSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   name!: string;
   password!: string;
 
@@ -25,19 +24,23 @@ export class LoginInComponent implements OnDestroy{
       login: this.name,
       password: this.password
     }
-    this.loginSubscription = this.userService.getUserByLoginPassword(user).subscribe((data: any) => {
-      this.dataService.loginData = data;
-      this.dataService.loginFlag = true;
-
-      this.router.navigate(['/dashboard']);
-    },
+    this.toDeleteSubscription.push(
+      this.userService.getUserByLoginPassword(user).subscribe((data: any) => {
+        this.dataService.loginData = data;
+        this.dataService.loginFlag = true;
+  
+        this.router.navigate(['/dashboard']);
+      },
       (error: any) =>{
         window.alert('User not found');
-      });
+      })
+    );
   }
 
   ngOnDestroy(): void {
-      this.loginSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 
 }

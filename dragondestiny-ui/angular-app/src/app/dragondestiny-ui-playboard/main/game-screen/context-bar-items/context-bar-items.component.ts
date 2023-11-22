@@ -13,11 +13,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./context-bar-items.component.css']
 })
 export class ContextBarItemsComponent implements OnInit, OnDestroy{
-  equipItemSubscription!: Subscription;
-  handCardsSubscription!: Subscription;
-  tempSubscription!: Subscription;
-  cardSubscriptionList: Subscription[] = [];
-
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   itemsList: ItemCard[] = [];
   cardNameList: string[] = [];
@@ -30,29 +26,34 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
     this.handleCards();
-    this.equipItemSubscription = this.shared.getEquipItemCardClickEvent().subscribe( () => {
-      this.handleCards();
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getEquipItemCardClickEvent().subscribe( () => {
+        this.handleCards();
+      })
+    );
   }
 
   handleCards(){
     this.resetArrays();
-    this.handCardsSubscription = this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+    this.toDeleteSubscription.push(
+      this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
         this.itemsList = data.itemCardList;
         this.fetchCardsFromEngine();
       },
       (error: any) => {
         console.log('player has no cards')
-      });
+      })
+    );
   }
 
   fetchCardsFromEngine(){
     this.itemsList.forEach( (data: ItemCard) => {
-      this.tempSubscription = this.gameEngineService.getCard(data.id).subscribe( (data: Card) => {
-        this.cardNameList.push(data.name);
-        this.cardDescList.push(data.description);
-      });
-      this.cardSubscriptionList.push(this.tempSubscription);
+      this.toDeleteSubscription.push(
+        this.gameEngineService.getCard(data.id).subscribe( (data: Card) => {
+          this.cardNameList.push(data.name);
+          this.cardDescList.push(data.description);
+        })
+      );
     });
   }
 
@@ -63,11 +64,8 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   }
   
   ngOnDestroy(): void {
-      this.cardSubscriptionList.forEach( (s: Subscription) => {
-        s?.unsubscribe();
-      })
-      this.tempSubscription?.unsubscribe();
-      this.handCardsSubscription?.unsubscribe();
-      this.equipItemSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

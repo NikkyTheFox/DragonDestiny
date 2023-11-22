@@ -11,8 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent implements OnDestroy{
-  createUserSubscripiton!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   login!: string
   name!: string;
   password!: string;
@@ -27,17 +26,21 @@ export class SignupComponent implements OnDestroy{
       name: this.name,
       password: this.password
     }
-    this.createUserSubscripiton = this.userService.createUser(user).subscribe((data: any) => {
+    this.toDeleteSubscription.push(
+      this.userService.createUser(user).subscribe((data: any) => {
         this.dataService.loginData = data;
         this.dataService.loginFlag = true;
         this.router.navigate(['/dashboard']);
       },
       (error: any) =>{
         window.alert('Could not create user account');
-      });
+      })
+    );
   }
 
   ngOnDestroy(): void {
-      this.createUserSubscripiton?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

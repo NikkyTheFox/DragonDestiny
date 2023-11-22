@@ -4,11 +4,8 @@ import { GameDataService } from '../../../../../services/game-data.service';
 import { SharedService } from '../../../../../services/shared.service';
 import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
 import { Subscription } from 'rxjs';
-import { Player } from 'src/app/interfaces/played-game/player/player';
 import { Round } from 'src/app/interfaces/played-game/round/round';
 import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
-import { Field as EngineField} from 'src/app/interfaces/game-engine/field/field';
-import { Field } from 'src/app/interfaces/played-game/field/field';
 import { FieldList } from 'src/app/interfaces/played-game/field/field-list';
 
 @Component({
@@ -17,17 +14,10 @@ import { FieldList } from 'src/app/interfaces/played-game/field/field-list';
   styleUrls: ['./game-controls-dice.component.css']
 })
 export class GameControlsDiceComponent implements OnInit, OnDestroy{
-  rollDieSubscription!: Subscription;
-  checkPositionSubscription!: Subscription;
-  endTurnSubscription!: Subscription;
-  fetchFieldDataSubscription!: Subscription;
-  fetchRoundSubscription!: Subscription;
-  fetchPossibleFieldSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   rollValue: number = 0;
   disableRoll: boolean = false;
-
   bossRoomFlag: boolean = false;
   bridgeFlag: boolean = false;
 
@@ -37,10 +27,12 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
-    this.endTurnSubscription = this.shared.getEndTurnEvent().subscribe( () => {
-      this.fetchRound();
-      this.disableRoll = false;
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getEndTurnEvent().subscribe( () => {
+        this.fetchRound();
+        this.disableRoll = false;
+      })
+    );
     this.fetchRound();
     // this.fetchFieldData();
   }
@@ -60,36 +52,41 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
   // }
 
   fetchRound(){
-    this.fetchRoundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      console.log('test round state w kostce:');
-      console.log(data.roundState);
-      // Disables rollDie button if roundState does not allow rolling for move, If so, display roll value from Round
-      this.disableRoll = !(data.roundState == RoundState.WAITING_FOR_MOVE_ROLL);
-      if(this.disableRoll){
-        this.rollValue = data.playerMoveRoll;
-      }
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        console.log('test round state w kostce:');
+        console.log(data.roundState);
+        // Disables rollDie button if roundState does not allow rolling for move, If so, display roll value from Round
+        this.disableRoll = !(data.roundState == RoundState.WAITING_FOR_MOVE_ROLL);
+        if(this.disableRoll){
+          this.rollValue = data.playerMoveRoll;
+        }
+      })
+    );
   }
 
   rollDice(){
-    this.rollDieSubscription = this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
-      this.rollValue = data;
-      this.disableRoll = true;
-      this.checkPositions();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
+        this.rollValue = data;
+        this.disableRoll = true;
+        this.checkPositions();
+      })
+    );
   }
 
   checkPositions(){
-    this.checkPositionSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: FieldList) => {
-      this.dataService.possibleFields = data.fieldList;
-      this.shared.sendDiceRollClickEvent();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: FieldList) => {
+        this.dataService.possibleFields = data.fieldList;
+        this.shared.sendDiceRollClickEvent();
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    this.checkPositionSubscription?.unsubscribe();
-    this.rollDieSubscription?.unsubscribe();
-    this.fetchFieldDataSubscription?.unsubscribe();
-    this.fetchRoundSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

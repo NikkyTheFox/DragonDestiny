@@ -20,17 +20,7 @@ import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
   styleUrls: ['./game-controls-options.component.css']
 })
 export class GameControlsOptionsComponent implements OnInit, OnDestroy{
-  moveClickEventSubscription!: Subscription;
-  checkActionsSubscription!: Subscription;
-  playersFightSubscription!: Subscription;
-  enemyFightSubscription!: Subscription;
-  roundSubscription!: Subscription;
-  tempSubscription!: Subscription;
-  endTurnSubscription!: Subscription;
-  selectOptionSubscription!: Subscription;
-  loseRoundSubscription!: Subscription;
-  characterSubscriptionList: Subscription[] = [];
-  enemySubscriptionList: Subscription[] = [];
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
 
   TAKE_CARD_FLAG: boolean = false;
@@ -59,30 +49,36 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.resetOptions();
     this.fetchRound();
     // this.handleOptions(); // ONLY FOR TEST PURPOSES (SO YOU DONT HAVE TO HIT SPECIAL FIELD) [not anymore?]
-    this.endTurnSubscription = this.shared.getEndTurnEvent().subscribe( () => {
-      this.resetOptions();
-      this.fetchRound();
-    });
-    this.moveClickEventSubscription = this.shared.getMoveCharacterClickEvent().subscribe( () => {
-      this.resetOptions();
-      this.fetchRound();
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getEndTurnEvent().subscribe( () => {
+        this.resetOptions();
+        this.fetchRound();
+      })
+    );
+    this.toDeleteSubscription.push(
+      this.shared.getMoveCharacterClickEvent().subscribe( () => {
+        this.resetOptions();
+        this.fetchRound();
+      })
+    );
   }
 
   fetchRound(){
-    this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
-        /*
-        1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
-        2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
-        */
-        this.actionButtonClickFlag = false;
-        this.handleOptions();
-      }
-      else{
-        this.handleGameContinue(data);
-      }
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
+          /*
+          1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
+          2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
+          */
+          this.actionButtonClickFlag = false;
+          this.handleOptions();
+        }
+        else{
+          this.handleGameContinue(data);
+        }
+      })
+    );
   }
 
   handleOptions(){
@@ -145,46 +141,54 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   getFieldOptions(){
-    this.checkActionsSubscription = this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-      this.checkOptions(data.possibleOptions);
-      console.log(data);
-      this.handleOptionFlags();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+        this.checkOptions(data.possibleOptions);
+        console.log(data);
+        this.handleOptionFlags();
+      })
+    );
   }
 
   handleFightPlayerFlag(){
     if(this.FIGHT_WITH_PLAYER_FLAG){
-      this.playersFightSubscription = this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayerList) => {
-        this.playersToAttack = data.playerList;
-        this.fetchPlayersCharacter();
-      });
+      this.toDeleteSubscription.push(
+        this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayerList) => {
+          this.playersToAttack = data.playerList;
+          this.fetchPlayersCharacter();
+        })
+      );
     }
   }
 
   handleFightEnemyFlag(){
     if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG){
-      this.enemyFightSubscription = this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-        this.enemiesToAttack = data.enemyCardList;
-        this.fetchEnemies();
-      });
+      this.toDeleteSubscription.push(
+        this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
+          this.enemiesToAttack = data.enemyCardList;
+          this.fetchEnemies();
+        })
+      );
     }
   }
 
   fetchPlayersCharacter(){
     this.playersToAttack.forEach( (player: Player) => {
-      this.tempSubscription = this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
-        this.playersToAttackCharacters.push(character);
-      });
-      this.characterSubscriptionList.push(this.tempSubscription);
+      this.toDeleteSubscription.push(
+        this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
+          this.playersToAttackCharacters.push(character);
+        })
+      );
     });
   }
 
   fetchEnemies(){
     this.enemiesToAttack.forEach( (enemy: EnemyCard) => {
-      this.tempSubscription = this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
-        this.enemiesToAttackFromEngine.push(card);
-      });
-      this.enemySubscriptionList.push(this.tempSubscription);
+      this.toDeleteSubscription.push(
+        this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
+          this.enemiesToAttackFromEngine.push(card);
+        })
+      );
     });
   }
 
@@ -230,60 +234,89 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   takeCardClick(){
     if(this.numberOfCardsToBeDrawn == 1){
-      this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
-        this.requestStructure.game!.id, 
-        this.requestStructure.player!.login, 
-        FieldOption.TAKE_ONE_CARD).subscribe( () => {
-          this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
-          this.actionButtonClickFlag = true;
-      });
+      this.toDeleteSubscription.push(
+        this.playedGameService.selectRoundOpiton(
+          this.requestStructure.game!.id, 
+          this.requestStructure.player!.login, 
+          FieldOption.TAKE_ONE_CARD).subscribe( () => {
+            this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
+            this.actionButtonClickFlag = true;
+        })
+      );
     };
     if(this.numberOfCardsToBeDrawn == 2){
-      this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
-        this.requestStructure.game!.id, 
-        this.requestStructure.player!.login, 
-        FieldOption.TAKE_TWO_CARDS).subscribe( () => {
-          this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
-          this.actionButtonClickFlag = true;
-      });
+      this.toDeleteSubscription.push(
+        this.playedGameService.selectRoundOpiton(
+          this.requestStructure.game!.id, 
+          this.requestStructure.player!.login, 
+          FieldOption.TAKE_TWO_CARDS).subscribe( () => {
+            this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
+            this.actionButtonClickFlag = true;
+        })
+      );
     };
   }
 
   loseTurnClick(){
-    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
-      this.requestStructure.game!.id,
-      this.requestStructure.player!.login,
-      FieldOption.LOSE_ONE_ROUND).subscribe( () => {
-        this.loseRoundSubscription = this.playedGameService.automaticallyBlockTurnsOfPlayer(
-          this.requestStructure.game!.id, 
-          this.requestStructure.player!.login).subscribe( () => {
-            this.shared.sendBlockTurnEvent();
-            this.actionButtonClickFlag = true;
-          });
-      });
-    
-
+    if(this.numberOfTurnsToBeLost == 1){
+      this.toDeleteSubscription.push(
+        this.playedGameService.selectRoundOpiton(
+          this.requestStructure.game!.id,
+          this.requestStructure.player!.login,
+          FieldOption.LOSE_ONE_ROUND).subscribe( () => {
+            this.toDeleteSubscription.push(
+              this.playedGameService.automaticallyBlockTurnsOfPlayer(
+                this.requestStructure.game!.id, 
+                this.requestStructure.player!.login).subscribe( () => {
+                  this.shared.sendBlockTurnEvent();
+                  this.actionButtonClickFlag = true;
+                })
+            );
+          })
+      );
+    };
+    if(this.numberOfTurnsToBeLost == 2){
+      this.toDeleteSubscription.push(
+        this.playedGameService.selectRoundOpiton(
+          this.requestStructure.game!.id,
+          this.requestStructure.player!.login,
+          FieldOption.LOSE_TWO_ROUNDS).subscribe( () => {
+            this.toDeleteSubscription.push(
+              this.playedGameService.automaticallyBlockTurnsOfPlayer(
+                this.requestStructure.game!.id, 
+                this.requestStructure.player!.login).subscribe( () => {
+                  this.shared.sendBlockTurnEvent();
+                  this.actionButtonClickFlag = true;
+                })
+            );
+          })
+      );
+    };
   }
 
   attackPlayedClick(enemyPlayedLogin: string){
-    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
-      this.requestStructure.game!.id,
-      this.requestStructure.player!.login,
-      FieldOption.FIGHT_WITH_PLAYER).subscribe( () => {
-        this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
-        this.actionButtonClickFlag = true;
-      }
+    this.toDeleteSubscription.push(
+      this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id,
+        this.requestStructure.player!.login,
+        FieldOption.FIGHT_WITH_PLAYER).subscribe( () => {
+          this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
+          this.actionButtonClickFlag = true;
+        }
+      )
     );
   }
 
   attackEnemyClick(enemyCardId: number){
-    this.selectOptionSubscription = this.playedGameService.selectRoundOpiton(
-      this.requestStructure.game!.id,
-      this.requestStructure.player!.login,
-      FieldOption.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
-        this.shared.sendFightEnemyCardClickEvent(enemyCardId);
-        this.actionButtonClickFlag = true;
-      });
+    this.toDeleteSubscription.push(
+      this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id,
+        this.requestStructure.player!.login,
+        FieldOption.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
+          this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+          this.actionButtonClickFlag = true;
+        })
+    );
   }
 
   resetOptions(){
@@ -303,18 +336,8 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.enemySubscriptionList.forEach( (s: Subscription) => {
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
       s?.unsubscribe();
     });
-    this.characterSubscriptionList.forEach( (s: Subscription) => {
-      s?.unsubscribe();
-    });
-    this.tempSubscription?.unsubscribe();
-    this.enemyFightSubscription?.unsubscribe();
-    this.playersFightSubscription?.unsubscribe();
-    this.checkActionsSubscription?.unsubscribe();
-    this.moveClickEventSubscription?.unsubscribe();
-    this.roundSubscription?.unsubscribe();
-    this.selectOptionSubscription?.unsubscribe();
   }
 }

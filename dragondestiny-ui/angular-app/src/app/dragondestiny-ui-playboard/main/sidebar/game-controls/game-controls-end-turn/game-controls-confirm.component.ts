@@ -12,10 +12,10 @@ import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
   styleUrls: ['./game-controls-confirm.component.css']
 })
 export class GameControlsConfirmComponent implements OnInit, OnDestroy{
-  subscriptionToDelete: Subscription[] = [];
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
-
   disableButtonFlag: boolean = true;
+
   constructor(private shared: SharedService, private playedGameService: PlayedGameService){
 
   }
@@ -24,12 +24,12 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
     this.requestStructure = this.shared.getRequest();
     this.disableButtonFlag = true;
     this.fetchRound();
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.shared.getNotificationCloseEvent().subscribe( () => {
         this.disableButtonFlag = false;
       })
     );
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.shared.getBlockTurnEvent().subscribe( () => {
         this.disableButtonFlag = false;
       })
@@ -37,7 +37,7 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
   }
 
   fetchRound(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
         if(data.roundState == RoundState.WAITING_FOR_NEXT_ROUND){
           this.disableButtonFlag = false;
@@ -47,7 +47,7 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
   }
 
   endTurn(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.setNextRound(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( () => {
         this.shared.sendEndTurnEvent();
         this.disableButtonFlag = true;
@@ -56,7 +56,7 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.subscriptionToDelete.forEach( (s: Subscription) => {
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
       s?.unsubscribe();
     });
   }

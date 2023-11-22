@@ -14,8 +14,7 @@ import { NotificationEnum } from 'src/app/interfaces/played-game/notification/no
 })
 export class StartGameComponent implements OnInit, OnDestroy{
   gameId!: string;
-  toDeleteSubscription: Subscription[] = []
-  webSocketMessagePipe!: Subscription;
+  toDeleteSubscription: Subscription[] = [];
   messageData!: NotificationMessage;
 
   constructor(private playedGameService: PlayedGameService, private router: Router, private shared: SharedService){
@@ -24,12 +23,14 @@ export class StartGameComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.gameId = this.shared.getGame()!.id;
-    this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
-      this.messageData = this.shared.parseNotificationMessage(data);
-      if(this.messageData.notificationOption === NotificationEnum.GAME_STARTED){
-        this.router.navigate(['main']);
-      }
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getSocketMessage().subscribe( (data: any) => {
+        this.messageData = this.shared.parseNotificationMessage(data);
+        if(this.messageData.notificationOption === NotificationEnum.GAME_STARTED){
+          this.router.navigate(['main']);
+        }
+      })
+    );
   }
 
   //to check if logic is not already in PlayedGameService.java
@@ -64,6 +65,5 @@ export class StartGameComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.forEach( (s: Subscription) => {
       s?.unsubscribe();
     });
-    this.webSocketMessagePipe?.unsubscribe();
   }
 }

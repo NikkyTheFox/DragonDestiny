@@ -15,10 +15,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./played-game-list.component.css']
 })
 export class PlayedGameListComponent implements OnInit, OnDestroy{
-  usersGamesSubscription!: Subscription;
-  gameSubscription!: Subscription;
-  dataLoadedEventSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   playerLogin!: string;
   gameList: PlayedGame[] = [];
 
@@ -36,38 +33,46 @@ export class PlayedGameListComponent implements OnInit, OnDestroy{
   }
 
   fetchUserGames(){
-    this.usersGamesSubscription = this.userService.getUsersGames(this.playerLogin).subscribe((data: GameList)=>{
-      data.gameList.forEach( (game: Game) => {
-        this.fetchGameData(game.id);
-      });
-    });
+    this.toDeleteSubscription.push(
+      this.userService.getUsersGames(this.playerLogin).subscribe((data: GameList)=>{
+        data.gameList.forEach( (game: Game) => {
+          this.fetchGameData(game.id);
+        });
+      })
+    );
   }
 
   fetchGameData(playedGameId: string){
-    this.gameSubscription = this.playedGameService.getGame(playedGameId).subscribe( (data: PlayedGame) => {
-      this.gameList.push(data);
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGame(playedGameId).subscribe( (data: PlayedGame) => {
+        this.gameList.push(data);
+      })
+    );
   }
 
   continueGame(clickedGameId: string){
     this.dataService.chosenGame = clickedGameId;
     this.shared.setRequestByID(this.dataService.chosenGame, this.dataService.getPlayerLogin());
-    this.dataLoadedEventSubscription = this.shared.getDataLoadedEvent().subscribe( () => {
-      this.router.navigate(['/main']);
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getDataLoadedEvent().subscribe( () => {
+        this.router.navigate(['/main']);
+      })
+    );
   }
 
   joinGame(clickedGameId: string){
     this.dataService.chosenGame = clickedGameId;
     this.shared.setRequestByID(clickedGameId, this.playerLogin);
-    this.dataLoadedEventSubscription = this.shared.getDataLoadedEvent().subscribe( () => {
-      this.router.navigate(['/preparegame']);
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getDataLoadedEvent().subscribe( () => {
+        this.router.navigate(['/preparegame']);
+      })
+    );
   }
 
   ngOnDestroy(): void {
-      this.dataLoadedEventSubscription?.unsubscribe();
-      this.gameSubscription?.unsubscribe();
-      this.usersGamesSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

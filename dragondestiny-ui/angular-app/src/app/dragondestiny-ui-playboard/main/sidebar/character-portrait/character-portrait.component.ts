@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./character-portrait.component.css']
 })
 export class CharacterPortraitComponent implements OnInit, OnDestroy{
-  characterSubscription!: Subscription;
+  toDeleteSubscription: Subscription[] = [];
 
   @Input() character!: PlayedGameCharacter;
   gameEngineCharacter!: Character;
@@ -19,12 +19,16 @@ export class CharacterPortraitComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(){
-    this.characterSubscription = this.gameEngineService.getCharacter(this.character.id).subscribe((data: Character) => {
-      this.gameEngineCharacter = data;
-    })
+    this.toDeleteSubscription.push(
+      this.gameEngineService.getCharacter(this.character.id).subscribe((data: Character) => {
+        this.gameEngineCharacter = data;
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    this.characterSubscription?.unsubscribe();    
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });   
   }
 }

@@ -13,16 +13,10 @@ import { GameEngineService } from 'src/app/services/game-engine/game-engine.serv
   styleUrls: ['./notification.component.css']
 })
 export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
-  drawCardSubscription!: Subscription;
-  playerFightSubscription!: Subscription;
-  enemyFightSubscription!: Subscription;
-  rollDieSubscription!: Subscription;
-  tempSubscription!: Subscription;
-  subscriptionToDelete: Subscription[] = [];
-
-  requestStructure!: GameDataStructure;
   @Input() notificationType!: number;
   @Input() notificationData!: any;
+  toDeleteSubscription: Subscription[] = [];
+  requestStructure!: GameDataStructure;
 
   dieData: {fightEnemyCondition: boolean, rollValue: number} = {fightEnemyCondition: false, rollValue: 0}
 
@@ -104,13 +98,15 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   handleFightPlayer(){
     // ROLL A DIE
     let roll = 6;
-    this.playerFightSubscription = this.playedGameService.handleFightWithPlayer(
-      this.requestStructure.game!.id,
-      this.requestStructure.player!.login,
-      this.notificationData // login of a Player to fight with
-    ).subscribe( (data: FightResult) => {
-    // Handle fightResult data to be displayed in html file.
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.handleFightWithPlayer(
+        this.requestStructure.game!.id,
+        this.requestStructure.player!.login,
+        this.notificationData // login of a Player to fight with
+      ).subscribe( (data: FightResult) => {
+      // Handle fightResult data to be displayed in html file.
+      })
+    );
   }
 
   recieveDieData(data: { flag: boolean, value: number }){
@@ -140,12 +136,8 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.subscriptionToDelete.forEach( (s: Subscription) => {
-      s.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
     });
-    this.rollDieSubscription?.unsubscribe();
-    this.enemyFightSubscription?.unsubscribe();
-    this.playerFightSubscription?.unsubscribe();
-    this.drawCardSubscription?.unsubscribe();
   }
 }

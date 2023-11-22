@@ -11,10 +11,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   showNotification: boolean = false;
   notificationType: number = 0;
   notificationData: any = null;
-  playerFightSubscription!: Subscription;
-  cardDrawSubscription!: Subscription;
-  enemyFightSubscription!: Subscription;
-  notificationCloseSubscription!: Subscription ;
+  toDeleteSubscription: Subscription[] = [];
 
   constructor(private shared: SharedService) {
   }
@@ -32,27 +29,33 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processCardDraw(){
-    this.cardDrawSubscription = this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: number) => {
-      this.showNotification = true;
-      this.notificationType = 1;
-      this.notificationData = numberOfCards;
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getDrawCardClickEvent().subscribe( (numberOfCards: number) => {
+        this.showNotification = true;
+        this.notificationType = 1;
+        this.notificationData = numberOfCards;
+      })
+    );
   }
 
   processPlayerFight(){
-    this.playerFightSubscription = this.shared.getFightPlayerClickEvent().subscribe( (playerToFightWithLogin: string ) => {
-      this.showNotification = true;
-      this.notificationType = 2;
-      this.notificationData = playerToFightWithLogin;
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getFightPlayerClickEvent().subscribe( (playerToFightWithLogin: string ) => {
+        this.showNotification = true;
+        this.notificationType = 2;
+        this.notificationData = playerToFightWithLogin;
+      })
+    );
   }
 
   processEnemyFight(){
-    this.enemyFightSubscription = this.shared.getFightEnemyCardClickEvent().subscribe( (cardToFightWithID: number) => {
-      this.showNotification = true;
-      this.notificationType = 3;
-      this.notificationData = cardToFightWithID;
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getFightEnemyCardClickEvent().subscribe( (cardToFightWithID: number) => {
+        this.showNotification = true;
+        this.notificationType = 3;
+        this.notificationData = cardToFightWithID;
+      })
+    );
   }
 
   processContinue(){
@@ -60,9 +63,11 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processNotificationClose(){
-    this.notificationCloseSubscription = this.shared.getNotificationCloseEvent().subscribe( () => {
-      this.resetNotification();
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getNotificationCloseEvent().subscribe( () => {
+        this.resetNotification();
+      })
+    );
   }
 
   resetNotification(){
@@ -71,9 +76,8 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-      this.notificationCloseSubscription?.unsubscribe();
-      this.enemyFightSubscription?.unsubscribe();
-      this.playerFightSubscription?.unsubscribe();
-      this.cardDrawSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

@@ -23,15 +23,10 @@ import { Field } from 'src/app/interfaces/played-game/field/field';
   styleUrls: ['./board-field.component.css']
 })
 export class BoardFieldComponent implements OnInit, OnDestroy{
-  boardFieldsSubscription!: Subscription;
-  playersSubscription!: Subscription;
-  changePositionSubscription!: Subscription;
-  roundSubscription!: Subscription;
-  fetchPossibleFieldSubscription!: Subscription;
-
   @Input() board!: Board;
   @Input() fieldIndex!: number;
   @Input() rowIndex!: number;
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!:GameDataStructure;
   fieldList: EngineField[] = [];
   fieldName!: FieldType;
@@ -39,9 +34,6 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   charactersOnField: PlayedGameCharacter[] = [];
   playersInGame: Player[] = [];
   moveFlag: boolean = false;
-  clickDiceRollEventSubscription!: Subscription;
-  clickMoveCharacterEventSubscription!: Subscription;
-  webSocketMessagePipe!: Subscription;
   messageData!: NotificationMessage;
 
   constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService,
@@ -50,43 +42,54 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
-    this.clickDiceRollEventSubscription = this.shared.getDiceRollClickEvent().subscribe( (data: any) => {
-      this.handlePossibleField();
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getDiceRollClickEvent().subscribe( (data: any) => {
+        this.handlePossibleField();
+      })
+    );
     this.resetField();
     this.handleFieldContent();
     this.fetchRound();
-    this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
-      this.messageData = this.shared.parseNotificationMessage(data);
-      if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
-        this.resetField();
-        this.handleFieldContent()
-      }
-    })
+    this.toDeleteSubscription.push(
+      this.shared.getSocketMessage().subscribe( (data: any) => {
+        this.messageData = this.shared.parseNotificationMessage(data);
+        if(this.messageData.notificationOption === NotificationEnum.POSITION_UPDATED){
+          this.resetField();
+          this.handleFieldContent()
+        };
+      })
+    );
+
   }
 
   fetchRound(){
     // sadly must be done in each field in order to 'check' whether a player can move to the field
-    this.roundSubscription = this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-      if(data.roundState == RoundState.WAITING_FOR_FIELDS_TO_MOVE){
-        this.fetchPossibleFieldSubscription = this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-          this.dataService.possibleFields = data.fieldList;
+    this.toDeleteSubscription.push(
+      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        if(data.roundState == RoundState.WAITING_FOR_FIELDS_TO_MOVE){
+          this.toDeleteSubscription.push(
+            this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+              this.dataService.possibleFields = data.fieldList;
+              this.handlePossibleField();
+            })
+          );
+        }
+        if(data.roundState == RoundState.WAITING_FOR_MOVE){
+          this.dataService.possibleFields = data.fieldListToMove;
           this.handlePossibleField();
-        })
-      }
-      if(data.roundState == RoundState.WAITING_FOR_MOVE){
-        this.dataService.possibleFields = data.fieldListToMove;
-        this.handlePossibleField();
-      }      
-    })
+        }      
+      })
+    );
   }
 
   handleFieldContent(){
-    this.boardFieldsSubscription = this.gameService.getBoardFields(this.board.id).subscribe((data: EngineFieldList) => {
-      this.fieldList = data.fieldList;
-      this.retrieveFieldType();
-      this.retrieveCharactersOnField();
-    });
+    this.toDeleteSubscription.push(
+      this.gameService.getBoardFields(this.board.id).subscribe((data: EngineFieldList) => {
+        this.fieldList = data.fieldList;
+        this.retrieveFieldType();
+        this.retrieveCharactersOnField();
+      })
+    );
   }
 
 
@@ -100,16 +103,18 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   }
 
   retrieveCharactersOnField(){
-    this.playersSubscription = this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
-      this.playersInGame = data.playerList;
-      this.playersInGame.forEach( (player: Player) => {
-        this.charactersOnField.push(player.character);
-      });
-      this.charactersOnField = this.charactersOnField.filter( (c : PlayedGameCharacter) => {
-        return c.field?.id === this.fieldId;
-      });
-      this.charactersOnField = this.removeDuplicates(this.charactersOnField);
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: any) => {
+        this.playersInGame = data.playerList;
+        this.playersInGame.forEach( (player: Player) => {
+          this.charactersOnField.push(player.character);
+        });
+        this.charactersOnField = this.charactersOnField.filter( (c : PlayedGameCharacter) => {
+          return c.field?.id === this.fieldId;
+        });
+        this.charactersOnField = this.removeDuplicates(this.charactersOnField);
+      })
+    );
   }
 
   handlePossibleField(){
@@ -128,9 +133,11 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   }
 
   moveCharacter(fieldId: number){
-    this.changePositionSubscription = this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe( () => {
-      this.shared.sendMoveCharacterClickEvent();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.changeFieldPositionOfCharacter(this.requestStructure.game!.id, this.requestStructure.player!.login, fieldId).subscribe( () => {
+        this.shared.sendMoveCharacterClickEvent();
+      })
+    );
   }
 
   removeDuplicates(array: PlayedGameCharacter[]) {
@@ -150,10 +157,8 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
-      this.changePositionSubscription?.unsubscribe();
-      this.playersSubscription?.unsubscribe();
-      this.boardFieldsSubscription?.unsubscribe();
-      this.webSocketMessagePipe?.unsubscribe();
-      this.clickDiceRollEventSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }
