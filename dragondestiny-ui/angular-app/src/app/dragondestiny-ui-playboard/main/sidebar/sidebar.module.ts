@@ -7,9 +7,9 @@ import { CharacterPortraitComponent } from './character-portrait/character-portr
 import { CharacterStatisticsComponent } from './character-statistics/character-statistics.component';
 import { CharacterStatisticsStatComponent } from './character-statistics-stat/character-statistics-stat.component';
 import { GameControlsComponent } from './game-controls/game-controls.component';
-import { GameControlsConfirmComponent } from './game-controls-end-turn/game-controls-confirm.component';
-import { GameControlsDiceComponent } from './game-controls-dice/game-controls-dice.component';
-import { GameControlsOptionsComponent } from './game-controls-options/game-controls-options.component';
+import { GameControlsConfirmComponent } from './game-controls/game-controls-end-turn/game-controls-confirm.component';
+import { GameControlsDiceComponent } from './game-controls/game-controls-dice/game-controls-dice.component';
+import { GameControlsOptionsComponent } from './game-controls/game-controls-options/game-controls-options.component';
 
 @NgModule({
   declarations: [

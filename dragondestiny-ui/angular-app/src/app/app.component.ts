@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { SharedService } from './services/shared.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,16 +6,5 @@ import { SharedService } from './services/shared.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent{
-  title = 'Dragon Destiny'
-
-  // constructor(private shared: SharedService){
-
-  // }
-
-  // ngOnInit(): void {
-  //     this.shared.getSocketMessage().subscribe( (data: any) => {
-  //       console.log(data);
-  //     });
-  // }
-  
+  title = 'Dragon Destiny'  
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GameDataService } from '../services/game-data.service';
-import { SharedService } from "../services/shared.service";
+import { SharedService } from '../services/shared.service';
 
 @Component({
   selector: 'app-prepare-game',

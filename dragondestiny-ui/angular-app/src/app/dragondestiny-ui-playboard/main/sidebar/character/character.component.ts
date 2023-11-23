@@ -1,8 +1,7 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { SharedService } from "../../../../services/shared.service";
+import { SharedService } from '../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 import { Player } from 'src/app/interfaces/played-game/player/player';
 
@@ -12,9 +11,7 @@ import { Player } from 'src/app/interfaces/played-game/player/player';
   styleUrls: ['./character.component.css']
 })
 export class CharacterComponent implements OnInit, OnDestroy{
-  updateStatisticsSubscription!: Subscription;
-  characterSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   player!: Player;
 
@@ -25,19 +22,24 @@ export class CharacterComponent implements OnInit, OnDestroy{
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
     this.fetchPlayer();
-    this.updateStatisticsSubscription = this.shared.getUpdateStatisticsEvent().subscribe( () => {
-      this.fetchPlayer();
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getUpdateStatisticsEvent().subscribe( () => {
+        this.fetchPlayer();
+      })
+    );
   }
 
   fetchPlayer(){
-    this.characterSubscription = this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
-      this.player = data;
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
+        this.player = data;
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    this.characterSubscription?.unsubscribe();
-    this.updateStatisticsSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

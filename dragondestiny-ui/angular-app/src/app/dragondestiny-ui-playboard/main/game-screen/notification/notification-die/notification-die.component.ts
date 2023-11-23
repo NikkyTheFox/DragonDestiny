@@ -1,6 +1,6 @@
 import { PlayedGameService } from './../../../../../services/played-game/played-game-service';
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { GameDataStructure } from 'src/app/interfaces/game-data-structure';
 import { SharedService } from 'src/app/services/shared.service';
 
@@ -12,8 +12,7 @@ import { SharedService } from 'src/app/services/shared.service';
 
 export class NotificationDieComponent implements OnInit, OnDestroy {
   @Output() outputCondition = new EventEmitter<{flag: boolean, value: number}>();
-
-  rollDieSubscription!: Subscription;
+  toDeleteSubscription: Subscription[] = [];
   rollValue: number = 0;
   requestStructure!: GameDataStructure;
 
@@ -26,18 +25,22 @@ export class NotificationDieComponent implements OnInit, OnDestroy {
   }
 
   rollDie(){
-    this.rollDieSubscription = this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
-      this.rollValue = data;
-      this.outputCondition.emit(
-        {
-          flag: true, 
-          value: data
-        }
-      );
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe((data: number) => {
+        this.rollValue = data;
+        this.outputCondition.emit(
+          {
+            flag: true, 
+            value: data
+          }
+        );
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    this.rollDieSubscription?.unsubscribe;
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

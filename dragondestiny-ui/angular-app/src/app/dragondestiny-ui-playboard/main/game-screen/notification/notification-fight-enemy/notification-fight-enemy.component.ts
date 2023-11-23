@@ -24,8 +24,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   @Output() finishConditionChange = new EventEmitter<boolean>();
   @Output() cardFightCondition = new EventEmitter<boolean>();
 
-  subscriptionToDelete: Subscription[] = [];
-
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   fightResult!: FightResult;
   cardToDisplay!: EngineCard;
@@ -52,7 +51,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   checkField(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.getPlayer(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Player) => {
         if(data.character.field!.id == this.requestStructure.bossFieldId!){
           this.bossRoomFlag = true;
@@ -66,8 +65,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   fetchEnemy(){
-    console.log(this.bridgeFlag);
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
         let chosenEnemy!: EnemyCard;
         data.enemyCardList.forEach( (ec: EnemyCard) => {
@@ -86,11 +84,9 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   handleEnemyCard(data: EnemyCard){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
         this.cardToDisplay = data;
-        console.log('card to display test V')
-        console.log(this.cardToDisplay);
         this.cardFightCondition.emit(true); // show Roll Die Button in Parent Component
       })
     );
@@ -98,7 +94,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
 
   fightEnemyFromField(){
     this.playerRoll = this.dieData.rollValue;
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: number) => {
         this.enemyRoll = data;
         this.handleFightEnemyField();
@@ -107,15 +103,12 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   handleFightEnemyField(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.handleFightWithEnemyCard(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        // this.playerRoll,
         this.cardToDisplay.id,
-        // this.enemyRoll
       ).subscribe( (data: FightResult) => {
-        console.log(data);
         this.fightResult = data;
         this.reset();
         this.fightResultCondition = true;
@@ -129,7 +122,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   goToBoss(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.changeFieldPositionOfCharacter(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
@@ -143,7 +136,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   }
 
   goToBridge(){
-    this.subscriptionToDelete.push(
+    this.toDeleteSubscription.push(
       this.playedGameService.changeFieldPositionOfCharacter(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
@@ -165,13 +158,11 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   reset(){
     this.fightResultCondition = false;
     this.showFightEnemyCardConditionBoolean = false;
-    // this.bridgeFlag = false;
-    // this.bossRoomFlag = false;
     this.dieData = {fightEnemyCondition: false, rollValue: 0};
   }
 
   ngOnDestroy(): void {
-    this.subscriptionToDelete.forEach( (s: Subscription) => {
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
       s.unsubscribe();
     });
   }

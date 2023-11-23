@@ -4,7 +4,7 @@ import { Board } from '../../../../interfaces/game-engine/board/board';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { PlayedGame } from '../../../../interfaces/played-game/played-game/played-game';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { SharedService } from "../../../../services/shared.service";
+import { SharedService } from '../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,9 +13,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit, OnChanges, OnDestroy{
-  gameSubscription!: Subscription;
-  boardSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   board !: Board;
   rowArray: number[] = [];
@@ -34,12 +32,16 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy{
   }
 
   handleRows(){
-    this.gameSubscription = this.playedGameService.getGame(this.requestStructure.game!.id).subscribe( (data: PlayedGame) => {
-      this.boardSubscription = this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
-        this.board = data;
-        this.prepareRowArray();
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGame(this.requestStructure.game!.id).subscribe( (data: PlayedGame) => {
+        this.toDeleteSubscription.push(
+          this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
+            this.board = data;
+            this.prepareRowArray();
+          })
+        );
       })
-    })
+    );
   }
 
   prepareRowArray(){
@@ -50,7 +52,8 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy{
   }
 
   ngOnDestroy(): void {
-      this.boardSubscription?.unsubscribe();
-      this.gameSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

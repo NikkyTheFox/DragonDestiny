@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Character } from '../../../../interfaces/game-engine/character/character';
 import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./character-portrait.component.css']
 })
 export class CharacterPortraitComponent implements OnInit, OnDestroy{
-  characterSubscription!: Subscription;
+  toDeleteSubscription: Subscription[] = [];
 
   @Input() character!: PlayedGameCharacter;
   gameEngineCharacter!: Character;
@@ -19,12 +19,16 @@ export class CharacterPortraitComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(){
-    this.characterSubscription = this.gameEngineService.getCharacter(this.character.id).subscribe((data: Character) => {
-      this.gameEngineCharacter = data;
-    })
+    this.toDeleteSubscription.push(
+      this.gameEngineService.getCharacter(this.character.id).subscribe((data: Character) => {
+        this.gameEngineCharacter = data;
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    this.characterSubscription?.unsubscribe();    
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });   
   }
 }

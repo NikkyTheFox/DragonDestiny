@@ -20,6 +20,7 @@ import { ItemCardList } from '../../interfaces/played-game/card/item-card/item-c
 import { EnemyCardList } from '../../interfaces/played-game/card/enemy-card/enemy-card-list';
 import { FieldOptionList } from '../../interfaces/played-game/field/field-option-list';
 import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
+import { FieldOptionEnum } from 'src/app/interfaces/played-game/field/field-option-enum';
 
 @Injectable({
   providedIn: 'root'
@@ -62,7 +63,8 @@ export class PlayedGameService{
     return this.http.put<Round>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/round/next`, null);
   }
 
-  selectRoundOpiton(playedGameId: string, playerLogin: string, fieldOption: FieldOption){
+  // Works when using FieldOptionEnum instead of FieldOption
+  selectRoundOpiton(playedGameId: string, playerLogin: string, fieldOption: FieldOptionEnum){
     return this.http.put(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/action/${fieldOption}`, null);
   }
 

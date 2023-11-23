@@ -1,9 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
-
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
-import {SharedService} from "../../services/shared.service";
+import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -13,7 +12,6 @@ import { Subscription } from 'rxjs';
 })
 export class CreateGameComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
-  tempSubscription!: Subscription;
 
   playerLogin!: string;
   selectedOption: number = 1;

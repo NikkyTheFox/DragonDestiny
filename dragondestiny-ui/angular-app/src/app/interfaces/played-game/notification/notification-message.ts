@@ -1,4 +1,4 @@
-import { NotificationEnum } from "./notification-enum";
+import { NotificationEnum } from './notification-enum';
 
 export interface NotificationMessage{
     notificationOption: NotificationEnum;

@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from "./header/header.component";
-import { HeaderLeftComponent } from "./header-left/header-left.component";
-import { HeaderMiddleComponent } from "./header-middle/header-middle.component";
-import { HeaderRightComponent } from "./header-right/header-right.component";
-import { RouterLink } from "@angular/router";
+import { HeaderComponent } from './header/header.component';
+import { HeaderLeftComponent } from './header/header-left/header-left.component';
+import { HeaderMiddleComponent } from './header/header-middle/header-middle.component';
+import { HeaderRightComponent } from './header/header-right/header-right.component';
+import { RouterLink } from '@angular/router';
 
 
 

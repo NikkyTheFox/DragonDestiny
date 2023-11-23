@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../services/user/user.service';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { User } from '../../interfaces/user/user/user';
-import { SharedService } from "../../services/shared.service";
+import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -11,9 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./invite-player.component.css']
 })
 export class InvitePlayerComponent implements OnInit, OnDestroy{
-  playerSubscription!: Subscription;
-  userSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   gameId!: string;
   playerToInvite!: string;
 
@@ -26,16 +24,21 @@ export class InvitePlayerComponent implements OnInit, OnDestroy{
   }
 
   sendInvite(){
-    this.userSubscription = this.userService.getUserByLogin(this.playerToInvite).subscribe( (data: User) => {
-        this.playerSubscription = this.playedGameService.addPlayerToGameByLogin(this.gameId, data.login).subscribe();
+    this.toDeleteSubscription.push(
+      this.userService.getUserByLogin(this.playerToInvite).subscribe( (data: User) => {
+        this.toDeleteSubscription.push(
+          this.playedGameService.addPlayerToGameByLogin(this.gameId, data.login).subscribe()
+        );
     },
       (error: any) => {
       window.alert('No such user. Please provide valid nickname.');
-    });
+    })
+    );
   }
 
   ngOnDestroy(): void {
-    this.playerSubscription?.unsubscribe();
-    this.userSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

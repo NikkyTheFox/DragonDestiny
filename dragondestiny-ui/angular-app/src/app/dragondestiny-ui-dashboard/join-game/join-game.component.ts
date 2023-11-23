@@ -11,9 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./join-game.component.css']
 })
 export class JoinGameComponent implements OnInit, OnDestroy{
-  gameSubscription!: Subscription;
-  addPlayerSubscription!: Subscription;
-
+  toDeleteSubscription: Subscription[] = [];
   playerLogin!: string;
   gameId!: string;
 
@@ -26,23 +24,29 @@ export class JoinGameComponent implements OnInit, OnDestroy{
   }
 
   joinGame(){
-    this.gameSubscription = this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
-      if(data.isStarted){
-        window.alert('Game has already started, you cannot join it.');
-      }
-      else{
-        this.addPlayerSubscription = this.playedGameService.addPlayerToGameByLogin(this.gameId, this.playerLogin).subscribe();
-        this.dataService.chosenGame = this.gameId;
-        this.router.navigate(['preparegame']);
-      }
-    },
-      (error: any) => {
-      window.alert('Game not found');
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGame(this.gameId).subscribe( (data: PlayedGame) => {
+        if(data.isStarted){
+          window.alert('Game has already started, you cannot join it.');
+        }
+        else{
+          this.toDeleteSubscription.push(
+            this.playedGameService.addPlayerToGameByLogin(this.gameId, this.playerLogin).subscribe( () => {
+              this.dataService.chosenGame = this.gameId;
+              this.router.navigate(['preparegame']);
+            })
+          );
+        }
+      },
+        (error: any) => {
+        window.alert('Game not found');
+      })
+    );
   }
 
   ngOnDestroy(): void {
-      this.addPlayerSubscription?.unsubscribe();
-      this.gameSubscription?.unsubscribe();
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
   }
 }

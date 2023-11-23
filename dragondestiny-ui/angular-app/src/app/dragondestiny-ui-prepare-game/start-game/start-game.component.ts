@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { Player } from '../../interfaces/played-game/player/player';
-import { SharedService } from "../../services/shared.service";
+import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
@@ -14,8 +14,7 @@ import { NotificationEnum } from 'src/app/interfaces/played-game/notification/no
 })
 export class StartGameComponent implements OnInit, OnDestroy{
   gameId!: string;
-  toDeleteSubscription: Subscription[] = []
-  webSocketMessagePipe!: Subscription;
+  toDeleteSubscription: Subscription[] = [];
   messageData!: NotificationMessage;
 
   constructor(private playedGameService: PlayedGameService, private router: Router, private shared: SharedService){
@@ -24,13 +23,14 @@ export class StartGameComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.gameId = this.shared.getGame()!.id;
-    this.webSocketMessagePipe = this.shared.getSocketMessage().subscribe( (data: any) => {
-
-      this.messageData = this.shared.parseNotificationMessage(data);
-      if(this.messageData.notificationOption === NotificationEnum.GAME_STARTED){
-        this.router.navigate(['main']);
-      }
-    });
+    this.toDeleteSubscription.push(
+      this.shared.getSocketMessage().subscribe( (data: any) => {
+        this.messageData = this.shared.parseNotificationMessage(data);
+        if(this.messageData.notificationOption === NotificationEnum.GAME_STARTED){
+          this.router.navigate(['main']);
+        }
+      })
+    );
   }
 
   //to check if logic is not already in PlayedGameService.java
@@ -46,16 +46,14 @@ export class StartGameComponent implements OnInit, OnDestroy{
         });
         if(charactersFlag){
           this.toDeleteSubscription.push(
-            this.playedGameService.startGame(this.gameId).subscribe(() => {
-            // this.router.navigate(['main']);
-            })
+            this.playedGameService.startGame(this.gameId).subscribe(() => {})
           )
         }
         else {
           window.alert('Not every player has chosen a character');
-        }
+        };
       })
-    )
+    );
   }
 
   isEmpty(character: any){
@@ -67,6 +65,5 @@ export class StartGameComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.forEach( (s: Subscription) => {
       s?.unsubscribe();
     });
-    this.webSocketMessagePipe?.unsubscribe();
   }
 }
