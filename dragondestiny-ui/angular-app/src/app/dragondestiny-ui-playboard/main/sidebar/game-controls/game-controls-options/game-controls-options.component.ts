@@ -1,3 +1,4 @@
+import { FieldOptionEnum } from './../../../../../interfaces/played-game/field/field-option-enum';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
 import { SharedService } from '../../../../../services/shared.service';
@@ -86,10 +87,11 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   handleGameContinue(round: Round){
+    console.log('Round w control-options')
     console.log(round)
     if(round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
       this.actionButtonClickFlag = false;
-      this.checkOptions(round.fieldOptionList.possibleOptions as [])
+      this.checkOptions(round.fieldOptionList.possibleOptions)
       this.handleOptionFlags();
     }
     if(round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
@@ -103,7 +105,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         2. WAITING_FOR_CARD_TO_HAND => moveItemCardFromDeckToPlayerHand()
           3. (optional) WAITING_FOR_CARD_TO_USED => moveCardFromPlayerHandToUsedCardDeck() | only when hand is full, queued by method above
       */
-      if(round.fieldOptionChosen == FieldOption.TAKE_ONE_CARD){ // Draw one card field
+      if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_ONE_CARD){ // Draw one card field
         this.shared.sendDrawCardClickEvent(1 - round.playerNumberOfCardsTaken);
       }
       else{ // Draw two cards field
@@ -192,9 +194,9 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     });
   }
 
-  checkOptions(optionList: []){
+  checkOptions(optionList: FieldOption[]){
     optionList.forEach( (option) => {
-      switch (option){
+      switch (option.fieldOptionEnum){
         case 'TAKE_ONE_CARD':
           this.TAKE_CARD_FLAG = true;
           this.numberOfCardsToBeDrawn = 1;
@@ -238,7 +240,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.playedGameService.selectRoundOpiton(
           this.requestStructure.game!.id, 
           this.requestStructure.player!.login, 
-          FieldOption.TAKE_ONE_CARD).subscribe( () => {
+          FieldOptionEnum.TAKE_ONE_CARD).subscribe( () => {
             this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
             this.actionButtonClickFlag = true;
         })
@@ -249,7 +251,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.playedGameService.selectRoundOpiton(
           this.requestStructure.game!.id, 
           this.requestStructure.player!.login, 
-          FieldOption.TAKE_TWO_CARDS).subscribe( () => {
+          FieldOptionEnum.TAKE_TWO_CARDS).subscribe( () => {
             this.shared.sendDrawCardClickEvent(this.numberOfCardsToBeDrawn);
             this.actionButtonClickFlag = true;
         })
@@ -263,7 +265,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.playedGameService.selectRoundOpiton(
           this.requestStructure.game!.id,
           this.requestStructure.player!.login,
-          FieldOption.LOSE_ONE_ROUND).subscribe( () => {
+          FieldOptionEnum.LOSE_ONE_ROUND).subscribe( () => {
             this.toDeleteSubscription.push(
               this.playedGameService.automaticallyBlockTurnsOfPlayer(
                 this.requestStructure.game!.id, 
@@ -280,7 +282,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.playedGameService.selectRoundOpiton(
           this.requestStructure.game!.id,
           this.requestStructure.player!.login,
-          FieldOption.LOSE_TWO_ROUNDS).subscribe( () => {
+          FieldOptionEnum.LOSE_TWO_ROUNDS).subscribe( () => {
             this.toDeleteSubscription.push(
               this.playedGameService.automaticallyBlockTurnsOfPlayer(
                 this.requestStructure.game!.id, 
@@ -299,7 +301,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       this.playedGameService.selectRoundOpiton(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        FieldOption.FIGHT_WITH_PLAYER).subscribe( () => {
+        FieldOptionEnum.FIGHT_WITH_PLAYER).subscribe( () => {
           this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
           this.actionButtonClickFlag = true;
         }
@@ -312,7 +314,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       this.playedGameService.selectRoundOpiton(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        FieldOption.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
+        FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
           this.shared.sendFightEnemyCardClickEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })
