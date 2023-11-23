@@ -54,6 +54,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Represents REST controller, allows to handle requests to get played game's data.
@@ -1035,7 +1036,8 @@ public class PlayedGameController {
     public ResponseEntity getPlayersPossibleActions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<FieldOptionList> fieldOptionList = playedGameService.checkFieldOption(playedGameId, playerLogin);
-            return fieldOptionList.map(optionList -> ResponseEntity.ok().body(new FieldOptionListDTO(optionList.getPossibleOptions())))
+            return fieldOptionList.map(optionList -> ResponseEntity.ok().body(new FieldOptionListDTO(
+                            optionList.getPossibleOptions().stream().map(fieldOption -> fieldOption.toDTO()).collect(Collectors.toList()))))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
@@ -1061,8 +1063,16 @@ public class PlayedGameController {
     public ResponseEntity getPlayersToFightWith(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<PlayerList> playerList = playedGameService.findDifferentPlayersByField(playedGameId, playerLogin);
-            return playerList.map(list -> ResponseEntity.ok().body(playedGameService.convertPlayerListToDTO(modelMapper, list)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+            if (playerList.isPresent()) {
+                try {
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_ATTACKED));
+                    return ResponseEntity.ok().body(playedGameService.convertPlayerListToDTO(modelMapper, playerList.get()));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());
         } catch (IllegalGameStateException ex) {
@@ -1254,7 +1264,6 @@ public class PlayedGameController {
             Optional<FightResult> fightResult = playedGameService.calculateFightWithPlayer(playedGameId, playerLogin, enemyPlayerLogin);
             if (fightResult.isPresent()) {
                 try {
-                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_ATTACKED));
                     if (fightResult.get().getWonPlayer() != null) {
                         gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, fightResult.get().getWonPlayer(), true));
                         gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.PLAYER_FIGHT, fightResult.get().getLostPlayer(), false));

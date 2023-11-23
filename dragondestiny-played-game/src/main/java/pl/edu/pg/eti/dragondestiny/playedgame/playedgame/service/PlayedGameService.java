@@ -862,17 +862,34 @@ public class PlayedGameService {
     public Optional<PlayedGame> moveCardFromPlayerToUsedCardDeck(String playedGameId, String playerLogin, Integer cardId) throws IllegalGameStateException {
         PlayedGame playedGame = checkGame(playedGameId);
         Player player = checkCompletePlayer(playedGameId, playerLogin);
-        Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_CARD_TO_USED);
-
+        if (!playedGame.getIsStarted()) {
+            throw new IllegalGameStateException(GameNotStartedMessage);
+        }
+        Round activeRound = playedGame.getActiveRound();
+        if (!activeRound.getRoundState().equals(RoundState.WAITING_FOR_CARD_TO_USED)) {
+            throw new IllegalGameStateException(PlayerWrongActionMessage);
+        }
         Optional<ItemCard> itemCard = findCardInPlayerHand(playedGameId, playerLogin, cardId);
         if (itemCard.isEmpty()) {
             throw new NoSuchElementException(CardNotFoundMessage);
         }
         Card card = itemCard.get();
-        player.removeCardFromPlayer(card);
-        playedGame.addCardToUsedDeck(card);
-        updatePlayer(playedGame, player);
-        activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+
+        if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
+            if (!activeRound.getEnemyPlayerFought().getLogin().equals(playerLogin)) {
+                throw new IllegalGameStateException(PlayerIsNotActiveMessage);
+            } else {
+                player.removeCardFromPlayer(card);
+                playedGame.addCardToUsedDeck(card);
+                updatePlayer(playedGame, player);
+                activeRound.nextRoundState();
+            }
+        } else {
+            player.removeCardFromPlayer(card);
+            playedGame.addCardToUsedDeck(card);
+            updatePlayer(playedGame, player);
+            activeRound.setRoundState(RoundState.WAITING_FOR_CARD_TO_HAND);
+        }
         playedGame.setActiveRound(activeRound);
         return Optional.of(playedGameRepository.save(playedGame));
     }
@@ -1030,7 +1047,10 @@ public class PlayedGameService {
             list.getPossibleOptions().add(FieldOption.BOSS_FIELD);
         }
         if (!enemyPlayerList.isEmpty()) {
-            list.getPossibleOptions().add(FieldOption.FIGHT_WITH_PLAYER);
+            Player enemyPlayer = playedGameRepository.findDifferentPlayersByField(playedGameId, playerLogin, player.getCharacter().getField().getId()).get(0);
+            FieldOption fieldOption = FieldOption.FIGHT_WITH_PLAYER;
+            fieldOption.enemyPlayer = enemyPlayer;
+            list.getPossibleOptions().add(fieldOption);
         }
         Optional<EnemyCardList> enemyCardList = findEnemyCardsOnField(playedGameId, field.getId());
         if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty() && field.getType() != FieldType.BOSS_FIELD && field.getType() != FieldType.BRIDGE_FIELD) {
@@ -1197,6 +1217,9 @@ public class PlayedGameService {
                     }
                 }
             } else {
+                if (player.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
+                    activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+                }
                 activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
@@ -1214,6 +1237,9 @@ public class PlayedGameService {
                     }
                 }
             } else {
+                if (player.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
+                    activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
+                }
                 activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
                 fightResult.setChooseCardFromEnemyPlayer(true);
             }
@@ -1236,7 +1262,7 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = 1;//random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = 2; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
         if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {

@@ -2,7 +2,6 @@ package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOption;
 
 import java.util.List;
 
@@ -16,5 +15,5 @@ public class FieldOptionListDTO {
     /**
      * A list of actions possible to take while standing on a given field
      */
-    private List<FieldOption> possibleOptions;
+    private List<FieldOptionDTO> possibleOptions;
 }
