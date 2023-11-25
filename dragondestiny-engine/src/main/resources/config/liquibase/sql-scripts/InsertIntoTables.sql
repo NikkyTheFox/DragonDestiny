@@ -10,139 +10,361 @@ VALUES (1)
 -- CARDS
 INSERT INTO cards
 VALUES ('Wild Bear', 'Wild Bear', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (1, 1, 4);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Crazy Boar', 'Crazy Boar', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (2, 1, 2);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Omnivorous Hydra', 'Omnivorous Hydra', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (3, 1, 5);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Aggressive Parrot', 'Aggressive Parrot', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (4, 1, 3);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Vicious Snake', 'Vicious Snake', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (5, 1, 6);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Furious Werewolf', 'Furious Werewolf', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (6, 1, 7);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Abominable Snowman', 'Abominable Snowman', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (7, 1, 7);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Ginny', 'Ginny is a Bridge Guardian, self independent female lizard. She protects the Dragostar''s lair. ', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (8, 1, 15);
 
 INSERT INTO cards (name, description, card_type)
 VALUES ('Dragostar', 'Dragostar was a dear friend and a cook of previous big dragon boss - Puterox. He then suddenly decided to poison his master and kill him. Now he rules the Mountain Of Doom and owns the treasure.', 'ENEMY_CARD')
-
 INSERT INTO enemy_cards
 VALUES (9, 5, 20);
 
 INSERT INTO cards
 VALUES ('Dwarven Axe', 'Dwarven Axe', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (10, 2, 0);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Mighty Hammer', 'Mighty Hammer', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (11, 3, 0);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Wooden Lute', 'Wooden Lute', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (12, 1, 1);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Magic Silver Mask', 'Magic Silver Mask', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (13, 0, 2);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Elven Shield', 'Elven Shield', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (14, 0, 2);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Shining Sword', 'Shining Sword', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (15, 2, 0);
-
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
 INSERT INTO cards
 VALUES ('Last Offer Wheelchair', 'Last Offer Wheelchair', 'ITEM_CARD')
-
 INSERT INTO item_cards
 VALUES (16, 0, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
+INSERT INTO cards
+VALUES ('Wild Bear', 'Wild Bear', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (17, 1, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Crazy Boar', 'Crazy Boar', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (18, 1, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Omnivorous Hydra', 'Omnivorous Hydra', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (19, 1, 5);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Aggressive Parrot', 'Aggressive Parrot', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (20, 1, 3);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Vicious Snake', 'Vicious Snake', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (21, 1, 6);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Furious Werewolf', 'Furious Werewolf', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (22, 1, 7);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Abominable Snowman', 'Abominable Snowman', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (23, 1, 7);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Wild Bear', 'Wild Bear', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (24, 1, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Crazy Boar', 'Crazy Boar', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (25, 1, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Omnivorous Hydra', 'Omnivorous Hydra', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (26, 1, 5);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Aggressive Parrot', 'Aggressive Parrot', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (27, 1, 3);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Vicious Snake', 'Vicious Snake', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (28, 1, 6);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Furious Werewolf', 'Furious Werewolf', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (29, 1, 7);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Abominable Snowman', 'Abominable Snowman', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (30, 1, 7);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Dwarven Axe', 'Dwarven Axe', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (31, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Mighty Hammer', 'Mighty Hammer', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (32, 3, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Wooden Lute', 'Wooden Lute', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (33, 1, 1);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Magic Silver Mask', 'Magic Silver Mask', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (34, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Elven Shield', 'Elven Shield', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (35, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Shining Sword', 'Shining Sword', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (36, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Last Offer Wheelchair', 'Last Offer Wheelchair', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (37, 0, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Dwarven Axe', 'Dwarven Axe', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (38, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Mighty Hammer', 'Mighty Hammer', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (39, 3, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Wooden Lute', 'Wooden Lute', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (40, 1, 1);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Magic Silver Mask', 'Magic Silver Mask', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (41, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Elven Shield', 'Elven Shield', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (42, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Shining Sword', 'Shining Sword', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (43, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Last Offer Wheelchair', 'Last Offer Wheelchair', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (44, 0, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Elven Shield', 'Elven Shield', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (45, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Shining Sword', 'Shining Sword', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (46, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Elven Shield', 'Elven Shield', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (47, 0, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Shining Sword', 'Shining Sword', 'ITEM_CARD')
+INSERT INTO item_cards
+VALUES (48, 2, 0);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Wild Bear', 'Wild Bear', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (49, 1, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Crazy Boar', 'Crazy Boar', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (50, 1, 2);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Wild Bear', 'Wild Bear', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (51, 1, 4);
+INSERT INTO games_cards
+SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
+
+INSERT INTO cards
+VALUES ('Crazy Boar', 'Crazy Boar', 'ENEMY_CARD')
+INSERT INTO enemy_cards
+VALUES (52, 1, 2);
 INSERT INTO games_cards
 SELECT IDENT_CURRENT('games'), (SELECT IDENT_CURRENT('cards'))
 
