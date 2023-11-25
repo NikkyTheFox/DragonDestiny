@@ -1169,7 +1169,6 @@ public class PlayedGameService {
                 }
             }
         }
-        activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
         activeRound.nextRoundState();
         playedGame.setActiveRound(activeRound);
         playedGameRepository.save(playedGame);
@@ -1262,7 +1261,7 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = 2; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
         if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
