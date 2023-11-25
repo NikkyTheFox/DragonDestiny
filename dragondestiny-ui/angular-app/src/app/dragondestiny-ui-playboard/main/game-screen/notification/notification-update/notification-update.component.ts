@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-notification-update',
@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./notification-update.component.css']
 })
 export class NotificationUpdateComponent {
-
+  @Input() notificationData!: string;
 }

@@ -108,8 +108,8 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
           this.finishCondition = true;
           this.finishConditionChange.emit(this.finishCondition);
         }
-        this.shared.sendUpdateStatisticsEvent();
-        this.shared.sendEquipItemCardClickEvent();
+        this.shared.sendRefreshCharacterStatsEvent();
+        this.shared.sendRefreshHandCardsEvent();
       })
     )
   }

@@ -121,7 +121,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
         this.requestStructure.game!.id, 
         this.cardToDisplay!.id, 
         this.requestStructure.player!.login).subscribe( () => {
-          this.shared.sendEquipItemCardClickEvent();
+          this.shared.sendRefreshHandCardsEvent();
           this.reset();
           this.actionFinished.emit();
         }
@@ -167,13 +167,13 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   getTrophy(){
-    this.shared.sendUpdateStatisticsEvent();
+    this.shared.sendRefreshCharacterStatsEvent();
     this.reset();
     this.actionFinished.emit()
   }
 
   acceptLoss(){
-    this.shared.sendUpdateStatisticsEvent();
+    this.shared.sendRefreshCharacterStatsEvent();
     this.actionFinished.emit();
   }
 

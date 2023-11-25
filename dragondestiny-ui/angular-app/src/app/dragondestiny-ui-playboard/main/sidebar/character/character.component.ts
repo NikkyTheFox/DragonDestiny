@@ -23,7 +23,7 @@ export class CharacterComponent implements OnInit, OnDestroy{
     this.requestStructure = this.shared.getRequest();
     this.fetchPlayer();
     this.toDeleteSubscription.push(
-      this.shared.getUpdateStatisticsEvent().subscribe( () => {
+      this.shared.getRefreshCharacterStatsEvent().subscribe( () => {
         this.fetchPlayer();
       })
     );

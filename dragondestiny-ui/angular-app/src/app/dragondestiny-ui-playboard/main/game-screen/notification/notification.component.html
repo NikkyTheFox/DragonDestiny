@@ -52,6 +52,13 @@
   ></app-notification-defend>
 </div>
 
+<!-- GAME UPDATE NOTIFICATION -->
+<div *ngIf="notificationType == 6 && showUpdate">
+  <app-notification-update
+  [notificationData]="notificationData"
+  ></app-notification-update>
+</div>
+
 <!-- ROLL DIE WHEN NEEDED -->
 <div *ngIf="rollCondition">
   <app-notification-die

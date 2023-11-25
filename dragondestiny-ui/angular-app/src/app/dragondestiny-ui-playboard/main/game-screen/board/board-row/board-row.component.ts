@@ -1,22 +1,18 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Board } from '../../../../interfaces/game-engine/board/board';
+import { Component, Input, OnInit } from '@angular/core';
+import { Board } from '../../../../../interfaces/game-engine/board/board';
 
 @Component({
   selector: 'app-board-row',
   templateUrl: './board-row.component.html',
   styleUrls: ['./board-row.component.css']
 })
-export class BoardRowComponent implements OnInit, OnChanges{
+export class BoardRowComponent implements OnInit{
   @Input() board!: Board;
   @Input() rowIndex!: number;
   @Input() conditionFlag: boolean = false;
   fieldInRowArray: number[] = [];
 
   ngOnInit(): void {
-    this.prepareFieldArray();
-  }
-
-  ngOnChanges(changes: SimpleChanges){
     this.prepareFieldArray();
   }
 

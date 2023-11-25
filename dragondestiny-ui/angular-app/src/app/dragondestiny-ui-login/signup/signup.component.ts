@@ -4,6 +4,7 @@ import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
 import { UserRegistered } from '../../interfaces/user/user/user-registered';
 import { Subscription } from 'rxjs';
+import { SharedService } from 'src/app/services/shared.service';
 
 @Component({
   selector: 'app-signup',
@@ -16,7 +17,7 @@ export class SignupComponent implements OnDestroy{
   name!: string;
   password!: string;
 
-  constructor(private userService: UserService, private dataService: GameDataService, private router: Router){
+  constructor(private userService: UserService, private dataService: GameDataService, private router: Router, private shared: SharedService){
 
   }
 
@@ -30,6 +31,7 @@ export class SignupComponent implements OnDestroy{
       this.userService.createUser(user).subscribe((data: any) => {
         this.dataService.loginData = data;
         this.dataService.loginFlag = true;
+        this.shared.sendPlayerLoginEvent();
         this.router.navigate(['/dashboard']);
       },
       (error: any) =>{

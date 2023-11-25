@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './sidebar.component';
 import { DeckComponent } from './card-deck/deck.component';
 import { CharacterComponent } from './character/character.component';
-import { CharacterPortraitComponent } from './character-portrait/character-portrait.component';
-import { CharacterStatisticsComponent } from './character-statistics/character-statistics.component';
-import { CharacterStatisticsStatComponent } from './character-statistics-stat/character-statistics-stat.component';
 import { GameControlsComponent } from './game-controls/game-controls.component';
 import { GameControlsConfirmComponent } from './game-controls/game-controls-end-turn/game-controls-confirm.component';
 import { GameControlsDiceComponent } from './game-controls/game-controls-dice/game-controls-dice.component';
 import { GameControlsOptionsComponent } from './game-controls/game-controls-options/game-controls-options.component';
+import { CharacterPortraitComponent } from './character/character-portrait/character-portrait.component';
+import { CharacterStatisticsComponent } from './character/character-statistics/character-statistics.component';
+import { CharacterStatisticsStatComponent } from './character/character-statistics/character-statistics-stat/character-statistics-stat.component';
 
 @NgModule({
   declarations: [

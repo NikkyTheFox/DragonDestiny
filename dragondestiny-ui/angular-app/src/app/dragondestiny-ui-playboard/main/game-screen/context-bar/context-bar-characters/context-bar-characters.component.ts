@@ -1,12 +1,12 @@
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
-import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
-import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { Player } from '../../../../interfaces/played-game/player/player';
-import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { Character } from '../../../../interfaces/game-engine/character/character';
-import { SharedService } from '../../../../services/shared.service';
+import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
+import { PlayedGameCharacter } from '../../../../../interfaces/played-game/character/character';
+import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
+import { Player } from '../../../../../interfaces/played-game/player/player';
+import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
+import { Character } from '../../../../../interfaces/game-engine/character/character';
+import { SharedService } from '../../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 
@@ -15,7 +15,7 @@ import { NotificationEnum } from 'src/app/interfaces/played-game/notification/no
   templateUrl: './context-bar-characters.component.html',
   styleUrls: ['./context-bar-characters.component.css']
 })
-export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestroy{
+export class ContextBarCharactersComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   playersCharacter!: PlayedGameCharacter;
@@ -40,10 +40,6 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestr
         }
       })
     );
-  }
-
-  ngOnChanges(changes: SimpleChanges){
-    this.handleCharacters();
   }
 
   reset(){
@@ -76,6 +72,7 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestr
 
   retrieveOtherCharacters(){
     this.otherCharacters = this.allCharacters.filter(character => character.id !== this.playersCharacter.id);
+    this.otherCharacters = this.removeDuplicates(this.otherCharacters);
   }
 
   retrieveCharacterNames(){
@@ -86,6 +83,22 @@ export class ContextBarCharactersComponent implements OnInit, OnChanges, OnDestr
         })
       );
     });
+  }
+
+  removeDuplicates(array: PlayedGameCharacter[]) {
+    let toReturn: PlayedGameCharacter[] = [];
+    for(let i = 0; i < array.length; i++){
+      let toInsertCheck = true;
+      for(let j = 0; j < toReturn.length; j++){
+        if(array[i].id == toReturn[j].id){
+          toInsertCheck = false;
+        }
+      }
+      if(toInsertCheck){
+        toReturn.push(array[i]);
+      }
+    }
+    return toReturn;
   }
 
   ngOnDestroy(): void {

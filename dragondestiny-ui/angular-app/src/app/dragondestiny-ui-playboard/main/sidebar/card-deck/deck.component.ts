@@ -27,7 +27,7 @@ export class DeckComponent implements OnInit, OnDestroy{
     this.requestStructure = this.shared.getRequest();
     this.fetchDeck();
     this.toDeleteSubscription.push(
-      this.shared.getUpdateStatisticsEvent().subscribe( () => {
+      this.shared.getRefreshCharacterStatsEvent().subscribe( () => {
         this.fetchDeck();
       })
     )

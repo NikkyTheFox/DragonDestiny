@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
-import { ItemCard } from '../../../../interfaces/played-game/card/item-card/item-card';
-import { Card } from '../../../../interfaces/game-engine/card/card/card';
-import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { SharedService } from '../../../../services/shared.service';
+import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
+import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
+import { ItemCard } from '../../../../../interfaces/played-game/card/item-card/item-card';
+import { Card } from '../../../../../interfaces/game-engine/card/card/card';
+import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
+import { SharedService } from '../../../../../services/shared.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -18,6 +18,7 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   itemsList: ItemCard[] = [];
   cardNameList: string[] = [];
   cardDescList: string[] = [];
+  discardFlag: boolean = false;
 
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService, private shared: SharedService){
 
@@ -27,10 +28,15 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
     this.requestStructure = this.shared.getRequest();
     this.handleCards();
     this.toDeleteSubscription.push(
-      this.shared.getEquipItemCardClickEvent().subscribe( () => {
+      this.shared.getRefreshHandCardsEvent().subscribe( () => {
         this.handleCards();
       })
     );
+    this.toDeleteSubscription.push(
+      this.shared.getItemToDiscardEvent().subscribe( () => {
+        this.discardFlag = true;
+      })
+    )
   }
 
   handleCards(){
@@ -55,6 +61,15 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
         })
       );
     });
+  }
+
+  discardItem(card: ItemCard){
+    this.toDeleteSubscription.push(
+      this.playedGameService.moveCardFromPlayerHandToUsedCardDeck(this.requestStructure.game!.id, this.requestStructure.player!.login, card.id).subscribe( () => {
+        this.discardFlag = false;
+        this.shared.sendRefreshHandCardsEvent();        
+      })
+    );
   }
 
   resetArrays(){

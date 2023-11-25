@@ -112,7 +112,7 @@ export class PlayedGameService{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/cards/used/${cardId}`, null);
   }
 
-  moveCardFromPlayedHandToUsedCardDeck(playedGameId: string, playerLogin: string, cardId: number): Observable<PlayedGame>{
+  moveCardFromPlayerHandToUsedCardDeck(playedGameId: string, playerLogin: string, cardId: number): Observable<PlayedGame>{
     return this.http.put<PlayedGame>(`${environment.apiUrl}/playedgames/${playedGameId}/players/${playerLogin}/cards/used/${cardId}`, null);
   }
 

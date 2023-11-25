@@ -16,9 +16,7 @@ import { Round } from 'src/app/interfaces/played-game/round/round';
 import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
 import { FieldType } from 'src/app/interfaces/game-engine/field/field-type';
-import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
-import { UpdateEnum } from 'src/app/interfaces/played-game/notification/update-enum';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -32,8 +30,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   // GameUpdates & Defender POV in Fight
   messageData!: NotificationMessage;
-  // playerAttackedFlag: boolean = false;
-  // cardStolenFlag: boolean = false;
 
   // Option Contidion Flags
   TAKE_CARD_FLAG: boolean = false;
@@ -133,7 +129,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       */ 
       this.toDeleteSubscription.push(
         this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-          this.shared.sendFightEnemyCardClickEvent(data.enemyCardList[0].id); // check
+          this.shared.sendFightEnemyCardEvent(data.enemyCardList[0].id); // check
         })
       );
       // this.shared.sendFightEnemyCardClickEvent(round.enemyFought.id); // Check
@@ -148,7 +144,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       */
       this.toDeleteSubscription.push(
         this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayerList) => {
-          this.shared.sendFightPlayerClickEvent(data.playerList[0].login);
+          this.shared.sendNotifyAttackerPlayerEvent(data.playerList[0].login);
         })
       );
     }
@@ -345,7 +341,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
         FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD).subscribe( () => {
-          this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+          this.shared.sendFightEnemyCardEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })
     );
@@ -357,7 +353,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
         FieldOptionEnum.BRIDGE_FIELD).subscribe( () => {
-          this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+          this.shared.sendFightEnemyCardEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })
     );
@@ -373,7 +369,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
         FieldOptionEnum.BOSS_FIELD).subscribe( () => {
-          this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+          this.shared.sendFightEnemyCardEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })
     );
@@ -384,10 +380,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   resetOptions(){
-    // GameUpdates & Defender POV in Fight
-    // this.playerAttackedFlag = false;
-    // this.cardStolenFlag = false;
-
     // Option Contidion Flags
     this.TAKE_CARD_FLAG = false;
     this.numberOfCardsToBeDrawn = 0;

@@ -4,5 +4,6 @@
    <!-- <div class="item-desc">{{cardDescList[i]}}</div> -->
    <div class="additional-strength">Strength: {{item.strength}}</div>
    <div class="additional-health">Health: {{item.health}}</div>
+   <button *ngIf="discardFlag" class="button" type="button" (click)="discardItem(item)">Discard</button>
  </div>
 </div>

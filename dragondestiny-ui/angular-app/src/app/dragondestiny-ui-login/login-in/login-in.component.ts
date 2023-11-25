@@ -4,6 +4,7 @@ import { UserLogin } from '../../interfaces/user/user/user-login';
 import { GameDataService } from '../../services/game-data.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { SharedService } from 'src/app/services/shared.service';
 
 @Component({
   selector: 'app-login-in',
@@ -15,7 +16,7 @@ export class LoginInComponent implements OnDestroy{
   name!: string;
   password!: string;
 
-  constructor(private userService: UserService, private dataService: GameDataService, private router: Router){
+  constructor(private userService: UserService, private dataService: GameDataService, private router: Router, private shared: SharedService){
 
   }
 
@@ -28,7 +29,7 @@ export class LoginInComponent implements OnDestroy{
       this.userService.getUserByLoginPassword(user).subscribe((data: any) => {
         this.dataService.loginData = data;
         this.dataService.loginFlag = true;
-  
+        this.shared.sendPlayerLoginEvent();
         this.router.navigate(['/dashboard']);
       },
       (error: any) =>{

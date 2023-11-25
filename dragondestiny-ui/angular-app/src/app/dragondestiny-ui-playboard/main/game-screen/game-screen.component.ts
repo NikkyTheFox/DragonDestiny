@@ -31,6 +31,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
     this.processPlayerAttack();
     this.processPlayerDefend();
     this.processContinueGame();
+    this.processGameUpdate();
     this.processNotificationClose();
   }
 
@@ -46,7 +47,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
 
   processEnemyFight(){
     this.toDeleteSubscription.push(
-      this.shared.getFightEnemyCardClickEvent().subscribe( (cardToFightWithID: number) => {
+      this.shared.getFightEnemyCardEvent().subscribe( (cardToFightWithID: number) => {
         this.showNotification = true;
         this.notificationType = 2;
         this.notificationData = cardToFightWithID;
@@ -101,8 +102,7 @@ export class GameScreenComponent implements OnInit, OnDestroy{
         };
         if(data.updateType == UpdateEnum.PLAYER_FIGHT &&
           data.player1Login != null && data.player2Login != null){
-          // ASSUMPTION:
-          // Player1 = winner
+          // ASSUMPTION: Player1 = winner
           
         };
         if(data.updateType == UpdateEnum.PLAYER_GOT_ITEM &&

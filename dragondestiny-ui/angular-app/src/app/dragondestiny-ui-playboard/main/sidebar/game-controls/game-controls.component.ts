@@ -122,7 +122,7 @@ export class GameControlsComponent implements OnInit, OnDestroy{
   processCardStolen(){
     if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login || this.round.activePlayer.login == this.requestStructure.player!.login){
       // Reload HAND cards for fight participants
-      this.shared.sendEquipItemCardClickEvent();
+      this.shared.sendRefreshHandCardsEvent();
     }
     else{
       let winnerLogin: string | null = null;

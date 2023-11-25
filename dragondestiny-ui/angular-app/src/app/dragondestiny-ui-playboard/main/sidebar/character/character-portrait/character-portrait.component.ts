@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Character } from '../../../../interfaces/game-engine/character/character';
-import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
-import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
+import { Character } from '../../../../../interfaces/game-engine/character/character';
+import { PlayedGameCharacter } from '../../../../../interfaces/played-game/character/character';
+import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -10,9 +10,9 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./character-portrait.component.css']
 })
 export class CharacterPortraitComponent implements OnInit, OnDestroy{
-  toDeleteSubscription: Subscription[] = [];
-
   @Input() character!: PlayedGameCharacter;
+  
+  toDeleteSubscription: Subscription[] = [];
   gameEngineCharacter!: Character;
 
   constructor(private gameEngineService: GameEngineService){

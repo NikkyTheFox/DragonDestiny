@@ -24,6 +24,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   showFightPlayerConditionBoolean: boolean = false;
   showAttackingPlayerPOV: boolean = false;
   showDefeningPlayerPOV: boolean = false;
+  showUpdate: boolean = false;
   rollCondition: boolean = false;
   cardsDrawn: number = 0;
   finishCondition: boolean = false;
@@ -76,6 +77,9 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
           this.processContinueGame();
           // notificationData = Round;
           break;
+        case 6:
+          this.showUpdate = true;
+          // notification data is a string to show
       };
     };
   }

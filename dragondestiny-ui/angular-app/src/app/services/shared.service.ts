@@ -26,22 +26,24 @@ export class SharedService{
   private bossFieldDataLoaded = new Subject();
   private bridgeFieldDataLoaded = new Subject();
   private dataLoaded = new Subject();
+  private playerLogin = new Subject();
 
   // Game mechanics
   private diceRoll = new Subject();
   private moveCharacter = new Subject();
-  private drawEnemyCard = new Subject();
-  private equipItemCard = new Subject();
-  private fightEnemyOnField = new Subject();
+  // private drawEnemyCard = new Subject();
+  private refreshHandCards = new Subject();
+  // private fightEnemyOnField = new Subject();
   private endTurn = new Subject();
   private blockTurn = new Subject();
-  private exchangeTrophies = new Subject();
-  private updateStatistics = new Subject();
+  // private exchangeTrophies = new Subject();
+  private refreshCharacterStats = new Subject();
+  private itemToDiscard = new Subject();
 
   // Notifications
   private notificationClose = new Subject();
   private drawCard = new Subject<number>();
-  private fightPlayer = new Subject<string>();
+  // private fightPlayer = new Subject<string>();
   private notifyAttackerPlayer = new Subject<string>();
   private notifyDefenderPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
@@ -51,7 +53,7 @@ export class SharedService{
                                     player2Login: string | null, 
                                     cardId: number | null,
                                     numTurnsBlock: number | null}>();
-  private continue = new Subject();
+  // private continue = new Subject();
 
   // Web Socket
   private socket!: WebSocket;
@@ -187,6 +189,14 @@ export class SharedService{
     return this.dataLoaded.asObservable();
   }
 
+  sendPlayerLoginEvent(){
+    this.playerLogin.next(null);
+  }
+
+  getPlayerLoginEvent(){
+    return this.playerLogin.asObservable();
+  }
+
   // Game Events
 
   sendDiceRollClickEvent(){
@@ -205,30 +215,30 @@ export class SharedService{
     return this.moveCharacter.asObservable();
   }
 
-  sendDrawEnemyCardClickEvent(){
-    this.drawEnemyCard.next(null);
+  // sendDrawEnemyCardClickEvent(){
+  //   this.drawEnemyCard.next(null);
+  // }
+
+  // getDrawEnemyCardClickEvent(){
+  //   return this.drawEnemyCard.asObservable();
+  // }
+
+  sendRefreshHandCardsEvent(){
+    this.refreshHandCards.next(null);
+    this.sendRefreshCharacterStatsEvent();
   }
 
-  getDrawEnemyCardClickEvent(){
-    return this.drawEnemyCard.asObservable();
+  getRefreshHandCardsEvent(){
+    return this.refreshHandCards.asObservable();
   }
 
-  sendEquipItemCardClickEvent(){
-    this.equipItemCard.next(null);
-    this.sendUpdateStatisticsEvent();
-  }
+  // sendFightEnemyOnFieldEvent(){
+  //   this.fightEnemyOnField.next(null);
+  // }
 
-  getEquipItemCardClickEvent(){
-    return this.equipItemCard.asObservable();
-  }
-
-  sendFightEnemyOnFieldClickEvent(){
-    this.fightEnemyOnField.next(null);
-  }
-
-  getFightEnemyOnFieldClickEvent(){
-    return this.fightEnemyOnField.asObservable();
-  }
+  // getFightEnemyOnFieldEvent(){
+  //   return this.fightEnemyOnField.asObservable();
+  // }
 
   sendEndTurnEvent(){
     this.endTurn.next(null);
@@ -246,13 +256,13 @@ export class SharedService{
     return this.blockTurn.asObservable();
   }
 
-  sendExchangeTrophiesEvent(){
-    this.exchangeTrophies.next(null);
-  }
+  // sendExchangeTrophiesEvent(){
+  //   this.exchangeTrophies.next(null);
+  // }
 
-  getExchangeTrophiesEvent(){
-    return this.exchangeTrophies.asObservable();
-  }
+  // getExchangeTrophiesEvent(){
+  //   return this.exchangeTrophies.asObservable();
+  // }
 
   sendNotificationCloseEvent(){
     this.notificationClose.next(null);
@@ -262,12 +272,20 @@ export class SharedService{
     return this.notificationClose.asObservable();
   }
 
-  sendUpdateStatisticsEvent(){
-    this.updateStatistics.next(null);
+  sendRefreshCharacterStatsEvent(){
+    this.refreshCharacterStats.next(null);
   }
 
-  getUpdateStatisticsEvent(){
-    return this.updateStatistics.asObservable();
+  getRefreshCharacterStatsEvent(){
+    return this.refreshCharacterStats.asObservable();
+  }
+
+  sendItemToDiscardEvent(){
+    this.itemToDiscard.next(null);
+  }
+
+  getItemToDiscardEvent(){
+    return this.itemToDiscard.asObservable();
   }
 
 //   Notifications
@@ -279,13 +297,14 @@ export class SharedService{
   getDrawCardClickEvent(){
     return this.drawCard.asObservable();
   }
-  sendFightPlayerClickEvent(playerToFightWithLogin: string){
-    this.fightPlayer.next(playerToFightWithLogin);
-  }
 
-  getFightPlayerClickEvent(){
-    return this.fightPlayer.asObservable();
-  }
+  // sendFightPlayerClickEvent(playerToFightWithLogin: string){
+  //   this.fightPlayer.next(playerToFightWithLogin);
+  // }
+
+  // getFightPlayerClickEvent(){
+  //   return this.fightPlayer.asObservable();
+  // }
 
   sendNotifyAttackerPlayerEvent(defenderLogin: string){
     this.notifyAttackerPlayer.next(defenderLogin);
@@ -303,16 +322,20 @@ export class SharedService{
     return this.notifyDefenderPlayer.asObservable();
   }
 
-  sendFightEnemyCardClickEvent(cardToFightWithID: number){
+  sendFightEnemyCardEvent(cardToFightWithID: number){
     this.fightEnemyCard.next(cardToFightWithID);
   }
 
-  getFightEnemyCardClickEvent(){
+  getFightEnemyCardEvent(){
     return this.fightEnemyCard.asObservable();
   }
 
   sendContinuteGameEvent(round: Round){
     this.continueGame.next(round);
+  }
+
+  getContinuteGameEvent(){
+    return this.continueGame.asObservable();
   }
 
   sendUpdateGameEvent(updateType: UpdateEnum, player1Login: string | null, player2Login: string | null, cardId: number | null, numTurnsBlock: number | null){
@@ -323,17 +346,15 @@ export class SharedService{
     return this.updateGame.asObservable();
   }
 
-  getContinuteGameEvent(){
-    return this.continueGame.asObservable();
-  }
 
-  sendContinueClickEvent(){
-    this.continue.next(null);
-  }
 
-  getContinueClickEvent(){
-    return this.continue.asObservable();
-  }
+  // sendContinueClickEvent(){
+  //   this.continue.next(null);
+  // }
+
+  // getContinueClickEvent(){
+  //   return this.continue.asObservable();
+  // }
 
   //    Socket Handling
   initSocket(playedGameId: string){

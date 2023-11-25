@@ -1,8 +1,8 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { PlayedGameCharacter } from '../../../../interfaces/played-game/character/character';
-import { Player } from '../../../../interfaces/played-game/player/player';
-import { PlayedGameService } from '../../../../services/played-game/played-game-service';
-import { GameDataStructure } from '../../../../interfaces/game-data-structure';
+import { PlayedGameCharacter } from '../../../../../interfaces/played-game/character/character';
+import { Player } from '../../../../../interfaces/played-game/player/player';
+import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
+import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -23,6 +23,7 @@ export class CharacterStatisticsComponent implements OnInit, OnChanges{
     this.character = this.player.character;
   }
 
+  // MUST STAY WITH ngOnChanges()
   ngOnChanges(changes: SimpleChanges): void {
       this.character = this.player.character;
   }
