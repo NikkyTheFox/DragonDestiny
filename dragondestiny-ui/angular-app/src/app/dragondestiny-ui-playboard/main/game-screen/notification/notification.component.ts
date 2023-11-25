@@ -15,6 +15,7 @@ import { FieldOptionEnum } from 'src/app/interfaces/played-game/field/field-opti
 export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   @Input() notificationType!: number;
   @Input() notificationData!: any;
+  @Input() gameContinueFlag!: boolean;
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   dieData: {fightEnemyCondition: boolean, rollValue: number} = {fightEnemyCondition: false, rollValue: 0}  
@@ -64,6 +65,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
           break;
         case 3: // ATTACKER POV
           this.showAttackingPlayerPOV = true;
+          console.log('here');
           // notificationData = defenderPlayerLogin;
           break;
         case 4: // DEFENDER POV

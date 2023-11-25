@@ -18,6 +18,7 @@ export interface Round{
   fieldOptionChosen: FieldOption;
   playerNumberOfCardsTaken: number;
   itemCardToTake: ItemCard;
+  itemCardStolen: ItemCard;
   enemyFought: EnemyCard;
   enemyPlayerFought: Player;
   playerFightRoll: number;

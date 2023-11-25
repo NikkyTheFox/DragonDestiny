@@ -21,9 +21,10 @@ import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 })
 export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   @Input() notificationData!: any;
+  @Input() gameContinueFlag!: boolean;
   @Input() cardsDrawn!: number;
   @Input() dieData!: {fightEnemyCondition: boolean, rollValue: number}
-  @Input() showDrawCardConditionBoolean!: boolean;
+  @Input() showDrawCard!: boolean;
   @Output() actionFinished = new EventEmitter();
   @Output() rollFightCondition = new EventEmitter<boolean>();
   @Output() cardsDrawnChange = new EventEmitter<number>();
@@ -74,7 +75,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   handleDrawCard(){
     this.toDeleteSubscription.push(
       this.playedGameService.drawRandomCard(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: Card) => {
-        this.showDrawCardConditionBoolean = false;
+        this.showDrawCard = false;
         this.cardDisplayCondition = true;
         if(data.cardType == CardType.ITEM_CARD){
           let c = data as ItemCard;
@@ -177,7 +178,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   }
 
   reset(){
-    this.showDrawCardConditionBoolean = false;
+    this.showDrawCard = false;
     this.cardDisplayCondition = false;
     this.handCondition = false; 
     this.equipCondition = false;

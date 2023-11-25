@@ -14,6 +14,8 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   showNotification: boolean = false;
   notificationType: number = 0;
   notificationData: any = null;
+  gameContinueFlag: boolean = false;
+
   toDeleteSubscription: Subscription[] = [];
 
   constructor(private shared: SharedService) {

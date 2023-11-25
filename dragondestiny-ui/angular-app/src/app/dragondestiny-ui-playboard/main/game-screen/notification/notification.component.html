@@ -2,9 +2,10 @@
 <div *ngIf="notificationType == 1 && showDrawCard">
   <app-notification-draw-card
   [notificationData]="notificationData"
+  [gameContinueFlag]="gameContinueFlag"
   [(cardsDrawn)]="cardsDrawn"
   [dieData]="dieData"
-  [showDrawCardConditionBoolean]="showDrawCard"
+  [showDrawCard]="showDrawCard"
   (actionFinished)="receiveCardActionFinished()"
   (rollFightCondition)="receiveRollFightEvent($event)"
   >
@@ -15,9 +16,10 @@
 <div *ngIf="notificationType == 2 && showFightEnemyCard">
   <app-notification-fight-enemy
   [notificationData]="notificationData"
+  [gameContinueFlag]="gameContinueFlag"
   [dieData]="dieData"
   [finishCondition]="finishCondition"
-  [showFightEnemyCardConditionBoolean]="showFightEnemyCard"
+  [showFightEnemyCard]="showFightEnemyCard"
   (finishConditionChange)="recieveFinishConditionChange($event)"
   (cardFightCondition)="receiveRollFightEvent($event)"
   >
@@ -25,13 +27,29 @@
 </div>
 
 <!-- FIGHT PLAYER - ATTACKER POV -->
-<div *ngIf="notificationType == 2 && showAttackingPlayerPOV">
-  <app-notification-attack></app-notification-attack>
+<div *ngIf="notificationType == 3 && showAttackingPlayerPOV">
+  <app-notification-attack
+  [notificationData]="notificationData"
+  [gameContinueFlag]="gameContinueFlag"
+  [dieData]="dieData"
+  [finishCondition]="finishCondition"
+  [showAttackingPlayerPOV]="showAttackingPlayerPOV"
+  (finishConditionChange)="recieveFinishConditionChange($event)"
+  (characterFightCondition)="receiveRollFightEvent($event)"
+  ></app-notification-attack>
 </div>
 
 <!-- FIGHT PLAYER - DEFENDER POV -->
-<div *ngIf="notificationType == 3 && showDefeningPlayerPOV">
-  <app-notification-defend></app-notification-defend>
+<div *ngIf="notificationType == 4 && showDefeningPlayerPOV">
+  <app-notification-defend
+  [notificationData]="notificationData"
+  [gameContinueFlag]="gameContinueFlag"
+  [dieData]="dieData"
+  [finishCondition]="finishCondition"
+  [showDefendingPlayerPOV]="showDefeningPlayerPOV"
+  (finishConditionChange)="recieveFinishConditionChange($event)"
+  (characterFightCondition)="receiveRollFightEvent($event)"
+  ></app-notification-defend>
 </div>
 
 <!-- ROLL DIE WHEN NEEDED -->

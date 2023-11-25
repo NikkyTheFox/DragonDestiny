@@ -1,6 +1,6 @@
 <!-- DRAW CARD -->
 <div *ngIf="dataFetchFlag">
-    <button *ngIf="notificationData > 0 && showDrawCardConditionBoolean" class="button" type="button" (click)="drawCard()">Draw Card</button>
+    <button *ngIf="notificationData > 0 && showDrawCard" class="button" type="button" (click)="drawCard()">Draw Card</button>
     <div *ngIf="cardDisplayCondition && cardToDisplay">
       <p>{{ cardToDisplay.name }} </p>
       <!-- <p>{{ cardToDisplay.description }}</p> -->

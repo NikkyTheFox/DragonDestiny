@@ -18,9 +18,10 @@ import { Player } from 'src/app/interfaces/played-game/player/player';
 })
 export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   @Input() notificationData!: any;
+  @Input() gameContinueFlag!: boolean;
   @Input() dieData!: {fightEnemyCondition: boolean, rollValue: number}
   @Input() finishCondition!: boolean;
-  @Input() showFightEnemyCardConditionBoolean!: boolean;
+  @Input() showFightEnemyCard!: boolean;
   @Output() finishConditionChange = new EventEmitter<boolean>();
   @Output() cardFightCondition = new EventEmitter<boolean>();
 
@@ -33,7 +34,6 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   bridgeFlag: boolean = false; // player is on bridge field
   bossRoomFlag: boolean = false; // player is on boss field
   cardDisplayCondition: boolean = false;
-
   playerRoll: number = 0;
   enemyRoll: number = 0;
 
@@ -67,18 +67,10 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   fetchEnemy(){
     this.toDeleteSubscription.push(
       this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-        let chosenEnemy!: EnemyCard;
-        data.enemyCardList.forEach( (ec: EnemyCard) => {
-          if(ec.id == this.notificationData){
-            chosenEnemy = ec;
-          }
-        })
-        if(chosenEnemy){
-          this.cardDisplayCondition = true;
-          this.cardAttributes.push(chosenEnemy.health);
-          this.cardAttributes.push(chosenEnemy.initialStrength);
-          this.handleEnemyCard(chosenEnemy);
-        }
+        this.cardDisplayCondition = true;
+        this.cardAttributes.push(data.enemyCardList[0].health);
+        this.cardAttributes.push(data.enemyCardList[0].initialStrength);
+        this.handleEnemyCard(data.enemyCardList[0]);
       })
     )
   }
@@ -117,6 +109,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
           this.finishConditionChange.emit(this.finishCondition);
         }
         this.shared.sendUpdateStatisticsEvent();
+        this.shared.sendEquipItemCardClickEvent();
       })
     )
   }
@@ -157,7 +150,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
 
   reset(){
     this.fightResultCondition = false;
-    this.showFightEnemyCardConditionBoolean = false;
+    this.showFightEnemyCard = false;
     this.dieData = {fightEnemyCondition: false, rollValue: 0};
   }
 

@@ -32,8 +32,8 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   // GameUpdates & Defender POV in Fight
   messageData!: NotificationMessage;
-  playerAttackedFlag: boolean = false;
-  cardStolenFlag: boolean = false;
+  // playerAttackedFlag: boolean = false;
+  // cardStolenFlag: boolean = false;
 
   // Option Contidion Flags
   TAKE_CARD_FLAG: boolean = false;
@@ -77,102 +77,23 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.fetchRound();
       })
     );
-    this.toDeleteSubscription.push(
-      this.shared.getSocketMessage().subscribe( (data: any) => {
-        this.messageData = this.shared.parseNotificationMessage(data);
-        this.playerAttackedFlag = this.messageData.notificationOption == NotificationEnum.PLAYER_ATTACKED;
-        if(this.playerAttackedFlag){
-          // needs to be handled after round data is fetched
-          this.fetchRound()
-        }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_WON_GAME){
-          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_WON_GAME, this.messageData.name, null, null, null);
-        }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_DIED){
-          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_DIED, this.messageData.name, null, null, null);
-        }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_BLOCKED){
-          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_BLOCKED, this.messageData.name, null, null, this.messageData.number);
-        }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_FIGHT){
-          let winnerLogin: string | null = null;
-          let loserLogin: string | null = null;
-          let cardId: number | null = null;
-          if(this.messageData.bool){ // info about winner player
-            winnerLogin = this.messageData.name
-            if(this.messageData.number){ // check whether the fight was with enemy card
-              cardId = this.messageData.number;
-            }
-          }
-          if(!this.messageData.bool){ // info about loser player
-            loserLogin = this.messageData.name;
-            if(this.messageData.number){ // check whether the fight was with enemy card
-              cardId = this.messageData.number;
-            }
-          }
-          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_FIGHT, winnerLogin, loserLogin, cardId, null);
-        }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_GOT_ITEM){
-          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_GOT_ITEM, this.messageData.name, null, this.messageData.number, null);
-        }
-        this.cardStolenFlag = this.messageData.notificationOption == NotificationEnum.CARD_STOLEN;
-        if(this.cardStolenFlag){
-          // needs to be handled after round data is fetched
-          this.fetchRound()
-        }
-      })
-    );
   }
 
   fetchRound(){
     this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
         this.round = data;
-        // If any player is attacked
-        if(this.playerAttackedFlag){
-          // If logged in player is attacked -> proceed to the notification-defend
-          if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login){ 
-            this.handleDefenderPlayer(this.round.activePlayer.login)
-          }
-          // notify OTHER players (notification-update)
-          else {            
-            this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_ATTACKED, this.round.activePlayer.login, this.round.enemyPlayerFought.login, null, null);
-          }
-        }
-        else if(this.cardStolenFlag){
-          if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login || this.round.activePlayer.login == this.requestStructure.player!.login){
-            // Reload HAND cards for fight participants
-            this.shared.sendEquipItemCardClickEvent();
-          }
-          else{
-            let winnerLogin: string | null = null;
-            let loserLogin: string | null = null;
-            if(this.round.activePlayer.character.strength + this.round.playerFightRoll > this.round.enemyPlayerFought.character.strength + this.round.playerFightRoll){
-              winnerLogin = this.round.activePlayer.login;
-              loserLogin = this.round.enemyPlayerFought.login;
-            }
-            else{
-              winnerLogin = this.round.enemyPlayerFought.login;
-              loserLogin = this.round.activePlayer.login;
-            }
-            // WAIT FOR BACKEND CARD_ID IMPLEMENTATION
-            // this.shared.sendUpdateGameEvent(UpdateEnum.CARD_STOLEN, winnerLogin, loserLogin, )
-          }
+        if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
+          /*
+          1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
+          2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
+          */
+          this.actionButtonClickFlag = false;
+          this.handleOptions();
         }
         else{
-          if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
-            /*
-            1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
-            2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
-            */
-            this.actionButtonClickFlag = false;
-            this.handleOptions();
-          }
-          else{
-            this.handleGameContinue(data);
-          }
-        }
-        
+          this.handleGameContinue();
+        }     
       })
     );
   }
@@ -181,15 +102,16 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.getFieldOptions();
   }
 
-  handleGameContinue(round: Round){
+  handleGameContinue(){
     console.log('Round w control-options')
-    console.log(round)
-    if(round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
+    console.log(this.round)
+    if(this.round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
+      console.log('here2');
       this.actionButtonClickFlag = false;
-      this.checkOptionsFlags(round.fieldOptionList.possibleOptions)
+      this.checkOptionsFlags(this.round.fieldOptionList.possibleOptions)
       this.handleOptionFlags();
     }
-    if(round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
+    if(this.round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
       /*
       1. WAITING_FOR_CARD_DRAWN => drawRandomCard()
       (EnemyCard):
@@ -200,9 +122,9 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         2. WAITING_FOR_CARD_TO_HAND => moveItemCardFromDeckToPlayerHand()
           3. (optional) WAITING_FOR_CARD_TO_USED => moveCardFromPlayerHandToUsedCardDeck() | only when hand is full, queued by method above
       */
-      this.shared.sendDrawCardClickEvent(round.fieldOptionChosen.numOfCardsToTake - round.playerNumberOfCardsTaken);      
+      this.shared.sendDrawCardClickEvent(this.round.fieldOptionChosen.numOfCardsToTake - this.round.playerNumberOfCardsTaken);      
     }
-    if(round.roundState == RoundState.WAITING_FOR_ENEMIES_TO_FIGHT){ // Fight Field Enemy [Boss/Bridge]
+    if(this.round.roundState == RoundState.WAITING_FOR_ENEMIES_TO_FIGHT){ // Fight Field Enemy [Boss/Bridge]
       /*
       1. WAITING_FOR_ENEMIES_TO_FIGHT => getEnemiesToFightWith()  | HANDLE HERE
       2. WAITING_FOR_FIGHT_ROLL => rollDie()
@@ -216,7 +138,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       );
       // this.shared.sendFightEnemyCardClickEvent(round.enemyFought.id); // Check
     }
-    if(round.roundState == RoundState.WAITING_FOR_PLAYER_TO_FIGHT){ // Fight Player
+    if(this.round.roundState == RoundState.WAITING_FOR_PLAYER_TO_FIGHT){ // Fight Player
       /*
       1. WAITING_FOR_PLAYER_TO_FIGHT => getPlayersToFightWith() | HANDLE HERE | SENDS websocked PLAYER_ATTACKED
       2. WAITING_FOR_FIGHT_ROLL => rollDie()
@@ -230,16 +152,16 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         })
       );
     }
-    if(round.roundState == RoundState.WAITING_FOR_FIGHT_ROLL || // Enemy Or EnemyCard Or Player
-      round.roundState == RoundState.WAITING_FOR_ENEMY_ROLL || // Enemy Or EnemyCard
-      round.roundState == RoundState.WAITING_FOR_FIGHT_RESULT || // Enemy Or EnemyCard OrPlayer
-      round.roundState == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL || // Player
-      round.roundState == RoundState.WAITING_FOR_CARD_TO_HAND || // Item Card 
-      round.roundState == RoundState.WAITING_FOR_CARD_TO_USED || // Item Card but hand is full
-      round.roundState == RoundState.WAITING_FOR_CARD_TO_TROPHIES || // EnemyCard
-      round.roundState == RoundState.WAITING_FOR_CARD_THEFT // Player
+    if(this.round.roundState == RoundState.WAITING_FOR_FIGHT_ROLL || // Enemy Or EnemyCard Or Player
+      this.round.roundState == RoundState.WAITING_FOR_ENEMY_ROLL || // Enemy Or EnemyCard
+      this.round.roundState == RoundState.WAITING_FOR_FIGHT_RESULT || // Enemy Or EnemyCard OrPlayer
+      this.round.roundState == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL || // Player
+      this.round.roundState == RoundState.WAITING_FOR_CARD_TO_HAND || // Item Card 
+      this.round.roundState == RoundState.WAITING_FOR_CARD_TO_USED || // Item Card but hand is full
+      this.round.roundState == RoundState.WAITING_FOR_CARD_TO_TROPHIES || // EnemyCard
+      this.round.roundState == RoundState.WAITING_FOR_CARD_THEFT // Player
       ){
-        this.shared.sendContinuteGameEvent(round); // Process all data from 'middle of action' in notification
+        this.shared.sendContinuteGameEvent(this.round); // Process all data from 'middle of action' in notification
       }
   }
 
@@ -463,8 +385,8 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   resetOptions(){
     // GameUpdates & Defender POV in Fight
-    this.playerAttackedFlag = false;
-    this.cardStolenFlag = false;
+    // this.playerAttackedFlag = false;
+    // this.cardStolenFlag = false;
 
     // Option Contidion Flags
     this.TAKE_CARD_FLAG = false;

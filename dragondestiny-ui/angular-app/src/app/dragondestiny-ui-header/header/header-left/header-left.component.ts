@@ -6,14 +6,14 @@ import { GameDataService } from '../../../services/game-data.service';
   templateUrl: './header-left.component.html',
   styleUrls: ['./header-left.component.css']
 })
-export class HeaderLeftComponent implements DoCheck{
+export class HeaderLeftComponent{
   playerLogin!: string;
 
   constructor(private dataService: GameDataService){
 
   }
 
-  ngDoCheck(){
-    this.playerLogin = this.dataService.getPlayerLogin();
-  }
+  // ngDoCheck(){
+  //   this.playerLogin = this.dataService.getPlayerLogin();
+  // }
 }

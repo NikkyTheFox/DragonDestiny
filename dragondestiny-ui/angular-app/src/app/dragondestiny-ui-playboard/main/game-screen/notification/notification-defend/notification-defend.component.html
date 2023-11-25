@@ -1,1 +1,28 @@
-<p>notification-defend works!</p>
+<!-- FIGHT PLAYER - DEFENDER POV -->
+<div>
+    <div *ngIf="characterDisplayCondition && playerToDisplay && characterToDisplay">
+        <p>Attacking {{ playerToDisplay.login }}:</p>
+        <p>{{ characterToDisplay.name }}</p>
+        <p>Strength: {{ characterAttributes[1] }}</p>
+        <p>Health: {{ characterAttributes[0] }}</p>
+        <br>
+        <p>{{ playerToDisplay.login }}'s Dice: {{ enemyRoll }}</p>
+    </div>
+
+    <div *ngIf="fightResultCondition">
+        <div *ngIf="winner">
+            <p>You won the fight!</p>
+            <br>
+            <p>You may now steal a card from enemy player</p>
+            <button class="button" type="button" (click)="stealCard()">Steal!</button>
+        </div>
+        <div *ngIf="!winner">
+            <p>You lost the fight! :c</p>
+            <br>
+            <p>Now enemy player may steal a card from you!</p>
+            <br>
+            <p>Stolen Card:</p>
+            <button>Okayge</button>
+        </div>
+    </div>
+</div>
