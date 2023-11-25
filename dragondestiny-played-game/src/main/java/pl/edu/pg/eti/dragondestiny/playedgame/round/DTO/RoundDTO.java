@@ -10,7 +10,6 @@ import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOption;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOptionList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
 import java.util.List;
@@ -78,6 +77,11 @@ public class RoundDTO {
      * Item Card drawn by active player
      */
     private ItemCard itemCardToTake;
+
+    /**
+     * Item Card stolen by player from lost player
+     */
+    private ItemCard itemCardStolen;
 
     /**
      * Enemy Card fought by active player

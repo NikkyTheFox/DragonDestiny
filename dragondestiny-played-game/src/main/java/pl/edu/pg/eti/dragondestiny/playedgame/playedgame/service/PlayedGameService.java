@@ -919,12 +919,13 @@ public class PlayedGameService {
         if (itemCard.isEmpty()) {
             throw new NoSuchElementException(CardNotFoundMessage);
         }
-        Card card = itemCard.get();
+        ItemCard card = itemCard.get();
 
         playerFrom.removeCardFromPlayer(card);
         playerTo.moveCardToPlayer(card);
         updatePlayer(playedGame, playerFrom);
         updatePlayer(playedGame, playerTo);
+        activeRound.setItemCardStolen(card);
         activeRound.nextRoundState();
         playedGame.setActiveRound(activeRound);
         return Optional.of(playedGameRepository.save(playedGame));

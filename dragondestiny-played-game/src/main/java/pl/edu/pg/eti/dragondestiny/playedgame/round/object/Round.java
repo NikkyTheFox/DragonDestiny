@@ -78,6 +78,11 @@ public class Round {
     private ItemCard itemCardToTake;
 
     /**
+     * Item Card stolen by player from lost player
+     */
+    private ItemCard itemCardStolen;
+
+    /**
      * Enemy Card fought by active player
      */
     private EnemyCard enemyFought;
