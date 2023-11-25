@@ -8,6 +8,8 @@ import { Player } from '../interfaces/played-game/player/player';
 import { WebsocketService } from './websocket.service';
 import { NotificationMessage } from '../interfaces/played-game/notification/notification-message';
 import { Round } from '../interfaces/played-game/round/round';
+import { UpdateEnum } from '../interfaces/played-game/notification/update-enum';
+import { ItemCard } from '../interfaces/played-game/card/item-card/item-card';
 
 @Injectable({
   providedIn: 'root'
@@ -40,8 +42,15 @@ export class SharedService{
   private notificationClose = new Subject();
   private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
+  private notifyAttackerPlayer = new Subject<string>();
+  private notifyDefenderPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
   private continueGame = new Subject<Round>();
+  private updateGame = new Subject<{updateType: UpdateEnum, 
+                                    player1Login: string | null, 
+                                    player2Login: string | null, 
+                                    cardId: number | null,
+                                    numTurnsBlock: number | null}>();
   private continue = new Subject();
 
   // Web Socket
@@ -278,6 +287,22 @@ export class SharedService{
     return this.fightPlayer.asObservable();
   }
 
+  sendNotifyAttackerPlayerEvent(defenderLogin: string){
+    this.notifyAttackerPlayer.next(defenderLogin);
+  }
+
+  getNotifyAttackerPlayerEvent(){
+    return this.notifyAttackerPlayer.asObservable();
+  }
+
+  sendNotifyDefenderPlayerEvent(attackerLogin: string){
+    this.notifyDefenderPlayer.next(attackerLogin);
+  }
+
+  getNotifyDefenderPlayerEvent(){
+    return this.notifyDefenderPlayer.asObservable();
+  }
+
   sendFightEnemyCardClickEvent(cardToFightWithID: number){
     this.fightEnemyCard.next(cardToFightWithID);
   }
@@ -288,6 +313,14 @@ export class SharedService{
 
   sendContinuteGameEvent(round: Round){
     this.continueGame.next(round);
+  }
+
+  sendUpdateGameEvent(updateType: UpdateEnum, player1Login: string | null, player2Login: string | null, cardId: number | null, numTurnsBlock: number | null){
+    this.updateGame.next({updateType: updateType, player1Login: player1Login, player2Login: player2Login, cardId: cardId, numTurnsBlock: numTurnsBlock});
+  }
+
+  getUpdateGameEvent(){
+    return this.updateGame.asObservable();
   }
 
   getContinuteGameEvent(){

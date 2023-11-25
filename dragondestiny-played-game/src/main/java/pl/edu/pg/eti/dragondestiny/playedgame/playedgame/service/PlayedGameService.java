@@ -1236,7 +1236,7 @@ public class PlayedGameService {
                     }
                 }
             } else {
-                if (player.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
+                if (enemyPlayer.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
                     activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
                 }
                 activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);

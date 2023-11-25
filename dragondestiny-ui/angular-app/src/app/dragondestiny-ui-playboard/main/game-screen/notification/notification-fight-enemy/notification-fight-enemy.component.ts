@@ -20,7 +20,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
   @Input() notificationData!: any;
   @Input() dieData!: {fightEnemyCondition: boolean, rollValue: number}
   @Input() finishCondition!: boolean;
-  @Input()  showFightEnemyCardConditionBoolean!: boolean;
+  @Input() showFightEnemyCardConditionBoolean!: boolean;
   @Output() finishConditionChange = new EventEmitter<boolean>();
   @Output() cardFightCondition = new EventEmitter<boolean>();
 

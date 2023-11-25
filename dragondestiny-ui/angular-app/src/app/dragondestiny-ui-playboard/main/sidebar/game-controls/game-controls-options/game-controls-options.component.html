@@ -12,12 +12,10 @@
   </div>
 
   <div *ngIf="FIGHT_WITH_PLAYER_FLAG">
-    <div *ngFor="let player of playersToAttack; let i = index">
-      <button 
-      *ngIf="playersToAttackCharacters[i]" 
-      [disabled]="actionButtonClickFlag"
-      (click)="attackPlayedClick(player.login)">Attack {{player.login}} ({{ playersToAttackCharacters[i].name }})</button>
-    </div>
+    <button 
+    *ngIf="playerToAttack && playerToAttackCharacter" 
+    [disabled]="actionButtonClickFlag"
+    (click)="attackPlayedClick(playerToAttack.login)">Attack {{playerToAttack.login}} ({{ playerToAttackCharacter.name }})</button>
   </div>
 
   <!-- <div *ngIf="FIGHT_WITH_ENEMY_ON_FIELD_FLAG">
@@ -30,11 +28,35 @@
     </div>
   </div> -->
 
+  <!-- ATTACK BRIDGE GUARDIAN -->
   <div *ngIf="BRIDGE_FIELD_FLAG && attackBridgeGuardianFlag">
-    <button>TEST</button>
       <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
       [disabled]="actionButtonClickFlag"
       (click)="attackBridgeGuardian(enemyToAttack.id)"
       >Attack Bridge Guardian {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
+  </div>
+
+  <!-- MOVE TO BRIDGE FIELD -->
+  <div *ngIf="BRIDGE_FIELD_FLAG && !attackBridgeGuardianFlag">
+    <button *ngIf="enemyToAttackFromEngine && enemyToAttack"
+    [disabled]="actionButtonClickFlag"
+    (click)="moveToBridge()"
+    >Move to Bridge Field And<br>Attack Bridge Guardian {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}} </button>
+  </div>
+
+  <!-- ATTACK BOSS -->
+  <div *ngIf="BOSS_FIELD_FLAG && attackBossFlag">
+    <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
+    [disabled]="actionButtonClickFlag"
+    (click)="attackBoss(enemyToAttack.id)"
+    >Attack Boss {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
+  </div>
+
+  <!-- MOVE TO BOSS FIELD -->
+  <div *ngIf="BOSS_FIELD_FLAG && !attackBossFlag">
+    <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
+    [disabled]="actionButtonClickFlag"
+    (click)="moveToBoss()"
+    >Move To Boss Field And Attack Boss {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}<br></button>
   </div>
 </div>

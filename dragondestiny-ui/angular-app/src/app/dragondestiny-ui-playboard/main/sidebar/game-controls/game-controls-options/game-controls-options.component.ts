@@ -16,6 +16,9 @@ import { Round } from 'src/app/interfaces/played-game/round/round';
 import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
 import { FieldType } from 'src/app/interfaces/game-engine/field/field-type';
+import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
+import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
+import { UpdateEnum } from 'src/app/interfaces/played-game/notification/update-enum';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -26,6 +29,13 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   round!: Round;
+
+  // GameUpdates & Defender POV in Fight
+  messageData!: NotificationMessage;
+  playerAttackedFlag: boolean = false;
+  cardStolenFlag: boolean = false;
+
+  // Option Contidion Flags
   TAKE_CARD_FLAG: boolean = false;
   numberOfCardsToBeDrawn: number = 0;
   LOSE_ROUND_FLAG: boolean = false;
@@ -35,16 +45,16 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   BOSS_FIELD_FLAG: boolean = false; // WHILE ON BRIDGE => Go to boss field & Then fight it | OTHERWISE attack boss
   attackBossFlag: boolean = false;
   FIGHT_WITH_PLAYER_FLAG: boolean = false;
+  player2Login!: string;
   FIGHT_WITH_ENEMY_ON_FIELD_FLAG: boolean = false;
 
-  playersToAttack: Player[] = [];
-  playersToAttackCharacters: Character[] = [];
-  // enemiesToAttack: EnemyCard[] = [];
+  // Option Data
+  playerToAttack!: Player;
+  playerToAttackCharacter!: Character;
   enemyToAttack!: EnemyCard | null;
-  enemiesToAttackFromEngine: any[] = [];
   enemyToAttackFromEngine!: any;
 
-  // Actions done flags:
+  // Actions Done Flags:
   actionButtonClickFlag: boolean = true;
   fetchOptionsFlag: boolean = false;
 
@@ -55,7 +65,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.requestStructure = this.shared.getRequest();
     this.resetOptions();
     this.fetchRound();
-    // this.handleOptions(); // ONLY FOR TEST PURPOSES (SO YOU DONT HAVE TO HIT SPECIAL FIELD) [not anymore?]
     this.toDeleteSubscription.push(
       this.shared.getEndTurnEvent().subscribe( () => {
         this.resetOptions();
@@ -68,23 +77,102 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         this.fetchRound();
       })
     );
+    this.toDeleteSubscription.push(
+      this.shared.getSocketMessage().subscribe( (data: any) => {
+        this.messageData = this.shared.parseNotificationMessage(data);
+        this.playerAttackedFlag = this.messageData.notificationOption == NotificationEnum.PLAYER_ATTACKED;
+        if(this.playerAttackedFlag){
+          // needs to be handled after round data is fetched
+          this.fetchRound()
+        }
+        if(this.messageData.notificationOption == NotificationEnum.PLAYER_WON_GAME){
+          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_WON_GAME, this.messageData.name, null, null, null);
+        }
+        if(this.messageData.notificationOption == NotificationEnum.PLAYER_DIED){
+          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_DIED, this.messageData.name, null, null, null);
+        }
+        if(this.messageData.notificationOption == NotificationEnum.PLAYER_BLOCKED){
+          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_BLOCKED, this.messageData.name, null, null, this.messageData.number);
+        }
+        if(this.messageData.notificationOption == NotificationEnum.PLAYER_FIGHT){
+          let winnerLogin: string | null = null;
+          let loserLogin: string | null = null;
+          let cardId: number | null = null;
+          if(this.messageData.bool){ // info about winner player
+            winnerLogin = this.messageData.name
+            if(this.messageData.number){ // check whether the fight was with enemy card
+              cardId = this.messageData.number;
+            }
+          }
+          if(!this.messageData.bool){ // info about loser player
+            loserLogin = this.messageData.name;
+            if(this.messageData.number){ // check whether the fight was with enemy card
+              cardId = this.messageData.number;
+            }
+          }
+          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_FIGHT, winnerLogin, loserLogin, cardId, null);
+        }
+        if(this.messageData.notificationOption == NotificationEnum.PLAYER_GOT_ITEM){
+          this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_GOT_ITEM, this.messageData.name, null, this.messageData.number, null);
+        }
+        this.cardStolenFlag = this.messageData.notificationOption == NotificationEnum.CARD_STOLEN;
+        if(this.cardStolenFlag){
+          // needs to be handled after round data is fetched
+          this.fetchRound()
+        }
+      })
+    );
   }
 
   fetchRound(){
     this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
         this.round = data;
-        if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
-          /*
-          1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
-          2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
-          */
-          this.actionButtonClickFlag = false;
-          this.handleOptions();
+        // If any player is attacked
+        if(this.playerAttackedFlag){
+          // If logged in player is attacked -> proceed to the notification-defend
+          if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login){ 
+            this.handleDefenderPlayer(this.round.activePlayer.login)
+          }
+          // notify OTHER players (notification-update)
+          else {            
+            this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_ATTACKED, this.round.activePlayer.login, this.round.enemyPlayerFought.login, null, null);
+          }
+        }
+        else if(this.cardStolenFlag){
+          if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login || this.round.activePlayer.login == this.requestStructure.player!.login){
+            // Reload HAND cards for fight participants
+            this.shared.sendEquipItemCardClickEvent();
+          }
+          else{
+            let winnerLogin: string | null = null;
+            let loserLogin: string | null = null;
+            if(this.round.activePlayer.character.strength + this.round.playerFightRoll > this.round.enemyPlayerFought.character.strength + this.round.playerFightRoll){
+              winnerLogin = this.round.activePlayer.login;
+              loserLogin = this.round.enemyPlayerFought.login;
+            }
+            else{
+              winnerLogin = this.round.enemyPlayerFought.login;
+              loserLogin = this.round.activePlayer.login;
+            }
+            // WAIT FOR BACKEND CARD_ID IMPLEMENTATION
+            // this.shared.sendUpdateGameEvent(UpdateEnum.CARD_STOLEN, winnerLogin, loserLogin, )
+          }
         }
         else{
-          this.handleGameContinue(data);
+          if(data.roundState == RoundState.WAITING_FOR_FIELD_OPTIONS){
+            /*
+            1. WAITING_FOR_FIELD_OPTIONS => getPlayersPossibleActions()
+            2. WAITING_FOR_FIELD_ACTION_CHOICE => selectRoundOption()
+            */
+            this.actionButtonClickFlag = false;
+            this.handleOptions();
+          }
+          else{
+            this.handleGameContinue(data);
+          }
         }
+        
       })
     );
   }
@@ -167,58 +255,30 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
 
   handleFightPlayerFlag(){
     if(this.FIGHT_WITH_PLAYER_FLAG){
-      this.toDeleteSubscription.push(
-        this.playedGameService.getPlayersToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: PlayerList) => {
-          this.playersToAttack = data.playerList;
-          this.fetchPlayersCharacter();
-        })
-      );
+      this.fetchPlayersCharacter();
     }
   }
 
   handleFightEnemyFlag(){
-    // if(this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG || this.BOSS_FIELD_FLAG || this.BRIDGE_FIELD_FLAG){
-    //   this.toDeleteSubscription.push(
-    //     this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-    //       this.enemiesToAttack = data.enemyCardList;
-    //       this.fetchEnemies();
-    //     })
-    //   );
-    // }
-    if(this.BOSS_FIELD_FLAG && this.attackBossFlag){
-      // means that a character stands on the field!
-    }
-    if(this.BRIDGE_FIELD_FLAG && this.attackBridgeGuardianFlag){
+    if(this.BOSS_FIELD_FLAG || this.BRIDGE_FIELD_FLAG){
       // means that a character stands on the field!
       this.enemyToAttack = this.round.activePlayer.character.field!.enemy;
-      this.fetchEnemy(this.enemyToAttack)
+      this.fetchEnemy()
     }
   }
 
   fetchPlayersCharacter(){
-    this.playersToAttack.forEach( (player: Player) => {
-      this.toDeleteSubscription.push(
-        this.gameEngineService.getCharacter(player.character.id).subscribe( (character: Character) => {
-          this.playersToAttackCharacters.push(character);
-        })
-      );
-    });
+    this.toDeleteSubscription.push(
+      this.gameEngineService.getCharacter(this.playerToAttack.character.id).subscribe( (character: Character) => {
+        this.playerToAttackCharacter = character;
+      })
+    );
   }
 
-  fetchEnemies(){
-    // this.enemiesToAttack.forEach( (enemy: EnemyCard) => {
-    //   this.toDeleteSubscription.push(
-    //     this.gameEngineService.getCard(enemy.id).subscribe( (card: Card) => {
-    //       this.enemiesToAttackFromEngine.push(card);
-    //     })
-    //   );
-    // });
-  }
-
-  fetchEnemy(enemyCard: EnemyCard | null){
-    if(enemyCard != null){
+  fetchEnemy(){
+    if(this.enemyToAttack != null){
       this.toDeleteSubscription.push(
-        this.gameEngineService.getCard(enemyCard.id).subscribe( (data: Card) => {
+        this.gameEngineService.getCard(this.enemyToAttack.id).subscribe( (data: Card) => {
           this.enemyToAttackFromEngine = data;
         })
       );
@@ -251,18 +311,20 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
           if(this.round.activePlayer.character.field!.type == FieldType.BRIDGE_FIELD){
             // WHILE ON BRIDGE => Attack Guardian = TRUE
             this.attackBridgeGuardianFlag = true;
+            // OTHERWISE can move to bridge
           }
-          console.log(this.attackBridgeGuardianFlag);
           break;
         case 'BOSS_FIELD':
           this.BOSS_FIELD_FLAG = true;
           if(this.round.activePlayer.character.field!.type == FieldType.BOSS_FIELD){
             // WHILE ON BOSS => Attack Boss = TRUE
             this.attackBossFlag = true;
+            // OTHERWISE can move to boss
           }
           break;
         case 'FIGHT_WITH_PLAYER':
           this.FIGHT_WITH_PLAYER_FLAG = true;
+          this.playerToAttack = option.enemyPlayer;
           break;
         case 'FIGHT_WITH_ENEMY_ON_FIELD':
           this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG = true;
@@ -338,17 +400,21 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     };
   }
 
-  attackPlayedClick(enemyPlayedLogin: string){
+  attackPlayedClick(defenderPlayerLogin: string){
     this.toDeleteSubscription.push(
       this.playedGameService.selectRoundOpiton(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
         FieldOptionEnum.FIGHT_WITH_PLAYER).subscribe( () => {
-          this.shared.sendFightPlayerClickEvent(enemyPlayedLogin);
+          this.shared.sendNotifyAttackerPlayerEvent(defenderPlayerLogin);
           this.actionButtonClickFlag = true;
         }
       )
     );
+  }
+
+  handleDefenderPlayer(attackerPlayerLogin: string){
+    this.shared.sendNotifyDefenderPlayerEvent(attackerPlayerLogin);
   }
 
   attackEnemyClick(enemyCardId: number){
@@ -375,7 +441,32 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     );
   }
 
+  moveToBridge(){
+    // TO DISCUSS WITH BACKEND (does it move a character?)
+  }
+
+  attackBoss(enemyCardId: number){
+    this.toDeleteSubscription.push(
+      this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id,
+        this.requestStructure.player!.login,
+        FieldOptionEnum.BOSS_FIELD).subscribe( () => {
+          this.shared.sendFightEnemyCardClickEvent(enemyCardId);
+          this.actionButtonClickFlag = true;
+        })
+    );
+  }
+
+  moveToBoss(){
+    // TO DISCUSS WITH BACKEND (does it move a character?)
+  }
+
   resetOptions(){
+    // GameUpdates & Defender POV in Fight
+    this.playerAttackedFlag = false;
+    this.cardStolenFlag = false;
+
+    // Option Contidion Flags
     this.TAKE_CARD_FLAG = false;
     this.numberOfCardsToBeDrawn = 0;
     this.LOSE_ROUND_FLAG = false;
@@ -384,11 +475,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     this.BOSS_FIELD_FLAG = false;
     this.FIGHT_WITH_PLAYER_FLAG = false;
     this.FIGHT_WITH_ENEMY_ON_FIELD_FLAG = false;
-
-    this.playersToAttack= [];
-    this.playersToAttackCharacters = [];
-    // this.enemiesToAttack = [];
-    this.enemiesToAttackFromEngine = [];
   }
 
   ngOnDestroy(): void {

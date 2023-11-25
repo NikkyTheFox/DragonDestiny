@@ -18,9 +18,11 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   dieData: {fightEnemyCondition: boolean, rollValue: number} = {fightEnemyCondition: false, rollValue: 0}  
-  showDrawCardConditionBoolean: boolean = false;
-  showFightEnemyCardConditionBoolean: boolean = false;
+  showDrawCard: boolean = false;
+  showFightEnemyCard: boolean = false;
   showFightPlayerConditionBoolean: boolean = false;
+  showAttackingPlayerPOV: boolean = false;
+  showDefeningPlayerPOV: boolean = false;
   rollCondition: boolean = false;
   cardsDrawn: number = 0;
   finishCondition: boolean = false;
@@ -52,25 +54,33 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     this.checkFinishCondition();
     if(!this.finishCondition){
       switch(this.notificationType){
-        case 1:
-          this.showDrawCardConditionBoolean = true; // show card draw option
+        case 1: // DRAW CARD
+          this.showDrawCard = true; // show card draw option
+          // notificationData = numberOfCardsToTake;
           break;
-        case 2:
-          // this.handleFightPlayer();
-          this.showFightPlayerConditionBoolean = true;
+        case 2: // FIGHT ENEMY CARD
+          this.showFightEnemyCard = true; // show field enemy data
+          // notificationData = cardToFightWithID;
           break;
-        case 3:
-          this.showFightEnemyCardConditionBoolean = true; // show field enemy data
+        case 3: // ATTACKER POV
+          this.showAttackingPlayerPOV = true;
+          // notificationData = defenderPlayerLogin;
           break;
-        case 4:
-          this.processContinue();
-      }
-    }
+        case 4: // DEFENDER POV
+          this.showDefeningPlayerPOV = true;
+          // notificationData = attackerPlayerLogin;
+          break;
+        case 5: //PROCESS CONTINUEGAME
+          this.processContinueGame();
+          // notificationData = Round;
+          break;
+      };
+    };
   }
 
   receiveCardActionFinished(){
     this.actionsDone++;
-    this.showDrawCardConditionBoolean = false;
+    this.showDrawCard = false;
     this.rollCondition = false;
   }
 
@@ -83,7 +93,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     this.rollCondition = false;
 }
 
-  processContinue(){
+  processContinueGame(){
     let round = this.notificationData as Round;
     if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_ONE_CARD){
 
@@ -135,9 +145,9 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   }
 
   reset(){
-    this.showDrawCardConditionBoolean = false;
+    this.showDrawCard = false;
     this.rollCondition = false;
-    this.showFightEnemyCardConditionBoolean = false;
+    this.showFightEnemyCard = false;
     this.dieData = {fightEnemyCondition: false, rollValue: 0};
   }
 
