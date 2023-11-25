@@ -9,4 +9,6 @@ export enum NotificationEnum{
     PLAYER_FIGHT,
     PLAYER_GOT_ITEM,
     CHARACTER_CHOSEN,
+    DICE_ROLLED,
+    CARD_STOLEN
 }

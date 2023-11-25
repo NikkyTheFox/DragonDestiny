@@ -13,8 +13,6 @@ import { GameDataStructure } from '../../../../interfaces/game-data-structure';
 import { FieldList as EngineFieldList} from '../../../../interfaces/game-engine/field/field-list';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
-import { Round } from 'src/app/interfaces/played-game/round/round';
-import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 import { Field } from 'src/app/interfaces/played-game/field/field';
 
 @Component({
@@ -26,6 +24,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   @Input() board!: Board;
   @Input() fieldIndex!: number;
   @Input() rowIndex!: number;
+  @Input() conditionFlag: boolean = false;
   toDeleteSubscription: Subscription[] = [];
   requestStructure!:GameDataStructure;
   fieldList: EngineField[] = [];
@@ -49,7 +48,6 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
     );
     this.resetField();
     this.handleFieldContent();
-    this.fetchRound();
     this.toDeleteSubscription.push(
       this.shared.getSocketMessage().subscribe( (data: any) => {
         this.messageData = this.shared.parseNotificationMessage(data);
@@ -57,27 +55,6 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
           this.resetField();
           this.handleFieldContent()
         };
-      })
-    );
-
-  }
-
-  fetchRound(){
-    // sadly must be done in each field in order to 'check' whether a player can move to the field
-    this.toDeleteSubscription.push(
-      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-        if(data.roundState == RoundState.WAITING_FOR_FIELDS_TO_MOVE){
-          this.toDeleteSubscription.push(
-            this.playedGameService.checkPossibleNewPositions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-              this.dataService.possibleFields = data.fieldList;
-              this.handlePossibleField();
-            })
-          );
-        }
-        if(data.roundState == RoundState.WAITING_FOR_MOVE){
-          this.dataService.possibleFields = data.fieldListToMove;
-          this.handlePossibleField();
-        }      
       })
     );
   }
@@ -88,6 +65,10 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
         this.fieldList = data.fieldList;
         this.retrieveFieldType();
         this.retrieveCharactersOnField();
+        if(this.conditionFlag){
+          // pass down fetchRound() check from Board (to minimize requests made in multiple field components)
+          this.handlePossibleField();
+        };
       })
     );
   }

@@ -14,6 +14,9 @@ import { NotificationComponent } from './game-screen/notification/notification.c
 import { NotificationDrawCardComponent } from './game-screen/notification/notification-draw-card/notification-draw-card.component';
 import { NotificationDieComponent } from './game-screen/notification/notification-die/notification-die.component';
 import { NotificationFightEnemyComponent } from './game-screen/notification/notification-fight-enemy/notification-fight-enemy.component';
+import { NotificationAttackComponent } from './game-screen/notification/notification-attack/notification-attack.component';
+import { NotificationDefendComponent } from './game-screen/notification/notification-defend/notification-defend.component';
+import { NotificationUpdateComponent } from './game-screen/notification/notification-update/notification-update.component';
 
 
 
@@ -31,7 +34,10 @@ import { NotificationFightEnemyComponent } from './game-screen/notification/noti
     NotificationComponent,
     NotificationDrawCardComponent,
     NotificationDieComponent,
-    NotificationFightEnemyComponent
+    NotificationFightEnemyComponent,
+    NotificationAttackComponent,
+    NotificationDefendComponent,
+    NotificationUpdateComponent
   ],
   imports: [
     CommonModule,

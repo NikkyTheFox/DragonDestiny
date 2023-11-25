@@ -6,10 +6,15 @@ import { Board } from '../../../../interfaces/game-engine/board/board';
   templateUrl: './board-row.component.html',
   styleUrls: ['./board-row.component.css']
 })
-export class BoardRowComponent implements OnChanges{
+export class BoardRowComponent implements OnInit, OnChanges{
   @Input() board!: Board;
   @Input() rowIndex!: number;
+  @Input() conditionFlag: boolean = false;
   fieldInRowArray: number[] = [];
+
+  ngOnInit(): void {
+    this.prepareFieldArray();
+  }
 
   ngOnChanges(changes: SimpleChanges){
     this.prepareFieldArray();

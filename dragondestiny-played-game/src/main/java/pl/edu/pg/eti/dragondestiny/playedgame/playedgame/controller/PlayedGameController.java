@@ -533,6 +533,13 @@ public class PlayedGameController {
                                                      @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerToLogin") String playerToLogin) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToPlayer(playedGameId, playerFromLogin, playerToLogin, cardId);
+            if(playedGame.isPresent()){
+                try{
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.CARD_STOLEN));
+                } catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+            }            
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
@@ -1195,6 +1202,17 @@ public class PlayedGameController {
     public ResponseEntity rollDice(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
+            if(roll.isPresent()){
+                try{
+                    // Message players that a dice is rolled => 
+                    // 1. Notify DEFENDER player that current roundState = WAITING_FOR_ENEMY_PLAYER_ROLL -> it is time for him to rollDice()
+                    // 2. Notify ATTACKER player that current roundState = WAITING_FOR_FIGHT_RESULT -> it is time to call handelFightWithPlayer()
+                    gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.DICE_ROLLED));
+                }
+                catch (Exception ex) {
+                    return ResponseEntity.internalServerError().body(ex.getMessage());
+                }
+            }            
             return roll.map(integer -> ResponseEntity.ok().body(integer))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (IllegalGameStateException ex) {

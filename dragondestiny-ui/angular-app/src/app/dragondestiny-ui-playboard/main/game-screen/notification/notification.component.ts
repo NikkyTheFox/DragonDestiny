@@ -1,11 +1,11 @@
-import { Card as EngineCard} from './../../../../interfaces/game-engine/card/card/card';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
 import { SharedService } from '../../../../services/shared.service';
 import { GameDataStructure } from '../../../../interfaces/game-data-structure';
-import { FightResult } from '../../../../interfaces/played-game/fight-result/fight-result';
 import { Subscription } from 'rxjs';
 import { GameEngineService } from 'src/app/services/game-engine/game-engine.service';
+import { Round } from 'src/app/interfaces/played-game/round/round';
+import { FieldOptionEnum } from 'src/app/interfaces/played-game/field/field-option-enum';
 
 @Component({
   selector: 'app-notification',
@@ -17,25 +17,11 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   @Input() notificationData!: any;
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
-
-  dieData: {fightEnemyCondition: boolean, rollValue: number} = {fightEnemyCondition: false, rollValue: 0}
-
-  fightResult!: FightResult;
-  cardToDisplay!: EngineCard;
-  cardAttributes: number[] = [];
-  
-  playerRoll: number = 0;
-  enemyRoll: number = 0;
+  dieData: {fightEnemyCondition: boolean, rollValue: number} = {fightEnemyCondition: false, rollValue: 0}  
   showDrawCardConditionBoolean: boolean = false;
   showFightEnemyCardConditionBoolean: boolean = false;
-  cardDisplayCondition: boolean = false;
-  handCondition: boolean = false;
-  equipCondition: boolean = false;
+  showFightPlayerConditionBoolean: boolean = false;
   rollCondition: boolean = false;
-  fightResultCondition: boolean = false;
-  bridgeFlag: boolean = false; // player is on bridge field
-  bossRoomFlag: boolean = false; // player is on boss field
-
   cardsDrawn: number = 0;
   finishCondition: boolean = false;
   actionsDone: number = 0;
@@ -50,7 +36,6 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
 
   ngOnChanges(changes: SimpleChanges): void {
     this.requestStructure = this.shared.getRequest();
-    this.cardAttributes = [];
     this.handleNotifications();
   }
 
@@ -71,11 +56,14 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
           this.showDrawCardConditionBoolean = true; // show card draw option
           break;
         case 2:
-          this.handleFightPlayer();
+          // this.handleFightPlayer();
+          this.showFightPlayerConditionBoolean = true;
           break;
         case 3:
           this.showFightEnemyCardConditionBoolean = true; // show field enemy data
           break;
+        case 4:
+          this.processContinue();
       }
     }
   }
@@ -95,19 +83,41 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     this.rollCondition = false;
 }
 
-  handleFightPlayer(){
-    // ROLL A DIE
-    let roll = 6;
-    this.toDeleteSubscription.push(
-      this.playedGameService.handleFightWithPlayer(
-        this.requestStructure.game!.id,
-        this.requestStructure.player!.login,
-        this.notificationData // login of a Player to fight with
-      ).subscribe( (data: FightResult) => {
-      // Handle fightResult data to be displayed in html file.
-      })
-    );
+  processContinue(){
+    let round = this.notificationData as Round;
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_ONE_CARD){
+
+    }
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_TWO_CARDS){
+
+    }
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD){
+
+    }
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BOSS_FIELD){
+
+    }
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BRIDGE_FIELD){
+      
+    }
+    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_PLAYER){
+
+    }
   }
+
+  // handleFightPlayer(){
+  //   // ROLL A DIE
+  //   let roll = 6;
+  //   this.toDeleteSubscription.push(
+  //     this.playedGameService.handleFightWithPlayer(
+  //       this.requestStructure.game!.id,
+  //       this.requestStructure.player!.login,
+  //       this.notificationData // login of a Player to fight with
+  //     ).subscribe( (data: FightResult) => {
+  //     // Handle fightResult data to be displayed in html file.
+  //     })
+  //   );
+  // }
 
   recieveDieData(data: { flag: boolean, value: number }){
     this.dieData = {fightEnemyCondition: data.flag, rollValue: data.value};
@@ -126,11 +136,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
 
   reset(){
     this.showDrawCardConditionBoolean = false;
-    this.cardDisplayCondition = false;
-    this.handCondition = false; 
-    this.equipCondition = false;
     this.rollCondition = false;
-    this.fightResultCondition = false;
     this.showFightEnemyCardConditionBoolean = false;
     this.dieData = {fightEnemyCondition: false, rollValue: 0};
   }

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SharedService } from '../../../services/shared.service';
 import { Subscription } from 'rxjs';
+import { Round } from 'src/app/interfaces/played-game/round/round';
 
 @Component({
   selector: 'app-game-screen',
@@ -59,7 +60,13 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   }
 
   processContinue(){
-
+    this.toDeleteSubscription.push(
+      this.shared.getContinuteGameEvent().subscribe( (round: Round) => {
+        this.showNotification = true;
+        this.notificationType = 4;
+        this.notificationData = round;
+      })
+    );
   }
 
   processNotificationClose(){

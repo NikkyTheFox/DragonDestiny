@@ -7,6 +7,7 @@ import { PlayedGame } from '../interfaces/played-game/played-game/played-game';
 import { Player } from '../interfaces/played-game/player/player';
 import { WebsocketService } from './websocket.service';
 import { NotificationMessage } from '../interfaces/played-game/notification/notification-message';
+import { Round } from '../interfaces/played-game/round/round';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +41,7 @@ export class SharedService{
   private drawCard = new Subject<number>();
   private fightPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
-  private continueGame = new Subject();
+  private continueGame = new Subject<Round>();
   private continue = new Subject();
 
   // Web Socket
@@ -285,8 +286,8 @@ export class SharedService{
     return this.fightEnemyCard.asObservable();
   }
 
-  sendContinuteGameEvent(){
-    this.continueGame.next(null);
+  sendContinuteGameEvent(round: Round){
+    this.continueGame.next(round);
   }
 
   getContinuteGameEvent(){

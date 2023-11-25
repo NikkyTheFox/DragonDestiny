@@ -20,13 +20,21 @@
     </div>
   </div>
 
-  <div *ngIf="FIGHT_WITH_ENEMY_ON_FIELD_FLAG">
-    <div *ngFor="let enemy of enemiesToAttack; let i = index">
+  <!-- <div *ngIf="FIGHT_WITH_ENEMY_ON_FIELD_FLAG">
+    <div *ngFor="let enemy of enemiesToAttack; let i = index"> -->
       <!-- Attack normal -->
-      <button *ngIf="enemiesToAttackFromEngine[i]" 
+      <!-- <button *ngIf="enemiesToAttackFromEngine[i]" 
       [disabled]="actionButtonClickFlag"
       (click)="attackEnemyClick(enemy.id)"
       >Attack {{enemiesToAttackFromEngine[i].name}} | HP: {{enemy.health}} | S: {{enemy.initialStrength}}</button>
     </div>
+  </div> -->
+
+  <div *ngIf="BRIDGE_FIELD_FLAG && attackBridgeGuardianFlag">
+    <button>TEST</button>
+      <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
+      [disabled]="actionButtonClickFlag"
+      (click)="attackBridgeGuardian(enemyToAttack.id)"
+      >Attack Bridge Guardian {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
   </div>
 </div>

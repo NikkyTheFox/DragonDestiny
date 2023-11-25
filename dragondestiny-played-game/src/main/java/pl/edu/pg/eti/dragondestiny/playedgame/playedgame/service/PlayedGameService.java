@@ -1262,7 +1262,7 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = 2; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = 1; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
         if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {

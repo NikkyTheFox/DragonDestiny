@@ -1,4 +1,4 @@
-import { Field } from '../../game-engine/field/field';
+import { Field } from '../../played-game/field/field';
 
 export interface PlayedGameCharacter{
   id: number;
