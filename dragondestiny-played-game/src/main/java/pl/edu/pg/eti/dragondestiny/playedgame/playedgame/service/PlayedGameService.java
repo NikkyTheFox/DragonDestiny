@@ -1169,7 +1169,6 @@ public class PlayedGameService {
                 }
             }
         }
-        activeRound.addRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
         activeRound.nextRoundState();
         playedGame.setActiveRound(activeRound);
         playedGameRepository.save(playedGame);
