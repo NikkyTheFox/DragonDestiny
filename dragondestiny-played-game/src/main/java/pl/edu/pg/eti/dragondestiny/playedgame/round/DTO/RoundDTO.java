@@ -4,11 +4,11 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.DTO.ItemCardDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionListDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
@@ -56,7 +56,7 @@ public class RoundDTO {
     /**
      * List of fields the player could move to
      */
-    private List<Field> fieldListToMove;
+    private List<FieldDTO> fieldListToMove;
 
     /**
      * List of possible options to choose from on the field
@@ -76,17 +76,17 @@ public class RoundDTO {
     /**
      * Item Card drawn by active player
      */
-    private ItemCard itemCardToTake;
+    private ItemCardDTO itemCardToTake;
 
     /**
      * Item Card stolen by player from lost player
      */
-    private ItemCard itemCardStolen;
+    private ItemCardDTO itemCardStolen;
 
     /**
      * Enemy Card fought by active player
      */
-    private EnemyCard enemyFought;
+    private EnemyCardDTO enemyFought;
 
     /**
      * Enemy Player fought by active player
