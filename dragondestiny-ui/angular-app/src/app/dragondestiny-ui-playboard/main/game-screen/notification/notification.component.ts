@@ -121,20 +121,6 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     }
   }
 
-  // handleFightPlayer(){
-  //   // ROLL A DIE
-  //   let roll = 6;
-  //   this.toDeleteSubscription.push(
-  //     this.playedGameService.handleFightWithPlayer(
-  //       this.requestStructure.game!.id,
-  //       this.requestStructure.player!.login,
-  //       this.notificationData // login of a Player to fight with
-  //     ).subscribe( (data: FightResult) => {
-  //     // Handle fightResult data to be displayed in html file.
-  //     })
-  //   );
-  // }
-
   recieveDieData(data: { flag: boolean, value: number }){
     this.dieData = {fightEnemyCondition: data.flag, rollValue: data.value};
   }

@@ -1,10 +1,13 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.field.object;
 
+import org.modelmapper.ModelMapper;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionEnum;
+import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 
 
@@ -29,7 +32,7 @@ public enum FieldOption {
     public Integer numOfTurnsToBlock;
     public Player enemyPlayer;
 
-    public FieldOptionDTO toDTO() {
-        return new FieldOptionDTO(fieldOptionEnum, numOfCardsToTake, numOfTurnsToBlock, enemyPlayer);
+    public FieldOptionDTO toDTO(ModelMapper modelMapper) {
+        return new FieldOptionDTO(fieldOptionEnum, numOfCardsToTake, numOfTurnsToBlock, enemyPlayer != null ? modelMapper.map(enemyPlayer, PlayerDTO.class) : null);
     }
 }

@@ -164,6 +164,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   getFieldOptions(){
     this.toDeleteSubscription.push(
       this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+        console.log('here69')
         this.checkOptionsFlags(data.possibleOptions);
         console.log(data);
         this.handleOptionFlags();

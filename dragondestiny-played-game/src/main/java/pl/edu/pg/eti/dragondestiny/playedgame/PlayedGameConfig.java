@@ -27,7 +27,7 @@ public class PlayedGameConfig {
         modelMapper.addConverter(ctx ->
                 new AbstractConverter<FieldOption, FieldOptionDTO>() {
                     protected FieldOptionDTO convert(FieldOption source) {
-                        return source.toDTO();
+                        return source.toDTO(modelMapper);
                     }
                 }
         );

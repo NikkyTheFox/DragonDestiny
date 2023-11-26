@@ -1044,7 +1044,7 @@ public class PlayedGameController {
         try {
             Optional<FieldOptionList> fieldOptionList = playedGameService.checkFieldOption(playedGameId, playerLogin);
             return fieldOptionList.map(optionList -> ResponseEntity.ok().body(new FieldOptionListDTO(
-                            optionList.getPossibleOptions().stream().map(fieldOption -> fieldOption.toDTO()).collect(Collectors.toList()))))
+                            optionList.getPossibleOptions().stream().map(fieldOption -> fieldOption.toDTO(modelMapper)).collect(Collectors.toList()))))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
             return ResponseEntity.status(404).body(ex.toString());

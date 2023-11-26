@@ -33,24 +33,14 @@ export class StartGameComponent implements OnInit, OnDestroy{
     );
   }
 
-  //to check if logic is not already in PlayedGameService.java
   startGame(){
     this.toDeleteSubscription.push(
-      this.playedGameService.getPlayers(this.gameId).subscribe( (data: any) => {
-        let playerList: Player[] = data.playerList;
-        let charactersFlag = true;
-        playerList.forEach( (player: Player) => {
-          if(this.isEmpty(player.character)){
-            charactersFlag = false;
-          }
-        });
-        if(charactersFlag){
-          this.toDeleteSubscription.push(
-            this.playedGameService.startGame(this.gameId).subscribe(() => {})
-          )
-        }
-        else {
-          window.alert('Not every player has chosen a character');
+      this.playedGameService.startGame(this.gameId).subscribe( () => {},      
+      (error: any) => {
+        if (error.status === 400) {
+          if(error.error == 'pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException: All players must have a character assigned to start.'){
+            window.alert('All players must select a character')
+          };
         };
       })
     );
