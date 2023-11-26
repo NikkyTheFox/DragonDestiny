@@ -122,6 +122,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   resetField(){
     this.fieldList = [];
     this.charactersOnField = [];
+    this.engineCharactersOnField = [];
     this.playersInGame = [];
     this.moveFlag = false;
   }

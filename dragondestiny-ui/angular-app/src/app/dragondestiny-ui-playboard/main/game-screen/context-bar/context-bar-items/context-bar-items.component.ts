@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
 import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
 import { ItemCard } from '../../../../../interfaces/played-game/card/item-card/item-card';
-import { Card } from '../../../../../interfaces/game-engine/card/card/card';
+import { ItemCard as EngineCard } from '../../../../../interfaces/game-engine/card/item-card/item-card';
 import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
 import { SharedService } from '../../../../../services/shared.service';
 import { Subscription } from 'rxjs';
@@ -16,8 +16,9 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   itemsList: ItemCard[] = [];
-  cardNameList: string[] = [];
-  cardDescList: string[] = [];
+  engineItemsList: EngineCard[] = [];
+  cardOrder: number[] = [];
+  cardFetchedFlag: boolean = false;
   discardFlag: boolean = false;
 
   constructor(private playedGameService: PlayedGameService, private gameEngineService: GameEngineService, private shared: SharedService){
@@ -44,10 +45,12 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
         this.itemsList = data.itemCardList;
-        this.fetchCardsFromEngine();
       },
       (error: any) => {
         console.log('player has no cards')
+      },
+      () => {
+        this.fetchCardsFromEngine();
       })
     );
   }
@@ -55,12 +58,25 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   fetchCardsFromEngine(){
     this.itemsList.forEach( (data: ItemCard) => {
       this.toDeleteSubscription.push(
-        this.gameEngineService.getCard(data.id).subscribe( (data: Card) => {
-          this.cardNameList.push(data.name);
-          this.cardDescList.push(data.description);
+        this.gameEngineService.getCard(data.id).subscribe( (data: any) => {
+          this.engineItemsList.push(data);
+          if(this.engineItemsList.length == this.itemsList.length){
+            this.cardFetchedFlag = true;
+            this.sortItemArrays();
+          }
         })
       );
     });
+  }
+
+  sortItemArrays(){
+    for(let i = 0; i< this.itemsList.length; i++){
+      for(let j = 0; j < this.engineItemsList.length; j++){
+        if(this.itemsList[i].id == this.engineItemsList[j].id){
+          this.cardOrder.push(j);
+        }
+      }
+    }
   }
 
   discardItem(card: ItemCard){
@@ -73,9 +89,11 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
   }
 
   resetArrays(){
+    this.discardFlag = false;
+    this.cardFetchedFlag = false;
     this.itemsList = [];
-    this.cardNameList = [];
-    this.cardDescList = [];
+    this.engineItemsList = [];
+    this.cardOrder = [];
   }
   
   ngOnDestroy(): void {

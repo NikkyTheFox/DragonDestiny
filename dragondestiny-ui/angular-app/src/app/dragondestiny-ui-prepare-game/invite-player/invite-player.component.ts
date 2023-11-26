@@ -28,7 +28,6 @@ export class InvitePlayerComponent implements OnInit, OnDestroy{
       this.userService.getUserByLogin(this.playerToInvite).subscribe( (data: User) => {
         this.toDeleteSubscription.push(
           this.playedGameService.addPlayerToGameByLogin(this.gameId, data.login).subscribe( () => {
-            console.log('invite button clicked')
             this.shared.sendPlayerInvitedEvent();
           })
         );

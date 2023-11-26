@@ -33,7 +33,6 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
-    console.log('chuj a nie herbata')
     this.resetAllTables();
     this.handleCharacterTiles();
     this.fetchCharacterPlayerStatistic();
@@ -49,7 +48,6 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
     );
     this.toDeleteSubscription.push(
       this.shared.getPlayerInvitedEvent().subscribe( () => {
-        console.log('player got invited lul')
         this.fetchCharacterPlayerStatistic();
       })
     );
@@ -102,19 +100,14 @@ export class SelectCharacterComponent implements OnInit, OnDestroy{
   }
 
   fetchCharacterPlayerStatistic(){
-    console.log('heherbata')
     this.toDeleteSubscription.push(
       this.playedGameService.getPlayers(this.requestStructure.game!.id).subscribe( (data: PlayerList) => {
         this.numOfPlayers = data.playerList.length;
-        console.log('num of players')
-        console.log(this.numOfPlayers)
       })
     );
     this.toDeleteSubscription.push(
       this.playedGameService.getCharactersInUse(this.requestStructure.game!.id).subscribe( (data: CharacterList) => {
         this.numOfSelected = data.characterList.length;
-        console.log('num selected')
-        console.log(this.numOfSelected)
       })
     );
   }
