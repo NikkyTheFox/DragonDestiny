@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionDTO;
+import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOption;
-import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOptionList;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 
@@ -61,12 +61,12 @@ public class RoundDTO {
     /**
      * List of possible options to choose from on the field
      */
-    private FieldOptionList fieldOptionList;
+    private FieldOptionListDTO fieldOptionList;
 
     /**
      * Chosen option field on the field
      */
-    private FieldOption playerFieldOptionChosen;
+    private FieldOptionDTO playerFieldOptionChosen;
 
     /**
      * Number of cards drawn by the active player

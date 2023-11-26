@@ -135,9 +135,9 @@ public class Round {
     public void nextRoundState() {
         if (!roundStatesOrder.isEmpty()) {
             roundStatesOrder.remove(0);
-            roundState = roundStatesOrder.size() > 0 ? roundStatesOrder.get(0) : RoundState.END_ROUND;
+            roundState = roundStatesOrder.size() > 0 ? roundStatesOrder.get(0) : RoundState.WAITING_FOR_NEXT_ROUND;
         } else {
-            roundState = RoundState.END_ROUND;
+            roundState = RoundState.WAITING_FOR_NEXT_ROUND;
         }
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,15 +25,14 @@ public class Gateway {
     }
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder)
-    {
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder
                 .routes()
                 .route("users", r -> r
                         .path("/api/users/**")
                         .uri("lb://game-user"))
                 .route("playedgames", r -> r
-                        .path("/api/playedgames/**" )
+                        .path("/api/playedgames/**")
                         .uri("lb://played-game"))
                 .route("games", r -> r
                         .path(
@@ -42,8 +41,11 @@ public class Gateway {
                                 "/api/fields/**", // field controller
                                 "/api/cards/**",  // card controller
                                 "/api/characters/**" // characters controller
-                            )
+                        )
                         .uri("lb://game-engine"))
+                .route("graphics", r -> r
+                        .path("/api/graphics/**")
+                        .uri("lb://game-graphics"))
                 .build();
     }
 
