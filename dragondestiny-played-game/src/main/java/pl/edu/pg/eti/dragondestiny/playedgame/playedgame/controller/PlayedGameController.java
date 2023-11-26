@@ -1199,6 +1199,8 @@ public class PlayedGameController {
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (IllegalGameStateException ex) {
             return ResponseEntity.status(400).body(ex.toString());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(ex.toString());
         }
     }
 

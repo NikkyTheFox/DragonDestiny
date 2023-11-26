@@ -1,5 +1,8 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.field.object;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.DTO.FieldOptionEnum;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
@@ -8,6 +11,9 @@ import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 /**
  * Represent actions possible to take while standing on field.
  */
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public enum FieldOption {
     TAKE_ONE_CARD(FieldOptionEnum.TAKE_ONE_CARD, 1, 0, null),
     TAKE_TWO_CARDS(FieldOptionEnum.TAKE_TWO_CARDS, 2, 0, null),
@@ -18,20 +24,12 @@ public enum FieldOption {
     FIGHT_WITH_PLAYER(FieldOptionEnum.FIGHT_WITH_PLAYER, 0, 0, null),
     FIGHT_WITH_ENEMY_ON_FIELD(FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD, 0, 0, null);
 
-    public final Integer numOfCardsToTake;
-    public final Integer numOfTurnsToBlock;
     public FieldOptionEnum fieldOptionEnum;
+    public Integer numOfCardsToTake;
+    public Integer numOfTurnsToBlock;
     public Player enemyPlayer;
-
-    FieldOption(FieldOptionEnum fieldOptionEnum, Integer numOfCardsToTake, Integer numOfTurnsToBlock, Player enemyPlayer) {
-        this.fieldOptionEnum = fieldOptionEnum;
-        this.numOfCardsToTake = numOfCardsToTake;
-        this.numOfTurnsToBlock = numOfTurnsToBlock;
-        this.enemyPlayer = enemyPlayer;
-    }
 
     public FieldOptionDTO toDTO() {
         return new FieldOptionDTO(fieldOptionEnum, numOfCardsToTake, numOfTurnsToBlock, enemyPlayer);
     }
-
 }

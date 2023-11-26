@@ -1,21 +1,20 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
 
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FieldOptionDTO {
-    public final FieldOptionEnum fieldOptionEnum;
+    public FieldOptionEnum fieldOptionEnum;
 
-    public final Integer numOfCardsToTake;
+    public Integer numOfCardsToTake;
 
-    public final Integer numOfTurnsToBlock;
+    public Integer numOfTurnsToBlock;
 
     public Player enemyPlayer;
-
-    public FieldOptionDTO(FieldOptionEnum fieldOptionEnum, Integer numOfCardsToTake, Integer numOfTurnsToBlock, Player enemyPlayer) {
-        this.fieldOptionEnum = fieldOptionEnum;
-        this.numOfCardsToTake = numOfCardsToTake;
-        this.numOfTurnsToBlock = numOfTurnsToBlock;
-        this.enemyPlayer = enemyPlayer;
-    }
-
 }
