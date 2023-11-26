@@ -3,7 +3,7 @@ package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
+import pl.edu.pg.eti.dragondestiny.playedgame.player.DTO.PlayerDTO;
 
 
 @Data
@@ -16,5 +16,5 @@ public class FieldOptionDTO {
 
     public Integer numOfTurnsToBlock;
 
-    public Player enemyPlayer;
+    public PlayerDTO enemyPlayer;
 }
