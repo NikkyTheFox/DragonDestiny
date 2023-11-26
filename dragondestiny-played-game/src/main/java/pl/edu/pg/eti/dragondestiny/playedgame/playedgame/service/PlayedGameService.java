@@ -669,15 +669,16 @@ public class PlayedGameService {
      */
     public Optional<PlayedGame> selectRoundOption(String playedGameId, String playerLogin, FieldOption fieldOption) throws IllegalGameStateException {
         PlayedGame playedGame = checkGame(playedGameId);
-        checkCompletePlayer(playedGameId, playerLogin);
+        Player player = checkCompletePlayer(playedGameId, playerLogin);
         Round activeRound = checkActiveRound(playedGameId, playerLogin, RoundState.WAITING_FOR_FIELD_ACTION_CHOICE);
 
         if (!activeRound.getFieldOptionList().getPossibleOptions().contains(fieldOption)) {
             throw new IllegalGameStateException(PlayerActionNotAllowedMessage);
         }
         switch (fieldOption) {
+            case TAKE_ONE_CARD, TAKE_TWO_CARDS -> activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
             case BRIDGE_FIELD -> {
-                if (activeRound.getActivePlayer().getPositionField().getId().equals(PlayedGameProperties.bossFieldID)) {
+                if (player.getPositionField().getId().equals(PlayedGameProperties.bossFieldID)) {
                     activeRound.addRoundState(RoundState.WAITING_FOR_MOVE);
                     Optional<Field> bridgeField = findField(playedGameId, PlayedGameProperties.guardianFieldID);
                     if (bridgeField.isEmpty()) {
@@ -690,7 +691,6 @@ public class PlayedGameService {
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
                 activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
             }
-            case TAKE_ONE_CARD, TAKE_TWO_CARDS -> activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
             case FIGHT_WITH_ENEMY_ON_FIELD, BOSS_FIELD -> {
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
                 activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
@@ -1100,10 +1100,7 @@ public class PlayedGameService {
             cardList.addAll(playedGame.getUsedCardDeck());
             playedGame.getUsedCardDeck().clear();
         }
-        int cardToDrawIndex = 1;
-        if(cardList.size() > 1){
-            cardToDrawIndex = random.nextInt(cardList.size() - 1);
-        }
+        int cardToDrawIndex = random.nextInt(cardList.size() - 1);
         Optional<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex).stream().findFirst();
         activeRound.increaseNumOfCardsTaken(1);
         if (cardToDraw.get().getCardType().equals(CardType.ENEMY_CARD)) {
@@ -1254,7 +1251,7 @@ public class PlayedGameService {
                     }
                 }
             } else {
-                if (enemyPlayer.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
+                if (player.getCardsOnHand().size() >= PlayedGameProperties.numberOfCardsOnHand) {
                     activeRound.addRoundState(RoundState.WAITING_FOR_CARD_TO_USED);
                 }
                 activeRound.addRoundState(RoundState.WAITING_FOR_CARD_THEFT);
@@ -1279,7 +1276,7 @@ public class PlayedGameService {
         PlayedGame playedGame = checkGame(playedGameId);
         checkCompletePlayer(playedGameId, playerLogin);
         Random random = new Random();
-        Integer value = 1; //random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
+        Integer value = random.nextInt(PlayedGameProperties.diceLowerBound, PlayedGameProperties.diceUpperBound + 1);
 
         Round activeRound = playedGame.getActiveRound();
         if (!activeRound.getActivePlayer().getLogin().equals(playerLogin)) {
