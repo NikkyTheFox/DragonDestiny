@@ -14,6 +14,7 @@ import { FieldList as EngineFieldList} from '../../../../../../interfaces/game-e
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 import { Field } from 'src/app/interfaces/played-game/field/field';
+import { Character } from 'src/app/interfaces/game-engine/character/character';
 
 @Component({
   selector: 'app-board-field',
@@ -31,11 +32,12 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   fieldName!: FieldType;
   fieldId!: number;
   charactersOnField: PlayedGameCharacter[] = [];
+  engineCharactersOnField: Character[] = [];
   playersInGame: Player[] = [];
   moveFlag: boolean = false;
   messageData!: NotificationMessage;
 
-  constructor(private gameService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService,
+  constructor(private engineService: GameEngineService, private playedGameService: PlayedGameService, private dataService: GameDataService,
               private shared: SharedService){
   }
 
@@ -61,7 +63,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
 
   handleFieldContent(){
     this.toDeleteSubscription.push(
-      this.gameService.getBoardFields(this.board.id).subscribe((data: EngineFieldList) => {
+      this.engineService.getBoardFields(this.board.id).subscribe((data: EngineFieldList) => {
         this.fieldList = data.fieldList;
         this.retrieveFieldType();
         this.retrieveCharactersOnField();
@@ -94,8 +96,19 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
           return c.field?.id === this.fieldId;
         });
         this.charactersOnField = this.removeDuplicates(this.charactersOnField);
+        this.retrieveEngineCharactersOnField();
       })
     );
+  }
+
+  retrieveEngineCharactersOnField(){
+    this.charactersOnField.forEach( (pc: PlayedGameCharacter) => {
+      this.toDeleteSubscription.push(
+        this.engineService.getCharacter(pc.id).subscribe( (data: Character) => {
+          this.engineCharactersOnField.push(data);
+        })
+      );
+    });
   }
 
   handlePossibleField(){

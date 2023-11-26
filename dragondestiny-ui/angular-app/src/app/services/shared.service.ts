@@ -29,21 +29,18 @@ export class SharedService{
   private playerLogin = new Subject();
 
   // Game mechanics
+  private playerInvited = new Subject();
   private diceRoll = new Subject();
   private moveCharacter = new Subject();
-  // private drawEnemyCard = new Subject();
   private refreshHandCards = new Subject();
-  // private fightEnemyOnField = new Subject();
   private endTurn = new Subject();
   private blockTurn = new Subject();
-  // private exchangeTrophies = new Subject();
   private refreshCharacterStats = new Subject();
   private itemToDiscard = new Subject();
 
   // Notifications
   private notificationClose = new Subject();
   private drawCard = new Subject<number>();
-  // private fightPlayer = new Subject<string>();
   private notifyAttackerPlayer = new Subject<string>();
   private notifyDefenderPlayer = new Subject<string>();
   private fightEnemyCard = new Subject<number>();
@@ -53,7 +50,6 @@ export class SharedService{
                                     player2Login: string | null, 
                                     cardId: number | null,
                                     numTurnsBlock: number | null}>();
-  // private continue = new Subject();
 
   // Web Socket
   private socket!: WebSocket;
@@ -198,6 +194,14 @@ export class SharedService{
   }
 
   // Game Events
+
+  sendPlayerInvitedEvent(){
+    this.playerInvited.next(null);
+  }
+
+  getPlayerInvitedEvent(){
+    return this.playerInvited.asObservable();
+  }
 
   sendDiceRollClickEvent(){
     this.diceRoll.next(null);

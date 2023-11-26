@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UserService } from '../../services/user/user.service';
 import { PlayedGameService } from '../../services/played-game/played-game-service';
 import { User } from '../../interfaces/user/user/user';
-import { SharedService } from '../../services/shared.service';
 import { Subscription } from 'rxjs';
+import { SharedService } from 'src/app/services/shared.service';
 
 @Component({
   selector: 'app-invite-player',
@@ -27,7 +27,10 @@ export class InvitePlayerComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.userService.getUserByLogin(this.playerToInvite).subscribe( (data: User) => {
         this.toDeleteSubscription.push(
-          this.playedGameService.addPlayerToGameByLogin(this.gameId, data.login).subscribe()
+          this.playedGameService.addPlayerToGameByLogin(this.gameId, data.login).subscribe( () => {
+            console.log('invite button clicked')
+            this.shared.sendPlayerInvitedEvent();
+          })
         );
     },
       (error: any) => {

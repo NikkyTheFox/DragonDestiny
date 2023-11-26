@@ -15,7 +15,7 @@ import { Round } from 'src/app/interfaces/played-game/round/round';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent implements OnInit, OnChanges, OnDestroy{
+export class BoardComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;
   board !: Board;
@@ -32,9 +32,9 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy{
     this.handleRows();
   }
 
-  ngOnChanges(changes: SimpleChanges){
-    this.handleRows();
-  }
+  // ngOnChanges(changes: SimpleChanges){
+  //   this.handleRows();
+  // }
 
   fetchRound(){
     this.toDeleteSubscription.push(
@@ -58,12 +58,16 @@ export class BoardComponent implements OnInit, OnChanges, OnDestroy{
   handleRows(){
     this.toDeleteSubscription.push(
       this.playedGameService.getGame(this.requestStructure.game!.id).subscribe( (data: PlayedGame) => {
-        this.toDeleteSubscription.push(
-          this.gameEngineService.getBoard(data.board.id).subscribe( (data: Board) => {
-            this.board = data;
-            this.prepareRowArray();
-          })
-        );
+        this.getBoard(data);
+      })
+    );
+  }
+
+  getBoard(playedGame: PlayedGame){
+    this.toDeleteSubscription.push(
+      this.gameEngineService.getBoard(playedGame.board.id).subscribe( (data: Board) => {
+        this.board = data;
+        this.prepareRowArray();
       })
     );
   }
