@@ -1,2 +1,11 @@
-<p>notification-update works!</p>
-<p>{{ notificationData }}</p>
+<div *ngIf="showFlag">
+    <p>{{ notificationData }}</p>
+    <br>
+    <div *ngIf="notificationData2">
+        <p>{{ notificationData2.name }}</p>
+        <p>Strenght: {{ notificationData2.strength }}</p>
+        <p>Health: {{ notificationData2.health }}</p>
+    </div>
+    <br>
+    <button class="button" type="button" (click)="finishAction()">Continue</button>
+</div>

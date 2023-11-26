@@ -249,9 +249,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
           else{
             this.attackBridgeGuardianFlag = false;
           }
-          console.log('bridge values check');
-          console.log(this.BRIDGE_FIELD_FLAG);
-          console.log(this.attackBridgeGuardianFlag);
           break;
         case 'BOSS_FIELD':
           this.BOSS_FIELD_FLAG = true;
@@ -263,9 +260,6 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
           else{
             this.attackBossFlag = false;
           }
-          console.log('Boss values check');
-          console.log(this.BOSS_FIELD_FLAG);
-          console.log(this.attackBossFlag);
           break;
         case 'FIGHT_WITH_PLAYER':
           this.FIGHT_WITH_PLAYER_FLAG = true;
@@ -418,9 +412,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       this.playedGameService.selectRoundOpiton(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        FieldOptionEnum.BOSS_FIELD).subscribe( (data: any) => {
-          console.log('runda po wybraniu BOSS_FIELD')
-          console.log(data);
+        FieldOptionEnum.BOSS_FIELD).subscribe( () => {
           this.shared.sendFightEnemyCardEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })

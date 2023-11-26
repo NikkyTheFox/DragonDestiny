@@ -1,4 +1,4 @@
-import { ItemCard } from './../../../interfaces/played-game/card/item-card/item-card';
+import { GameEngineService } from 'src/app/services/game-engine/game-engine.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SharedService } from '../../../services/shared.service';
 import { Subscription } from 'rxjs';
@@ -14,11 +14,12 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   showNotification: boolean = false;
   notificationType: number = 0;
   notificationData: any = null;
+  notificationData2: any = null;
   gameContinueFlag: boolean = false;
 
   toDeleteSubscription: Subscription[] = [];
 
-  constructor(private shared: SharedService) {
+  constructor(private shared: SharedService, private engineService: GameEngineService) {
   }
 
   ngOnInit() {
@@ -88,35 +89,58 @@ export class GameScreenComponent implements OnInit, OnDestroy{
   processGameUpdate(){
     this.toDeleteSubscription.push(
       this.shared.getUpdateGameEvent().subscribe( (data: {updateType: UpdateEnum, player1Login: string | null, player2Login: string | null, cardId: number | null, numTurnsBlock: number | null}) => {
-        if(data.updateType == UpdateEnum.PLAYER_ATTACKED &&
+        if(data.player1Login == this.shared.getRequest().player!.login || data.player2Login == this.shared.getRequest().player!.login){
+          return;
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_ATTACKED &&
           data.player1Login != null && data.player2Login != null){
-
-        };
-        if(data.updateType == UpdateEnum.PLAYER_BLOCKED &&
+            this.showNotification = true;
+            this.notificationType = 6;
+            this.notificationData = data.player1Login +' attacked ' + data.player2Login;
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_BLOCKED &&
+          data.player1Login != null && data.numTurnsBlock != null){
+            this.notificationData = data.player1Login + ' has been blocked for ' + data.numTurnsBlock + 'turns';
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_DIED &&
           data.player1Login != null){
-
-        };
-        if(data.updateType == UpdateEnum.PLAYER_DIED &&
-          data.player1Login != null){
-
-        };
-        if(data.updateType == UpdateEnum.PLAYER_FIGHT &&
+            this.notificationData = data.player1Login + ' died';
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_FIGHT &&
           data.player1Login != null && data.player2Login != null){
           // ASSUMPTION: Player1 = winner
-          
-        };
-        if(data.updateType == UpdateEnum.PLAYER_GOT_ITEM &&
+          this.notificationData = data.player1Login + ' won a in a fight with ' + data.player2Login;
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_GOT_ITEM &&
           data.player1Login != null && data.cardId != null){
-          
-        };
-        if(data.updateType == UpdateEnum.PLAYER_WON_GAME &&
+            this.toDeleteSubscription.push(
+              this.engineService.getCard(data.cardId).subscribe( (card: any) => {
+                this.notificationData = data.player1Login + ' got a card';
+                this.showNotification = true;
+                this.notificationType = 6;
+                this.notificationData2 = card;
+              })
+            );
+            
+        }
+        else if(data.updateType == UpdateEnum.PLAYER_WON_GAME &&
           data.player1Login != null){
-          
-        };
-        if(data.updateType == UpdateEnum.CARD_STOLEN &&
+            this.notificationData = data.player1Login + ' has won the game!';
+            this.showNotification = true;
+            this.notificationType = 6;
+        }
+        else if(data.updateType == UpdateEnum.CARD_STOLEN &&
           data.player1Login != null && data.player2Login != null && data.cardId != null){
-          
-        };
+            // ASSUMPTION: Player1 = winner
+            this.toDeleteSubscription.push(
+              this.engineService.getCard(data.cardId).subscribe( (card: any) => {
+                this.notificationData = data.player1Login + ' has stolen a card from ' + data.player2Login;
+                this.showNotification = true;
+                this.notificationType = 6;
+                this.notificationData2 = card;
+              })
+            );
+        }
       })
     );
   }

@@ -15,6 +15,7 @@ import { FieldOptionEnum } from 'src/app/interfaces/played-game/field/field-opti
 export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   @Input() notificationType!: number;
   @Input() notificationData!: any;
+  @Input() notificationData2!: any;
   @Input() gameContinueFlag!: boolean;
   toDeleteSubscription: Subscription[] = [];
   requestStructure!: GameDataStructure;

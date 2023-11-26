@@ -57,6 +57,8 @@
 <div *ngIf="notificationType == 6 && showUpdate">
   <app-notification-update
   [notificationData]="notificationData"
+  [notificationData2]="notificationData2"
+  (finishConditionChange)="recieveFinishConditionChange($event)"
   ></app-notification-update>
 </div>
 
