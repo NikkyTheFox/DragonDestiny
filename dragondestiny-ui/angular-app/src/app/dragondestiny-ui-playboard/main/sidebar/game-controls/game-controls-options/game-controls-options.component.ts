@@ -17,6 +17,7 @@ import { RoundState } from 'src/app/interfaces/played-game/round/round-state';
 import { FieldOption } from 'src/app/interfaces/played-game/field/field-option';
 import { FieldType } from 'src/app/interfaces/game-engine/field/field-type';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
+import { Field } from 'src/app/interfaces/played-game/field/field';
 
 @Component({
   selector: 'app-game-controls-options',
@@ -49,6 +50,8 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   playerToAttackCharacter!: Character;
   enemyToAttack!: EnemyCard | null;
   enemyToAttackFromEngine!: any;
+  enemy2ToAttack!: EnemyCard | null;
+  enemy2ToAttackFromEngine!: any;
 
   // Actions Done Flags:
   actionButtonClickFlag: boolean = true;
@@ -99,15 +102,14 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   handleGameContinue(){
-    console.log('Round w control-options')
-    console.log(this.round)
+    // console.log('Round w control-options')
+    // console.log(this.round)
     if(this.round.roundState == RoundState.WAITING_FOR_FIELD_ACTION_CHOICE){
-      console.log('here2');
       this.actionButtonClickFlag = false;
       this.checkOptionsFlags(this.round.fieldOptionList.possibleOptions)
       this.handleOptionFlags();
     }
-    if(this.round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
+    else if(this.round.roundState == RoundState.WAITING_FOR_CARD_DRAWN){ // Draw card
       /*
       1. WAITING_FOR_CARD_DRAWN => drawRandomCard()
       (EnemyCard):
@@ -120,21 +122,21 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       */
       this.shared.sendDrawCardClickEvent(this.round.fieldOptionChosen.numOfCardsToTake - this.round.playerNumberOfCardsTaken);      
     }
-    if(this.round.roundState == RoundState.WAITING_FOR_ENEMIES_TO_FIGHT){ // Fight Field Enemy [Boss/Bridge]
+    else if(this.round.roundState == RoundState.WAITING_FOR_ENEMIES_TO_FIGHT){ // Fight Field Enemy [Boss/Bridge]
       /*
       1. WAITING_FOR_ENEMIES_TO_FIGHT => getEnemiesToFightWith()  | HANDLE HERE
       2. WAITING_FOR_FIGHT_ROLL => rollDie()
       3. WAITING_FOR_ENEMY_ROLL => rollDie()
       4. WAITING_FOR_FIGHT_RESULT => handleFightWithEnemyCard()
       */ 
-      this.toDeleteSubscription.push(
-        this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
-          this.shared.sendFightEnemyCardEvent(data.enemyCardList[0].id); // check
-        })
-      );
+      // this.toDeleteSubscription.push(
+      //   this.playedGameService.getEnemiesToFightWith(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: EnemyCardList) => {
+      //     this.shared.sendFightEnemyCardEvent(data.enemyCardList[0].id); // check
+      //   })
+      // );
       // this.shared.sendFightEnemyCardClickEvent(round.enemyFought.id); // Check
     }
-    if(this.round.roundState == RoundState.WAITING_FOR_PLAYER_TO_FIGHT){ // Fight Player
+    else if(this.round.roundState == RoundState.WAITING_FOR_PLAYER_TO_FIGHT){ // Fight Player
       /*
       1. WAITING_FOR_PLAYER_TO_FIGHT => getPlayersToFightWith() | HANDLE HERE | SENDS websocked PLAYER_ATTACKED
       2. WAITING_FOR_FIGHT_ROLL => rollDie()
@@ -148,7 +150,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
         })
       );
     }
-    if(this.round.roundState == RoundState.WAITING_FOR_FIGHT_ROLL || // Enemy Or EnemyCard Or Player
+    else if(this.round.roundState == RoundState.WAITING_FOR_FIGHT_ROLL || // Enemy Or EnemyCard Or Player
       this.round.roundState == RoundState.WAITING_FOR_ENEMY_ROLL || // Enemy Or EnemyCard
       this.round.roundState == RoundState.WAITING_FOR_FIGHT_RESULT || // Enemy Or EnemyCard OrPlayer
       this.round.roundState == RoundState.WAITING_FOR_ENEMY_PLAYER_ROLL || // Player
@@ -164,9 +166,7 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   getFieldOptions(){
     this.toDeleteSubscription.push(
       this.playedGameService.getPlayersPossibleActions(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
-        console.log('here69')
         this.checkOptionsFlags(data.possibleOptions);
-        console.log(data);
         this.handleOptionFlags();
       })
     );
@@ -179,11 +179,20 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
   }
 
   handleFightEnemyFlag(){
-    if(this.BOSS_FIELD_FLAG || this.BRIDGE_FIELD_FLAG){
-      // means that a character stands on the field!
+    if((this.BRIDGE_FIELD_FLAG && !this.attackBridgeGuardianFlag) && (this.BOSS_FIELD_FLAG && this.attackBossFlag)){
+      //fetch and display both BOSS and Guarian
+      this.enemyToAttack = this.round.activePlayer.character.field!.enemy; // BOSS
+      this.toDeleteSubscription.push(
+        this.playedGameService.getField(this.requestStructure.game!.id, this.requestStructure.bridgeFieldId!).subscribe( (data: Field) => {
+          this.enemy2ToAttack = data.enemy; // Guardian
+          this.fetchEnemy();
+        })
+      );
+    };
+    if(this.BRIDGE_FIELD_FLAG && this.attackBridgeGuardianFlag){
       this.enemyToAttack = this.round.activePlayer.character.field!.enemy;
-      this.fetchEnemy()
-    }
+      this.fetchEnemy();
+    };
   }
 
   fetchPlayersCharacter(){
@@ -199,6 +208,13 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       this.toDeleteSubscription.push(
         this.gameEngineService.getCard(this.enemyToAttack.id).subscribe( (data: Card) => {
           this.enemyToAttackFromEngine = data;
+        })
+      );
+    }
+    if(this.enemy2ToAttack != null){
+      this.toDeleteSubscription.push(
+        this.gameEngineService.getCard(this.enemy2ToAttack.id).subscribe( (data: Card) => {
+          this.enemy2ToAttackFromEngine = data;
         })
       );
     }
@@ -225,13 +241,17 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
           break;
         case 'BRIDGE_FIELD':
           this.BRIDGE_FIELD_FLAG = true;
-          console.log('bridge values check');
-          console.log(this.BRIDGE_FIELD_FLAG);
           if(this.round.activePlayer.character.field!.type == FieldType.BRIDGE_FIELD){
             // WHILE ON BRIDGE => Attack Guardian = TRUE
             this.attackBridgeGuardianFlag = true;
             // OTHERWISE can move to bridge
           }
+          else{
+            this.attackBridgeGuardianFlag = false;
+          }
+          console.log('bridge values check');
+          console.log(this.BRIDGE_FIELD_FLAG);
+          console.log(this.attackBridgeGuardianFlag);
           break;
         case 'BOSS_FIELD':
           this.BOSS_FIELD_FLAG = true;
@@ -240,6 +260,12 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
             this.attackBossFlag = true;
             // OTHERWISE can move to boss
           }
+          else{
+            this.attackBossFlag = false;
+          }
+          console.log('Boss values check');
+          console.log(this.BOSS_FIELD_FLAG);
+          console.log(this.attackBossFlag);
           break;
         case 'FIGHT_WITH_PLAYER':
           this.FIGHT_WITH_PLAYER_FLAG = true;
@@ -360,8 +386,31 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
     );
   }
 
-  moveToBridge(){
-    // TO DISCUSS WITH BACKEND (does it move a character?)
+  moveAndAttackBridge(){
+    this.toDeleteSubscription.push(
+      this.playedGameService.selectRoundOpiton(
+        this.requestStructure.game!.id,
+        this.requestStructure.player!.login,
+        FieldOptionEnum.BRIDGE_FIELD).subscribe( () => {
+          this.moveBridge();
+        })
+    );
+  }
+
+  moveBridge(){
+    this.toDeleteSubscription.push(
+      this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        this.toDeleteSubscription.push(
+          this.playedGameService.changeFieldPositionOfCharacter(
+            this.requestStructure.game!.id, 
+            this.requestStructure.player!.login, 
+            data.fieldListToMove[0].id).subscribe( () => {
+              this.shared.sendFightEnemyCardEvent(data.fieldListToMove[0].enemy!.id);
+              this.actionButtonClickFlag = true;
+          })
+        );
+      })
+    );
   }
 
   attackBoss(enemyCardId: number){
@@ -369,15 +418,13 @@ export class GameControlsOptionsComponent implements OnInit, OnDestroy{
       this.playedGameService.selectRoundOpiton(
         this.requestStructure.game!.id,
         this.requestStructure.player!.login,
-        FieldOptionEnum.BOSS_FIELD).subscribe( () => {
+        FieldOptionEnum.BOSS_FIELD).subscribe( (data: any) => {
+          console.log('runda po wybraniu BOSS_FIELD')
+          console.log(data);
           this.shared.sendFightEnemyCardEvent(enemyCardId);
           this.actionButtonClickFlag = true;
         })
     );
-  }
-
-  moveToBoss(){
-    // TO DISCUSS WITH BACKEND (does it move a character?)
   }
 
   resetOptions(){

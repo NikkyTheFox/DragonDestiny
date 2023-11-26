@@ -26,12 +26,12 @@ export class GameControlsConfirmComponent implements OnInit, OnDestroy{
     this.fetchRound();
     this.toDeleteSubscription.push(
       this.shared.getNotificationCloseEvent().subscribe( () => {
-        this.disableButtonFlag = false;
+        this.fetchRound();
       })
     );
     this.toDeleteSubscription.push(
       this.shared.getBlockTurnEvent().subscribe( () => {
-        this.disableButtonFlag = false;
+        this.fetchRound();
       })
     );
   }

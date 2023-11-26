@@ -37,7 +37,7 @@ export class StartGameComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.playedGameService.startGame(this.gameId).subscribe( () => {},      
       (error: any) => {
-        if (error.status === 400) {
+        if(error.status === 400) {
           if(error.error == 'pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException: All players must have a character assigned to start.'){
             window.alert('All players must select a character')
           };

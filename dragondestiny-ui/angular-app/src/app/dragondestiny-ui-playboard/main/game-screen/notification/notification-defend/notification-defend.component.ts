@@ -2,8 +2,9 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { Subscription } from 'rxjs';
 import { GameDataStructure } from 'src/app/interfaces/game-data-structure';
 import { Character } from 'src/app/interfaces/game-engine/character/character';
+import { ItemCard } from 'src/app/interfaces/played-game/card/item-card/item-card';
+import { ItemCard as EngineCard } from 'src/app/interfaces/game-engine/card/item-card/item-card';
 import { PlayedGameCharacter } from 'src/app/interfaces/played-game/character/character';
-import { FightResult } from 'src/app/interfaces/played-game/fight-result/fight-result';
 import { NotificationEnum } from 'src/app/interfaces/played-game/notification/notification-enum';
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
 import { Player } from 'src/app/interfaces/played-game/player/player';
@@ -39,7 +40,12 @@ export class NotificationDefendComponent implements OnInit, OnDestroy{
   round!: Round;
   playerRoll: number = 0;
   enemyRoll: number = 0;
-
+  cardStealFlag: boolean = false;
+  cardStolenFlag: boolean = false;
+  cardStolen!: ItemCard;
+  engineCardStolen!: EngineCard;
+  handFullFlag: boolean = false;
+  allDoneFlag: boolean = false;
   messageData!: NotificationMessage;
 
   constructor(private engineServie: GameEngineService, private playedGameService: PlayedGameService, private shared: SharedService){
@@ -54,10 +60,24 @@ export class NotificationDefendComponent implements OnInit, OnDestroy{
         if(this.messageData.notificationOption === NotificationEnum.DICE_ROLLED){
           this.fetchRound();
         };
+        if(this.messageData.notificationOption === NotificationEnum.CARD_STOLEN){
+          // this.cardStealFlag = false;
+          this.cardStolenFlag = true;
+          this.shared.sendRefreshHandCardsEvent();
+          this.fetchRound();
+        }
         if(this.messageData.notificationOption === NotificationEnum.PLAYER_FIGHT && this.messageData.name == this.requestStructure.player!.login){
           this.winner = this.messageData.bool;
           this.fightResultCondition = true;
+          this.characterDisplayCondition = false;
+          this.characterFightCondition.emit(false);
+          this.fetchRound();
         }
+      })
+    );
+    this.toDeleteSubscription.push(
+      this.shared.getRefreshHandCardsEvent().subscribe( () => {
+        this.fetchRound();
       })
     );
     if(!this.gameContinueFlag){
@@ -73,13 +93,36 @@ export class NotificationDefendComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
         this.round = data;
-        this.processRound();
+        if(this.round.roundState == RoundState.WAITING_FOR_CARD_THEFT){
+          // Inform player about current card steal status
+          this.cardStealFlag = true;
+          this.handFullFlag = false;
+        }
+        if(this.round.roundState == RoundState.WAITING_FOR_CARD_TO_USED){
+          this.cardStealFlag = true;
+          this.handFullFlag = true;
+          if(this.winner){
+            // Ensure that only a winner may discard if needed
+            this.shared.sendItemToDiscardEvent();
+          }
+        }
+        if(this.round.roundState == RoundState.WAITING_FOR_NEXT_ROUND){
+          this.allDoneFlag = true;
+        }
+        if(this.cardStolenFlag){
+          // Inform losing player which card was stolen
+          this.cardStolen = this.round.itemCardStolen;
+          this.fetchEngineCard(this.cardStolen);
+        }
+        else{
+          this.processRound();
+        }
       })
     );
   }
 
   processRound(){
-    if(this.playerToDisplay !== undefined){
+    if(this.playerToDisplay == undefined){
       this.playerToDisplay = this.round.activePlayer;
       this.characterAttributes = [];
       this.characterAttributes.push(this.playerToDisplay.character.health);
@@ -95,6 +138,7 @@ export class NotificationDefendComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.engineServie.getCharacter(character.id).subscribe( (data: Character) => {
         this.characterToDisplay = data;
+        this.characterDisplayCondition = true;
         this.checkDiceRoll();
       })
     );
@@ -107,8 +151,19 @@ export class NotificationDefendComponent implements OnInit, OnDestroy{
     }
   }
 
-  stealCard(){
+  fetchEngineCard(card: ItemCard){
+    this.toDeleteSubscription.push(
+      this.engineServie.getCard(card.id).subscribe( (data: any) => {
+        this.engineCardStolen = data as EngineCard;
+      })
+    );
+  }
 
+  finishAction(){
+    this.shared.sendRefreshCharacterStatsEvent();
+    this.shared.sendRefreshHandCardsEvent();
+    this.reset();
+    this.finishConditionChange.emit(true);
   }
 
   reset(){

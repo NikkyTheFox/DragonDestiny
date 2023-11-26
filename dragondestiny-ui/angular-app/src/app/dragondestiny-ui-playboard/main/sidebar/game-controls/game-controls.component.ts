@@ -70,6 +70,7 @@ export class GameControlsComponent implements OnInit, OnDestroy{
   fetchRound(){
     this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
+        this.round = data;
         this.activePlayerLogin = data.activePlayer.login;
         this.activePlayerCharacter = data.activePlayer.character.id;
         this.isActive = this.activePlayerLogin === this.requestStructure.player!.login;
@@ -107,15 +108,13 @@ export class GameControlsComponent implements OnInit, OnDestroy{
   }
 
   processPlayerAttacked(){
-    console.log('here xdd')
     // If logged in player is attacked -> proceed to the notification-defend
     if(this.round.enemyPlayerFought.login == this.requestStructure.player!.login){ 
-      console.log('here xd')
       this.handleDefenderPlayer(this.round.activePlayer.login)
     }
     // notify OTHER players (notification-update)
     else {            
-      this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_ATTACKED, this.round.activePlayer.login, this.round.enemyPlayerFought.login, this.round.itemCardStolen.id, null);
+      this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_ATTACKED, this.round.activePlayer.login, this.round.enemyPlayerFought.login, null, null);
     }
   }
 

@@ -54,8 +54,6 @@ export class GameControlsDiceComponent implements OnInit, OnDestroy{
   fetchRound(){
     this.toDeleteSubscription.push(
       this.playedGameService.getActiveRound(this.requestStructure.game!.id).subscribe( (data: Round) => {
-        console.log('test round state w kostce:');
-        console.log(data.roundState);
         // Disables rollDie button if roundState does not allow rolling for move, If so, display roll value from Round
         this.disableRoll = !(data.roundState == RoundState.WAITING_FOR_MOVE_ROLL);
         if(this.disableRoll){

@@ -79,6 +79,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.engineService.getCard(data.id).subscribe( (data: EngineCard) => {
         this.cardToDisplay = data;
+        
         this.cardFightCondition.emit(true); // show Roll Die Button in Parent Component
       })
     );
@@ -89,6 +90,7 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.playedGameService.rollDice(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: number) => {
         this.enemyRoll = data;
+        this.cardFightCondition.emit(false);
         this.handleFightEnemyField();
       })
     )
@@ -104,48 +106,55 @@ export class NotificationFightEnemyComponent implements OnInit, OnDestroy{
         this.fightResult = data;
         this.reset();
         this.fightResultCondition = true;
-        if(!this.bossRoomFlag && !this.fightResult.attackerWon){
-          this.finishCondition = true;
-          this.finishConditionChange.emit(this.finishCondition);
-        }
+        // if(!this.bossRoomFlag && !this.fightResult.attackerWon){
+        //   this.finishCondition = true;
+        //   this.finishConditionChange.emit(this.finishCondition);
+        // }
         this.shared.sendRefreshCharacterStatsEvent();
         this.shared.sendRefreshHandCardsEvent();
       })
     )
   }
 
-  goToBoss(){
-    this.toDeleteSubscription.push(
-      this.playedGameService.changeFieldPositionOfCharacter(
-        this.requestStructure.game!.id,
-        this.requestStructure.player!.login,
-        this.requestStructure.bossFieldId!
-      ).subscribe( () => {
-        this.reset()
-        this.finishCondition = true;
-        this.finishConditionChange.emit(this.finishCondition);
-      })
-    )
-  }
+  // goToBoss(){
+  //   this.toDeleteSubscription.push(
+  //     this.playedGameService.changeFieldPositionOfCharacter(
+  //       this.requestStructure.game!.id,
+  //       this.requestStructure.player!.login,
+  //       this.requestStructure.bossFieldId!
+  //     ).subscribe( () => {
+  //       this.reset()
+  //       this.finishCondition = true;
+  //       this.finishConditionChange.emit(this.finishCondition);
+  //     })
+  //   )
+  // }
 
-  goToBridge(){
-    this.toDeleteSubscription.push(
-      this.playedGameService.changeFieldPositionOfCharacter(
-        this.requestStructure.game!.id,
-        this.requestStructure.player!.login,
-        this.requestStructure.bridgeFieldId!
-      ).subscribe( () => {
-        this.reset()
-        this.finishCondition = true;
-        this.finishConditionChange.emit(this.finishCondition);
-      })
-    )
-  }
+  // goToBridge(){
+  //   this.toDeleteSubscription.push(
+  //     this.playedGameService.changeFieldPositionOfCharacter(
+  //       this.requestStructure.game!.id,
+  //       this.requestStructure.player!.login,
+  //       this.requestStructure.bridgeFieldId!
+  //     ).subscribe( () => {
+  //       this.reset()
+  //       this.finishCondition = true;
+  //       this.finishConditionChange.emit(this.finishCondition);
+  //     })
+  //   )
+  // }
 
-  stayOnBoss(){
-    this.reset()
-    this.finishCondition = true;
-    this.finishConditionChange.emit(this.finishCondition);
+  // stayOnBoss(){
+  //   this.reset()
+  //   this.finishCondition = true;
+  //   this.finishConditionChange.emit(this.finishCondition);
+  // }
+
+  finishAction(){
+    this.shared.sendRefreshCharacterStatsEvent();
+    this.shared.sendRefreshHandCardsEvent();
+    this.reset();
+    this.finishConditionChange.emit(true);
   }
 
   reset(){

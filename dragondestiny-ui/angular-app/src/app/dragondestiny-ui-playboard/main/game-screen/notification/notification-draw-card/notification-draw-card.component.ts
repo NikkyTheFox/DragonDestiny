@@ -105,12 +105,7 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
   checkHandCards(){
     this.toDeleteSubscription.push(
       this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: ItemCardList) => {
-        if(data.itemCardList.length < 5){
           this.equipCondition = true;
-        }
-        else{
-          this.handCondition = true;
-        }
       })
     )
   }
@@ -124,13 +119,29 @@ export class NotificationDrawCardComponent implements OnInit, OnDestroy{
           this.shared.sendRefreshHandCardsEvent();
           this.reset();
           this.actionFinished.emit();
+        },
+        (error: any) => {
+          if(error.status === 400) {
+            if(error.error == 'pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException: The player with given Login has no place on hand.'){
+              // roundState = WAITING_FOR_CARD_TO_USED
+              this.handCondition = true;
+              this.equipCondition = false;
+              this.shared.sendItemToDiscardEvent();
+              this.handleHandFull();
+            };
+          };
         }
       )
     )
   }
 
-  discard(){
-    this.actionFinished.emit();
+  handleHandFull(){
+    this.toDeleteSubscription.push(
+      this.shared.getRefreshHandCardsEvent().subscribe( () => {
+        this.equipCondition = true;
+        this.handCondition = false;
+      })
+    );
   }
 
   handleEnemyCard(data: EnemyCard){

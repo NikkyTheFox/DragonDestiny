@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameDataStructure } from 'src/app/interfaces/game-data-structure';
 import { SharedService } from 'src/app/services/shared.service';
 
@@ -7,7 +7,7 @@ import { SharedService } from 'src/app/services/shared.service';
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css']
 })
-export class MainComponent implements OnInit{
+export class MainComponent implements OnInit, OnDestroy{
   private RequestStrucutre!: GameDataStructure;
   
   constructor(private shared: SharedService){
@@ -17,5 +17,9 @@ export class MainComponent implements OnInit{
   ngOnInit(): void {
     this.RequestStrucutre = this.shared.getRequest();
     this.shared.initSocket(this.RequestStrucutre.game!.id);
+  }
+
+  ngOnDestroy(): void {
+      this.shared.closeSocket();
   }
 }

@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 export class PlayedGameListComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
   playerLogin!: string;
+  tempGameList: Game[] = [];
   gameList: PlayedGame[] = [];
 
   constructor(private userService: UserService,
@@ -35,9 +36,10 @@ export class PlayedGameListComponent implements OnInit, OnDestroy{
   fetchUserGames(){
     this.toDeleteSubscription.push(
       this.userService.getUsersGames(this.playerLogin).subscribe((data: GameList)=>{
+        this.tempGameList = data.gameList;
         data.gameList.forEach( (game: Game) => {
           this.fetchGameData(game.id);
-        });
+        }); 
       })
     );
   }
@@ -46,8 +48,14 @@ export class PlayedGameListComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.playedGameService.getGame(playedGameId).subscribe( (data: PlayedGame) => {
         this.gameList.push(data);
+        this.sortGameList();
       })
     );
+  }
+
+  refreshGameList(){
+    this.gameList = [];
+    this.fetchUserGames();
   }
 
   continueGame(clickedGameId: string){
@@ -68,6 +76,18 @@ export class PlayedGameListComponent implements OnInit, OnDestroy{
         this.router.navigate(['/preparegame']);
       })
     );
+  }
+
+  sortGameList(){
+    if(this.gameList.length == this.tempGameList.length){
+      this.gameList.sort((a, b) => this.compareHexStrings(a.id, b.id));
+    }
+  }
+
+  compareHexStrings(a: string, b: string): number {
+    const numA = parseInt(a, 16);
+    const numB = parseInt(b, 16);
+    return numA - numB;
   }
 
   ngOnDestroy(): void {

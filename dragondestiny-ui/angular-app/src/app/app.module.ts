@@ -9,8 +9,8 @@ import { DragondestinyUiHeaderModule } from './dragondestiny-ui-header/dragondes
 import { DragondestinyUiDashboardModule } from './dragondestiny-ui-dashboard/dragondestiny-ui-dashboard.module';
 import { DragondestinyUiFooterModule } from './dragondestiny-ui-footer/dragondestiny-ui-footer.module';
 import { DragondestinyUiLoginModule } from './dragondestiny-ui-login/dragondestiny-ui-login.module';
-import { DragondestinyUiPlayboardModule } from './dragondestiny-ui-playboard/dragondestiny-ui-playboard.module';
 import { DragondestinyUiPrepareGameModule } from './dragondestiny-ui-prepare-game/dragondestiny-ui-prepare-game.module';
+import { DragondestinyUiPlayboardModule } from './dragondestiny-ui-playboard/dragondestiny-ui-playboard.module';
 
 @NgModule({
   declarations: [

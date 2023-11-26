@@ -33,15 +33,17 @@
       <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
       [disabled]="actionButtonClickFlag"
       (click)="attackBridgeGuardian(enemyToAttack.id)"
-      >Attack Bridge Guardian {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
+      >Attack Bridge Guardian <br>{{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
   </div>
 
   <!-- MOVE TO BRIDGE FIELD -->
   <div *ngIf="BRIDGE_FIELD_FLAG && !attackBridgeGuardianFlag">
-    <button *ngIf="enemyToAttackFromEngine && enemyToAttack"
+    <button *ngIf="enemy2ToAttackFromEngine && enemy2ToAttack"
     [disabled]="actionButtonClickFlag"
-    (click)="moveToBridge()"
-    >Move to Bridge Field And<br>Attack Bridge Guardian {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}} </button>
+    (click)="moveAndAttackBridge()"
+    >Move to Bridge Field And<br>Attack Bridge Guardian 
+    {{enemy2ToAttackFromEngine.name}} | HP: {{enemy2ToAttack.health}} | S: {{enemy2ToAttack.initialStrength}}
+  </button>
   </div>
 
   <!-- ATTACK BOSS -->
@@ -50,13 +52,5 @@
     [disabled]="actionButtonClickFlag"
     (click)="attackBoss(enemyToAttack.id)"
     >Attack Boss {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}</button>
-  </div>
-
-  <!-- MOVE TO BOSS FIELD -->
-  <div *ngIf="BOSS_FIELD_FLAG && !attackBossFlag">
-    <button *ngIf="enemyToAttackFromEngine && enemyToAttack" 
-    [disabled]="actionButtonClickFlag"
-    (click)="moveToBoss()"
-    >Move To Boss Field And Attack Boss {{enemyToAttackFromEngine.name}} | HP: {{enemyToAttack.health}} | S: {{enemyToAttack.initialStrength}}<br></button>
   </div>
 </div>

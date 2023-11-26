@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameDataService } from '../services/game-data.service';
 import { SharedService } from '../services/shared.service';
 
@@ -7,7 +7,7 @@ import { SharedService } from '../services/shared.service';
   templateUrl: './prepare-game.component.html',
   styleUrls: ['./prepare-game.component.css']
 })
-export class PrepareGameComponent implements OnInit{
+export class PrepareGameComponent implements OnInit, OnDestroy{
 
   constructor(private dataService: GameDataService, private shared: SharedService){
 
@@ -16,5 +16,9 @@ export class PrepareGameComponent implements OnInit{
   ngOnInit(){
     this.shared.setRequestByID(this.dataService.getGame(), this.dataService.getPlayerLogin());
     this.shared.initSocket(this.dataService.getGame());
+  }
+
+  ngOnDestroy(): void {
+      this.shared.closeSocket();
   }
 }

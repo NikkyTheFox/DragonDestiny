@@ -34,8 +34,6 @@ export class DeckComponent implements OnInit, OnDestroy{
     this.toDeleteSubscription.push(
       this.shared.getSocketMessage().subscribe( (data: any) => {
         this.messageData = this.shared.parseNotificationMessage(data);
-        console.log('Notification data from DECK:');
-        console.log(this.messageData);
         if(this.messageData.notificationOption === NotificationEnum.NEXT_ROUND){
           this.fetchDeck();
         }

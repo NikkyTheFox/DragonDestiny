@@ -9,7 +9,6 @@
       <div>
         <button *ngIf="equipCondition" class="button" type="button" (click)="equip()">Equip</button>
         <p *ngIf="handCondition">Your Hand is Full!</p>
-        <button *ngIf="handCondition" class="button" type="button" (click)="discard()">Discard</button>
       </div>
       <div>
         <button *ngIf="dieData.fightEnemyCondition" class="button" type="button" (click)="fightEnemy()">Fight</button>

@@ -1,4 +1,5 @@
 <div *ngIf="gameList">
+  <button class="button" type="button" (click)="refreshGameList()">Refresh Game List</button>
   <div *ngFor="let g of gameList; let i = index" class="played-game-list">
     {{i+1}}) Game ID: {{g.id}}
     <div *ngIf="g.isStarted">

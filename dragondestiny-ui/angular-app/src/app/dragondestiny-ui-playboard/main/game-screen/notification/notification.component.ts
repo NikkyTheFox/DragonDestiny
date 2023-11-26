@@ -66,7 +66,6 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
           break;
         case 3: // ATTACKER POV
           this.showAttackingPlayerPOV = true;
-          console.log('here');
           // notificationData = defenderPlayerLogin;
           break;
         case 4: // DEFENDER POV
@@ -74,7 +73,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
           // notificationData = attackerPlayerLogin;
           break;
         case 5: //PROCESS CONTINUEGAME
-          this.processContinueGame();
+          // this.processContinueGame();
           // notificationData = Round;
           break;
         case 6:
@@ -97,7 +96,7 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
   recieveFinishConditionChange(data: boolean){
     this.finishCondition = data;
     this.rollCondition = false;
-}
+  }
 
   processContinueGame(){
     let round = this.notificationData as Round;

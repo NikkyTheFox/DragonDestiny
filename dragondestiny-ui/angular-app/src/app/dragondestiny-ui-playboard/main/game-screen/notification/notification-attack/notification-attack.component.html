@@ -16,16 +16,29 @@
         <div *ngIf="fightResult.attackerWon">
             <p>You won the fight!</p>
             <br>
-            <p>You may now steal a card from enemy player</p>
-            <button class="button" type="button" (click)="stealCard()">Steal!</button>
+            <div *ngIf="cardStealFlag">
+                <p>You may now steal a card from enemy player</p>
+                <app-notification-card-steal *ngIf="!handFullFlag"></app-notification-card-steal>
+            </div>
         </div>
         <div *ngIf="!fightResult.attackerWon">
             <p>You lost the fight! :c</p>
             <br>
-            <p>Now enemy player may steal a card from you!</p>
-            <br>
-            <p>Stolen Card:</p>
-            <button>Okayge</button>
+            <div *ngIf="cardStealFlag">
+                <p>Now enemy player may steal a card from you!</p>
+                <br>
+                <div *ngIf="cardStolen">
+                    <p>Stolen Card:</p>
+                    <br>
+                    <p>{{ engineCardStolen.name }}</p>
+                    <p>Strength: {{ cardStolen.strength }}</p>
+                    <p>Health: {{ cardStolen.health }}</p>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="allDoneFlag">
+            <button class="button" type="button" (click)="finishAction()">Continue</button>
         </div>
     </div>
 </div>

@@ -369,6 +369,10 @@ export class SharedService{
     return this.socket;
   }
 
+  closeSocket(){
+    this.wsService.closeConnection();
+  }
+
   broadcastSocketMessage(message: NotificationMessage){
     this.socketMessage.next(message);
   }

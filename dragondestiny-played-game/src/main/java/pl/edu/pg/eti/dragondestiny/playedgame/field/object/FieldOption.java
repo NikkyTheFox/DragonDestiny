@@ -33,6 +33,6 @@ public enum FieldOption {
     public Player enemyPlayer;
 
     public FieldOptionDTO toDTO(ModelMapper modelMapper) {
-        return new FieldOptionDTO(fieldOptionEnum, numOfCardsToTake, numOfTurnsToBlock, enemyPlayer != null ? modelMapper.map(enemyPlayer, PlayerDTO.class) : null);
+        return new FieldOptionDTO(fieldOptionEnum, numOfCardsToTake, numOfTurnsToBlock, enemyPlayer == null ? null : modelMapper.map(enemyPlayer, PlayerDTO.class));
     }
 }

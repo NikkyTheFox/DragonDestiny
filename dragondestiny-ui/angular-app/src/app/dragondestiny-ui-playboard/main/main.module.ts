@@ -7,7 +7,6 @@ import { ContextBarItemsComponent } from './game-screen/context-bar/context-bar-
 import { ContextBarCharactersComponent } from './game-screen/context-bar/context-bar-characters/context-bar-characters.component';
 import { BoardComponent }  from './game-screen/board/board.component';
 import { BoardFieldComponent } from './game-screen/board/board-row/board-field/board-field.component';
-import { PawnComponent } from './game-screen/pawn/pawn.component';
 import { BoardRowComponent } from './game-screen/board/board-row/board-row.component';
 import { NotificationComponent } from './game-screen/notification/notification.component';
 import { NotificationDrawCardComponent } from './game-screen/notification/notification-draw-card/notification-draw-card.component';
@@ -17,6 +16,7 @@ import { NotificationAttackComponent } from './game-screen/notification/notifica
 import { NotificationDefendComponent } from './game-screen/notification/notification-defend/notification-defend.component';
 import { NotificationUpdateComponent } from './game-screen/notification/notification-update/notification-update.component';
 import { SidebarModule } from './sidebar/sidebar.module';
+import { NotificationCardStealComponent } from './game-screen/notification/notification-card-steal/notification-card-steal.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +27,6 @@ import { SidebarModule } from './sidebar/sidebar.module';
     ContextBarCharactersComponent,
     BoardComponent,
     BoardFieldComponent,
-    PawnComponent,
     BoardRowComponent,
     NotificationComponent,
     NotificationDrawCardComponent,
@@ -35,7 +34,8 @@ import { SidebarModule } from './sidebar/sidebar.module';
     NotificationFightEnemyComponent,
     NotificationAttackComponent,
     NotificationDefendComponent,
-    NotificationUpdateComponent
+    NotificationUpdateComponent,
+    NotificationCardStealComponent
   ],
   imports: [
     CommonModule,
@@ -49,7 +49,6 @@ import { SidebarModule } from './sidebar/sidebar.module';
     ContextBarCharactersComponent,
     BoardComponent,
     BoardFieldComponent,
-    PawnComponent,
     BoardRowComponent
   ]
 })

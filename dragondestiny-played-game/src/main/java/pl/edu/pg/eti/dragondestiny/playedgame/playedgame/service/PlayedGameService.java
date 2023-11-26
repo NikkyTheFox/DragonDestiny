@@ -676,8 +676,22 @@ public class PlayedGameService {
             throw new IllegalGameStateException(PlayerActionNotAllowedMessage);
         }
         switch (fieldOption) {
+            case BRIDGE_FIELD -> {
+                if (activeRound.getActivePlayer().getPositionField().getId().equals(PlayedGameProperties.bossFieldID)) {
+                    activeRound.addRoundState(RoundState.WAITING_FOR_MOVE);
+                    Optional<Field> bridgeField = findField(playedGameId, PlayedGameProperties.guardianFieldID);
+                    if (bridgeField.isEmpty()) {
+                        throw new IllegalGameStateException(FieldNotFoundMessage);
+                    }
+                    activeRound.setFieldListToMove(new ArrayList<>(Collections.singletonList(bridgeField.get())));
+                }
+                activeRound.addRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
+                activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
+            }
             case TAKE_ONE_CARD, TAKE_TWO_CARDS -> activeRound.addRoundState(RoundState.WAITING_FOR_CARD_DRAWN);
-            case FIGHT_WITH_ENEMY_ON_FIELD, BOSS_FIELD, BRIDGE_FIELD -> {
+            case FIGHT_WITH_ENEMY_ON_FIELD, BOSS_FIELD -> {
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
                 activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
@@ -1086,7 +1100,10 @@ public class PlayedGameService {
             cardList.addAll(playedGame.getUsedCardDeck());
             playedGame.getUsedCardDeck().clear();
         }
-        int cardToDrawIndex = random.nextInt(cardList.size() - 1);
+        int cardToDrawIndex = 1;
+        if(cardList.size() > 1){
+            cardToDrawIndex = random.nextInt(cardList.size() - 1);
+        }
         Optional<Card> cardToDraw = playedGameRepository.findCardByIndexInCardDeck(playedGameId, cardToDrawIndex).stream().findFirst();
         activeRound.increaseNumOfCardsTaken(1);
         if (cardToDraw.get().getCardType().equals(CardType.ENEMY_CARD)) {

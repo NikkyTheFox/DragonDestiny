@@ -1,0 +1,9 @@
+<div class="items-list">
+    <div *ngFor="let playedGameCard of playedGameCards; let i = index" class="tile">
+        <div class="item-name">{{engineCards[i].name}}</div>
+        <!-- <div class="item-desc">{{cardDescList[i]}}</div> -->
+        <div class="additional-strength">Strength: {{playedGameCard.strength}}</div>
+        <div class="additional-health">Health: {{playedGameCard.health}}</div>
+        <button class="button" type="button" (click)="steal(playedGameCard)">Steal</button>
+    </div>
+</div>

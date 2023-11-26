@@ -8,7 +8,7 @@ import { ItemCard } from '../../interfaces/played-game/card/item-card/item-card'
 import { PlayedGameCharacter } from '../../interfaces/played-game/character/character';
 import { Card } from '../../interfaces/played-game/card/card/card';
 import { PlayedBoard } from '../../interfaces/played-game/board/played-board';
-import { Field } from '../../interfaces/game-engine/field/field';
+import { Field } from '../../interfaces/played-game/field/field';
 import { Round } from '../../interfaces/played-game/round/round';
 import { FightResult } from '../../interfaces/played-game/fight-result/fight-result';
 import { PlayedGameList } from '../../interfaces/played-game/played-game/played-game-list';
