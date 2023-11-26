@@ -127,8 +127,8 @@ public class Round {
         roundStatesOrder.clear();
         roundStatesOrder.add(RoundState.WAITING_FOR_FIELD_OPTIONS);
         roundStatesOrder.add(RoundState.WAITING_FOR_FIELD_ACTION_CHOICE);
-        roundStatesOrder.add(RoundState.WAITING_FOR_FIGHT_ROLL);
-        roundStatesOrder.add(RoundState.WAITING_FOR_FIGHT_RESULT);
+        // roundStatesOrder.add(RoundState.WAITING_FOR_FIGHT_ROLL);
+        // roundStatesOrder.add(RoundState.WAITING_FOR_FIGHT_RESULT);
         roundState = roundStatesOrder.get(0);
     }
 
