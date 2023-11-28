@@ -18,46 +18,46 @@ export class UserService{
   }
 
   getUsers():Observable<UserList>{
-    return this.http.get<UserList>(`${environment.apiUrl}/users`);
+    return this.http.get<UserList>(`${environment.api}/users`);
   }
 
   getUserByLogin(login: string): Observable<User>{
-    return this.http.get<User>(`${environment.apiUrl}/users/${login}`);
+    return this.http.get<User>(`${environment.api}/users/${login}`);
   }
 
   getUserByLoginPassword(user: UserLogin): Observable<User>{
-    return this.http.put<User>(`${environment.apiUrl}/users/login`, user);
+    return this.http.put<User>(`${environment.api}/users/login`, user);
   }
 
   createUser(user: UserRegistered): Observable<User>{
-    return this.http.put<User>(`${environment.apiUrl}/users/register`, user);
+    return this.http.put<User>(`${environment.api}/users/register`, user);
   }
 
   getUsersGames(login: string): Observable<GameList>{
-    return this.http.get<GameList>(`${environment.apiUrl}/users/${login}/games`);
+    return this.http.get<GameList>(`${environment.api}/users/${login}/games`);
   }
 
   updateUser(userLogin: string, updatedUser: UserRegistered): Observable<User>{
-    return this.http.put<User>(`${environment.apiUrl}/users/${userLogin}/edit`, updatedUser);
+    return this.http.put<User>(`${environment.api}/users/${userLogin}/edit`, updatedUser);
   }
 
   addGameToUser(login: string, gameId: string): Observable<User>{
-    return this.http.put<User>(`${environment.apiUrl}/users/${login}/addGame/${gameId}`, null);
+    return this.http.put<User>(`${environment.api}/users/${login}/addGame/${gameId}`, null);
   }
 
   deleteUser(login: string): Observable<boolean>{
-    return this.http.delete<boolean>(`${environment.apiUrl}/users/${login}`);
+    return this.http.delete<boolean>(`${environment.api}/users/${login}`);
   }
 
   addGame(gameId: string): Observable<boolean>{
-    return this.http.put<boolean>(`${environment.apiUrl}/users/games/${gameId}`, null);
+    return this.http.put<boolean>(`${environment.api}/users/games/${gameId}`, null);
   }
 
   getGames(): Observable<GameList>{
-    return this.http.get<GameList>(`${environment.apiUrl}/users/games`);
+    return this.http.get<GameList>(`${environment.api}/users/games`);
   }
 
   deleteGame(gameId: string){
-    return this.http.delete(`${environment.apiUrl}/games/${gameId}`);
+    return this.http.delete(`${environment.api}/games/${gameId}`);
   }
 }

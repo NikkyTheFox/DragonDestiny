@@ -46,16 +46,16 @@ export class GameControlsComponent implements OnInit, OnDestroy{
         if(this.messageData.notificationOption == NotificationEnum.PLAYER_WON_GAME){
           this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_WON_GAME, this.messageData.name, null, null, null);
         }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_DIED){
+        else if(this.messageData.notificationOption == NotificationEnum.PLAYER_DIED){
           this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_DIED, this.messageData.name, null, null, null);
         }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_BLOCKED){
+        else if(this.messageData.notificationOption == NotificationEnum.PLAYER_BLOCKED){
           this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_BLOCKED, this.messageData.name, null, null, this.messageData.number);
         }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_FIGHT){
+        else if(this.messageData.notificationOption == NotificationEnum.PLAYER_FIGHT){
           this.processPlayerFight();
         }
-        if(this.messageData.notificationOption == NotificationEnum.PLAYER_GOT_ITEM){
+        else if(this.messageData.notificationOption == NotificationEnum.PLAYER_GOT_ITEM){
           this.shared.sendUpdateGameEvent(UpdateEnum.PLAYER_GOT_ITEM, this.messageData.name, null, this.messageData.number, null);
         }
         this.cardStolenFlag = this.messageData.notificationOption == NotificationEnum.CARD_STOLEN;

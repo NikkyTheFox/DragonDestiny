@@ -20,7 +20,7 @@
 .field-inner-right,
 .field-inner-bottom,
 .field-inner-left {
-  height: 70px; /* dynamic design needed? */
+  height: 70px;
   width: 200px;
   font-size: 10px;
   display: flex;

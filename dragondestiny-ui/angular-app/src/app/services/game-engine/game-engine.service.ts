@@ -28,122 +28,122 @@ export class GameEngineService{
   // BOARD CONTROLLER
 
   getBoards(): Observable<BoardList>{
-    return this.http.get<BoardList>(`${environment.apiUrl}/boards`);
+    return this.http.get<BoardList>(`${environment.api}/boards`);
   }
 
   getBoard(boardId: number): Observable<Board>{
-    return this.http.get<Board>(`${environment.apiUrl}/boards/${boardId}`);
+    return this.http.get<Board>(`${environment.api}/boards/${boardId}`);
   }
 
   // CARD CONTROLLER
 
   getCards(): Observable<CardList>{
-    return this.http.get<CardList>(`${environment.apiUrl}/cards`);
+    return this.http.get<CardList>(`${environment.api}/cards`);
   }
 
   getCard(cardId: number): Observable<Card>{
-    return this.http.get<Card>(`${environment.apiUrl}/cards/${cardId}`);
+    return this.http.get<Card>(`${environment.api}/cards/${cardId}`);
   }
 
   getEnemyCards(): Observable<EnemyCardList>{
-    return this.http.get<EnemyCardList>(`${environment.apiUrl}/cards/enemy`)
+    return this.http.get<EnemyCardList>(`${environment.api}/cards/enemy`)
   }
 
   getItemCards(): Observable<ItemCardList>{
-    return this.http.get<ItemCardList>(`${environment.apiUrl}/cards/item`)
+    return this.http.get<ItemCardList>(`${environment.api}/cards/item`)
   }
 
   // GAME-CARD CONTROLLER
 
   getGameCards(gameId: number): Observable<CardList>{
-    return this.http.get<CardList>(`${environment.apiUrl}/games/${gameId}/cards`);
+    return this.http.get<CardList>(`${environment.api}/games/${gameId}/cards`);
   }
 
   getGameCard(gameId: number, cardId: number): Observable<Card>{
-    return this.http.get<Card>(`${environment.apiUrl}/games/${gameId}/cards/${cardId}`);
+    return this.http.get<Card>(`${environment.api}/games/${gameId}/cards/${cardId}`);
   }
 
   getGameEnemyCards(gameId: number): Observable<EnemyCardList>{
-    return this.http.get<EnemyCardList>(`${environment.apiUrl}/games/${gameId}/cards/enemy`)
+    return this.http.get<EnemyCardList>(`${environment.api}/games/${gameId}/cards/enemy`)
   }
 
   getGameItemCards(gameId: number): Observable<ItemCardList>{
-    return this.http.get<ItemCardList>(`${environment.apiUrl}/games/${gameId}/cards/item`)
+    return this.http.get<ItemCardList>(`${environment.api}/games/${gameId}/cards/item`)
   }
 
   // CHARACTER CONTROLLER
 
   getCharacters(): Observable<CharacterList>{
-    return this.http.get<CharacterList>(`${environment.apiUrl}/characters`)
+    return this.http.get<CharacterList>(`${environment.api}/characters`)
   }
 
   getCharacter(characterId: number): Observable<Character>{
-    return this.http.get<Character>(`${environment.apiUrl}/characters/${characterId}`);
+    return this.http.get<Character>(`${environment.api}/characters/${characterId}`);
   }
 
   // GAME-CHARACTER CONTROLLER
 
   getGameCharacters(gameId: number): Observable<CharacterList>{
-    return this.http.get<CharacterList>(`${environment.apiUrl}/games/${gameId}/characters`)
+    return this.http.get<CharacterList>(`${environment.api}/games/${gameId}/characters`)
   }
 
   getGameCharacter(gameId: number, characterId: number): Observable<Character>{
-    return this.http.get<Character>(`${environment.apiUrl}/games/${gameId}/characters/${characterId}`)
+    return this.http.get<Character>(`${environment.api}/games/${gameId}/characters/${characterId}`)
   }
 
   // BOARD-FIELD CONTROLLER
 
   getBoardFields(boardId: number): Observable<FieldList>{
-    return this.http.get<FieldList>(`${environment.apiUrl}/boards/${boardId}/fields`);
+    return this.http.get<FieldList>(`${environment.api}/boards/${boardId}/fields`);
   }
 
   getBoardField(boardId: number, fieldId: number): Observable<Field>{
-    return this.http.get<Field>(`${environment.apiUrl}/boards/${boardId}/fields/${fieldId}`);
+    return this.http.get<Field>(`${environment.api}/boards/${boardId}/fields/${fieldId}`);
   }
 
   getBoardFieldEnemy(boardId: number, fieldId: number): Observable<EnemyCard>{
-    return this.http.get<EnemyCard>(`${environment.apiUrl}/boards/${boardId}/fields/${fieldId}/enemy`);
+    return this.http.get<EnemyCard>(`${environment.api}/boards/${boardId}/fields/${fieldId}/enemy`);
   }
 
   // FIELD CONTROLLER
 
   getFields(): Observable<FieldList>{
-    return this.http.get<FieldList>(`${environment.apiUrl}/fields`);
+    return this.http.get<FieldList>(`${environment.api}/fields`);
   }
 
   getField(fieldId: number): Observable<Field>{
-    return this.http.get<Field>(`${environment.apiUrl}/fields/${fieldId}`);
+    return this.http.get<Field>(`${environment.api}/fields/${fieldId}`);
   }
 
   getFieldEnemy(fieldId: number): Observable<EnemyCard>{
-    return this.http.get<EnemyCard>(`${environment.apiUrl}/fields/${fieldId}/enemy`);
+    return this.http.get<EnemyCard>(`${environment.api}/fields/${fieldId}/enemy`);
   }
 
   // GAME-FIELD CONTROLLER
 
   getGameFields(gameId: number): Observable<FieldList>{
-    return this.http.get<FieldList>(`${environment.apiUrl}/games/${gameId}/board/fields`);
+    return this.http.get<FieldList>(`${environment.api}/games/${gameId}/board/fields`);
   }
 
   getGameField(gameId: number, fieldId: number): Observable<Field>{
-    return this.http.get<Field>(`${environment.apiUrl}/games/${gameId}/board/fields/${fieldId}`);
+    return this.http.get<Field>(`${environment.api}/games/${gameId}/board/fields/${fieldId}`);
   }
 
   getGameFieldEnemy(gameId: number, fieldId: number): Observable<EnemyCard>{
-    return this.http.get<EnemyCard>(`${environment.apiUrl}/games/${gameId}/board/fields/${fieldId}/enemy`);
+    return this.http.get<EnemyCard>(`${environment.api}/games/${gameId}/board/fields/${fieldId}/enemy`);
   }
 
   // GAME CONTROLLER
 
   getGames(): Observable<GameList>{
-    return this.http.get<GameList>(`${environment.apiUrl}/games`);
+    return this.http.get<GameList>(`${environment.api}/games`);
   }
 
   getGame(gameId: number): Observable<Game>{
-    return this.http.get<Game>(`${environment.apiUrl}/games/${gameId}`)
+    return this.http.get<Game>(`${environment.api}/games/${gameId}`)
   }
 
   getGameBoard(gameId: number): Observable<Board>{
-    return this.http.get<Board>(`${environment.apiUrl}/games/${gameId}/board`)
+    return this.http.get<Board>(`${environment.api}/games/${gameId}/board`)
   }
 }

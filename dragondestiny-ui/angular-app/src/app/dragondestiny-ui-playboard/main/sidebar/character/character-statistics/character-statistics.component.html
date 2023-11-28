@@ -1,14 +1,14 @@
 <div class="character-stats">
   <app-character-statistics-stat *ngIf="character"
-                                 class="statistics"
-                                 [statName]="'Health'"
-                                 [statValue]="character.health"></app-character-statistics-stat>
+                                class="statistics"
+                                [statName]="'Strength'"
+                                [statValue]="character.strength"></app-character-statistics-stat>
   <app-character-statistics-stat *ngIf="character"
-                                 class="statistics"
-                                 [statName]="'Strength'"
-                                 [statValue]="character.strength"></app-character-statistics-stat>
+                                class="statistics"
+                                [statName]="'Health'"
+                                [statValue]="character.health"></app-character-statistics-stat>
   <app-character-statistics-stat *ngIf="player"
-                                 class="statistics"
-                                 [statName]="'Trophies'"
-                                 [statValue]="player.trophies.length"></app-character-statistics-stat>
+                                class="statistics"
+                                [statName]="'Trophies'"
+                                [statValue]="player.trophies.length"></app-character-statistics-stat>
 </div>

@@ -104,19 +104,19 @@ export class NotificationComponent implements OnInit, OnChanges, OnDestroy{
     if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_ONE_CARD){
 
     }
-    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_TWO_CARDS){
+    else if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.TAKE_TWO_CARDS){
 
     }
-    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD){
+    else if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_ENEMY_ON_FIELD){
 
     }
-    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BOSS_FIELD){
+    else if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BOSS_FIELD){
 
     }
-    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BRIDGE_FIELD){
+    else if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.BRIDGE_FIELD){
       
     }
-    if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_PLAYER){
+    else if(round.fieldOptionChosen.fieldOptionEnum == FieldOptionEnum.FIGHT_WITH_PLAYER){
 
     }
   }

@@ -3,10 +3,11 @@
     <!-- SHOW IDENTIFIER OF A CHARACTER -->
     <!-- <div *ngFor="let characterPawn of charactersOnField">{{characterPawn.id}}</div> -->
     <!-- SHOW WHOLE NAME OF A CHARACTER -->
-    <div *ngFor="let characterPawn of engineCharactersOnField">{{characterPawn.name}}</div>
+    <!-- <div *ngFor="let characterPawn of engineCharactersOnField">{{characterPawn.name}}</div> -->
     <!-- SHOW ONLY INITIAL OF A CHARACTER -->
     <!-- <div *ngFor="let characterPawn of engineCharactersOnField">{{characterPawn.name[0]}}</div> -->
-
+    <!-- SHOW FIRST 3 CHARACTERS OF NAME OF A CHARACTER -->
+    <div *ngFor="let characterPawn of engineCharactersOnField">|{{characterPawn.name.substring(0, 3)}}|</div>
   </div>
   <div *ngIf="moveFlag">
     <button class="button" type="button" (click)="moveCharacter(fieldId)">Move Here</button>

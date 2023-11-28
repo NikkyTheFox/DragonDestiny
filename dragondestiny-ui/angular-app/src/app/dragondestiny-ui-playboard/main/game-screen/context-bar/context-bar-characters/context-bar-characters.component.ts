@@ -1,5 +1,5 @@
 import { NotificationMessage } from 'src/app/interfaces/played-game/notification/notification-message';
-import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameEngineService } from '../../../../../services/game-engine/game-engine.service';
 import { PlayedGameCharacter } from '../../../../../interfaces/played-game/character/character';
 import { PlayedGameService } from '../../../../../services/played-game/played-game-service';
@@ -21,7 +21,9 @@ export class ContextBarCharactersComponent implements OnInit, OnDestroy{
   playersCharacter!: PlayedGameCharacter;
   otherCharacters: PlayedGameCharacter[] = [];
   allCharacters: PlayedGameCharacter[] = [];
-  characterNames: string[] = [];
+  engineCharacters: Character[] = [];
+  characterOrder: number[] = [];
+  charcterFetchedFlag: boolean = false;
   messageData!: NotificationMessage;
 
   constructor(protected gameEngineService: GameEngineService, private playedGameService: PlayedGameService, private shared: SharedService){
@@ -45,7 +47,8 @@ export class ContextBarCharactersComponent implements OnInit, OnDestroy{
   reset(){
     this.otherCharacters = [];
     this.allCharacters = [];
-    this.characterNames = [];
+    this.engineCharacters = [];
+    this.charcterFetchedFlag = false;
   }
 
   handleCharacters(){
@@ -79,10 +82,24 @@ export class ContextBarCharactersComponent implements OnInit, OnDestroy{
     this.otherCharacters.forEach((character: PlayedGameCharacter) => {
       this.toDeleteSubscription.push(
         this.gameEngineService.getCharacter(character.id).subscribe((data: Character) => {
-          this.characterNames.push(data.name);
+          this.engineCharacters.push(data);
+          if(this.engineCharacters.length == this.otherCharacters.length){
+            this.charcterFetchedFlag = true;
+            this.sortItemArrays();
+          }
         })
       );
     });
+  }
+
+  sortItemArrays(){
+    for(let i = 0; i< this.otherCharacters.length; i++){
+      for(let j = 0; j < this.engineCharacters.length; j++){
+        if(this.otherCharacters[i].id == this.engineCharacters[j].id){
+          this.characterOrder.push(j);
+        }
+      }
+    }
   }
 
   removeDuplicates(array: PlayedGameCharacter[]) {

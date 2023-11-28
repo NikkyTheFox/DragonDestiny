@@ -2,16 +2,8 @@
   display: grid;
   width: 100px;
   height: 50px;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 }
-
-/*.pawn1{*/
-/*  background-color: white;*/
-/*}*/
-
-/*.pawn6{*/
-/*  background-color: brown;*/
-/*}*/
 
 .field-container {
   display: flex;

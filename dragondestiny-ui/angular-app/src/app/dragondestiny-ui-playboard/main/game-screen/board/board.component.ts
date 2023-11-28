@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GameEngineService } from '../../../../services/game-engine/game-engine.service';
 import { Board } from '../../../../interfaces/game-engine/board/board';
 import { PlayedGameService } from '../../../../services/played-game/played-game-service';
@@ -31,10 +31,6 @@ export class BoardComponent implements OnInit, OnDestroy{
     this.fetchRound();
     this.handleRows();
   }
-
-  // ngOnChanges(changes: SimpleChanges){
-  //   this.handleRows();
-  // }
 
   fetchRound(){
     this.toDeleteSubscription.push(

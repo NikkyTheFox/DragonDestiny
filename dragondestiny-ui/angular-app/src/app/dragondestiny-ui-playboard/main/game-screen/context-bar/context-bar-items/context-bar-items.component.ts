@@ -6,6 +6,7 @@ import { ItemCard as EngineCard } from '../../../../../interfaces/game-engine/ca
 import { GameDataStructure } from '../../../../../interfaces/game-data-structure';
 import { SharedService } from '../../../../../services/shared.service';
 import { Subscription } from 'rxjs';
+import { ItemCardList } from 'src/app/interfaces/played-game/card/item-card/item-card-list';
 
 @Component({
   selector: 'app-context-bar-items',
@@ -37,17 +38,17 @@ export class ContextBarItemsComponent implements OnInit, OnDestroy{
       this.shared.getItemToDiscardEvent().subscribe( () => {
         this.discardFlag = true;
       })
-    )
+    );
   }
 
   handleCards(){
     this.resetArrays();
     this.toDeleteSubscription.push(
-      this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: any) => {
+      this.playedGameService.getCardsFromPlayerHand(this.requestStructure.game!.id, this.requestStructure.player!.login).subscribe( (data: ItemCardList) => {
         this.itemsList = data.itemCardList;
       },
       (error: any) => {
-        console.log('player has no cards')
+        console.log('player has no cards');
       },
       () => {
         this.fetchCardsFromEngine();

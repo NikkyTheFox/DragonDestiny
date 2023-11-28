@@ -44,7 +44,7 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
   ngOnInit(){
     this.requestStructure = this.shared.getRequest();
     this.toDeleteSubscription.push(
-      this.shared.getDiceRollClickEvent().subscribe( (data: any) => {
+      this.shared.getDiceRollClickEvent().subscribe( () => {
         this.handlePossibleField();
       })
     );
@@ -68,7 +68,6 @@ export class BoardFieldComponent implements OnInit, OnDestroy{
         this.retrieveFieldType();
         this.retrieveCharactersOnField();
         if(this.conditionFlag){
-          // pass down fetchRound() check from Board (to minimize requests made in multiple field components)
           this.handlePossibleField();
         };
       })

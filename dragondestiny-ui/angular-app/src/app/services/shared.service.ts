@@ -1,6 +1,6 @@
 import { NotificationEnum } from './../interfaces/played-game/notification/notification-enum';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { GameDataStructure } from '../interfaces/game-data-structure';
 import { PlayedGameService } from './played-game/played-game-service';
 import { PlayedGame } from '../interfaces/played-game/played-game/played-game';
@@ -19,6 +19,10 @@ export class SharedService{
   private requestStructure: GameDataStructure = {
 
   };
+
+  // Subscription handling
+
+  private toDeleteSubscription: Subscription[] = [];
 
   // Loading data
   private gameDataLoaded = new Subject();
@@ -60,30 +64,46 @@ export class SharedService{
 
   }
 
+  // Subscription handling
+
+  unsubscribeAll(){
+    this.toDeleteSubscription.forEach( (s: Subscription) => {
+      s?.unsubscribe();
+    });
+  }
+
   // HANDLING DATA LOADING
 
   setRequestByID(playedGameId: string, playerLogin: string){
     this.setGameByID(playedGameId);
-    this.gameDataLoaded.subscribe( () => {
-      this.setPlayerByID(playedGameId, playerLogin);
-      this.playerDataLoaded.subscribe( () => {
-        this.setGameFields(playedGameId);
-      });
-    });
+    this.toDeleteSubscription.push(
+      this.gameDataLoaded.subscribe( () => {
+        this.setPlayerByID(playedGameId, playerLogin);
+        this.toDeleteSubscription.push(
+          this.playerDataLoaded.subscribe( () => {
+            this.setGameFields(playedGameId);
+          })
+        );
+      })
+    );
   }
 
   setGameByID(gameId: string){
-    this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) => {
-      this.requestStructure.game = playedGame;
-      this.sendGameDataLoadedEvent();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGame(gameId).subscribe((playedGame: PlayedGame) => {
+        this.requestStructure.game = playedGame;
+        this.sendGameDataLoadedEvent();
+      })
+    );
   }
 
   setPlayerByID(gameId: string, playerLogin: string){
-    this.playedGameService.getPlayer(gameId, playerLogin).subscribe( (player: Player) => {
-      this.requestStructure.player = player;
-      this.sendPlayerDataLoadedEvent();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getPlayer(gameId, playerLogin).subscribe( (player: Player) => {
+        this.requestStructure.player = player;
+        this.sendPlayerDataLoadedEvent();
+      })
+    );
   }
 
   setRequest(game: PlayedGame, player: Player){
@@ -113,26 +133,34 @@ export class SharedService{
 
   setGameFields(playedGameId: string){
     this.setBossField(playedGameId);
-    this.bossFieldDataLoaded.subscribe( () => {
-      this.setBridgeField(playedGameId);
-      this.bridgeFieldDataLoaded.subscribe( () => {
-        this.sendDataLoadedEvent();
-      });
-    });
+    this.toDeleteSubscription.push(
+      this.bossFieldDataLoaded.subscribe( () => {
+        this.setBridgeField(playedGameId);
+        this.toDeleteSubscription.push(
+          this.bridgeFieldDataLoaded.subscribe( () => {
+            this.sendDataLoadedEvent();
+          })
+        );
+      })
+    );
   }
 
   setBossField(playedGameId: string){
-    this.playedGameService.getGameBossField(playedGameId).subscribe((bossFieldId: number) => {
-      this.requestStructure.bossFieldId = bossFieldId;
-      this.sendBossFieldDataLoadedEvent();
-    });
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGameBossField(playedGameId).subscribe((bossFieldId: number) => {
+        this.requestStructure.bossFieldId = bossFieldId;
+        this.sendBossFieldDataLoadedEvent();
+      })
+    );
   }
 
   setBridgeField(playedGameId: string){
-    this.playedGameService.getGameBridgeField(playedGameId).subscribe( (bridgeFieldId: number) => {
-      this.requestStructure.bridgeFieldId = bridgeFieldId;
-      this.sendBridgeFieldDataLoadedEvent();
-    })
+    this.toDeleteSubscription.push(
+      this.playedGameService.getGameBridgeField(playedGameId).subscribe( (bridgeFieldId: number) => {
+        this.requestStructure.bridgeFieldId = bridgeFieldId;
+        this.sendBridgeFieldDataLoadedEvent();
+      })
+    );
   }
 
   getBossField(){
@@ -178,6 +206,7 @@ export class SharedService{
   }
 
   sendDataLoadedEvent(){
+    this.unsubscribeAll();
     this.dataLoaded.next(null);
   }
 

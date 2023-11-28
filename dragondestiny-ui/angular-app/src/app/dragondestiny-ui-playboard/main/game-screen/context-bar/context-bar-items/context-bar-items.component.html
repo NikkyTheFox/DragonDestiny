@@ -1,9 +1,11 @@
 <div class="items-list" *ngIf="cardFetchedFlag">
- <div *ngFor="let j of cardOrder; let i = index" class="tile">
-   <div class="item-name">{{engineItemsList[j].name}}</div>
-   <!-- <div class="item-desc">{{engineItemsList[i].description}}</div> -->
-   <div class="additional-strength">Strength: {{itemsList[i].strength}}</div>
-   <div class="additional-health">Health: {{itemsList[i].health}}</div>
-   <button *ngIf="discardFlag" class="button" type="button" (click)="discardItem(itemsList[i])">Discard</button>
- </div>
+  <div *ngFor="let j of cardOrder; let i = index" class="tile">
+    <div *ngIf="engineItemsList[j] && itemsList[i]">
+      <div class="item-name">{{engineItemsList[j].name}}</div>
+      <!-- <div class="item-desc">{{engineItemsList[i].description}}</div> -->
+      <div class="additional-strength">Strength: {{itemsList[i].strength}}</div>
+      <div class="additional-health">Health: {{itemsList[i].health}}</div>
+      <button *ngIf="discardFlag" class="button" type="button" (click)="discardItem(itemsList[i])">Discard</button>
+    </div>
+  </div>
 </div>

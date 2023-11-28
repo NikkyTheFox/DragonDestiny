@@ -12,7 +12,6 @@ import { Subscription } from 'rxjs';
 })
 export class CreateGameComponent implements OnInit, OnDestroy{
   toDeleteSubscription: Subscription[] = [];
-
   playerLogin!: string;
   selectedOption: number = 1;
 
@@ -29,7 +28,7 @@ export class CreateGameComponent implements OnInit, OnDestroy{
       this.playedGameService.initializeGame(this.selectedOption).subscribe( (data: any) => {
         this.addPlayer(data.id);
       })
-    )
+    );
   }
 
   addPlayer(playerGameId: string){
@@ -39,7 +38,7 @@ export class CreateGameComponent implements OnInit, OnDestroy{
         this.shared.setRequestByID(playerGameId, this.playerLogin);
         this.redirectToGame();
       })
-    )
+    );
   }
 
   redirectToGame(){
@@ -47,7 +46,7 @@ export class CreateGameComponent implements OnInit, OnDestroy{
       this.shared.getDataLoadedEvent().subscribe( () => {
         this.router.navigate(['/preparegame']);
       })
-    )
+    );
   }
 
   ngOnDestroy(): void {

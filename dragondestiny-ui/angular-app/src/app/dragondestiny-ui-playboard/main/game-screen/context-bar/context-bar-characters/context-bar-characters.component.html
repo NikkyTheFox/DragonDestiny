@@ -1,5 +1,7 @@
-<div class="context-bar-characters-container">
-  <div *ngFor="let character of otherCharacters; let i = index" class="context-bar-characters">
-      {{i+1}}) {{ characterNames[i] }} | S: {{character.strength}} | HP:{{character.health}}
+<div class="context-bar-characters-container" *ngIf="charcterFetchedFlag">
+  <div *ngFor="let j of characterOrder; let i = index" class="context-bar-characters">
+    <div *ngIf="engineCharacters[j] && otherCharacters[i]">
+      {{i+1}}) {{ engineCharacters[j].name }} | S: {{otherCharacters[i].strength}} | HP:{{otherCharacters[i].health}}
+    </div>
   </div>
 </div>

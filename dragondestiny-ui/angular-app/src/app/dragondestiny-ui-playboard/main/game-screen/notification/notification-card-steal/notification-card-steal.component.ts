@@ -20,6 +20,8 @@ export class NotificationCardStealComponent implements OnInit, OnDestroy{
   round!: Round;
   playedGameCards: ItemCard[] = [];
   engineCards: EngineCard[] = [];
+  cardOrder: number[] = [];
+  cardFetchedFlag: boolean = false;
   loserLogin!: string;
 
   constructor(private engineService: GameEngineService, private playedGameService: PlayedGameService, private shared: SharedService){
@@ -62,6 +64,10 @@ export class NotificationCardStealComponent implements OnInit, OnDestroy{
       this.toDeleteSubscription.push(
         this.engineService.getCard(c.id).subscribe( (data: any) => {
           this.engineCards.push(data as EngineCard);
+          if(this.engineCards.length == this.playedGameCards.length){
+            this.cardFetchedFlag = true;
+            this.sortItemArrays();
+          }
         })
       );
     });
@@ -75,9 +81,21 @@ export class NotificationCardStealComponent implements OnInit, OnDestroy{
     );
   }
 
+  sortItemArrays(){
+    for(let i = 0; i< this.playedGameCards.length; i++){
+      for(let j = 0; j < this.engineCards.length; j++){
+        if(this.playedGameCards[i].id == this.engineCards[j].id){
+          this.cardOrder.push(j);
+        }
+      }
+    }
+  }
+
   reset(){
     this.playedGameCards = [];
     this.engineCards = [];
+    this.cardOrder = [];
+    this.cardFetchedFlag = false;
   }
 
   ngOnDestroy(): void {
