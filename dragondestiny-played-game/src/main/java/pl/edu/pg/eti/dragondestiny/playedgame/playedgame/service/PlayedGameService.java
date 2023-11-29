@@ -645,7 +645,7 @@ public class PlayedGameService {
                 nextPlayer.setBlockedTurns(nextPlayer.getBlockedTurns() - 1);
                 updatePlayer(playedGame, nextPlayer);
                 nextRound.setId(nextRound.getId() + 1);
-            } else {
+            } else if (nextPlayer.isAlive()) {
                 found = true;
             }
         }
@@ -1169,7 +1169,7 @@ public class PlayedGameService {
                 playedGame.setActiveRound(activeRound);
                 playedGameRepository.save(playedGame);
             }
-            playedGame = decreaseHealth(playedGame, player, enemyCard, 1, fightResult);
+            playedGame = decreaseHealth(playedGame, player, enemyCard, 1, fieldEnemy, fightResult);
             fightResult.setAttackerWon(true);
         } else { // player lost
             playedGame = decreaseHealth(playedGame, player, 1, fightResult);
@@ -1516,7 +1516,7 @@ public class PlayedGameService {
      * @param enemyCard The enemy card which health points are to be reduced.
      * @param value     A number that is to be subtracted from enemy's health points.
      */
-    private PlayedGame decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, FightResult fightResult) throws IllegalGameStateException {
+    private PlayedGame decreaseHealth(PlayedGame game, Player player, EnemyCard enemyCard, Integer value, Boolean fieldEnemy, FightResult fightResult) throws IllegalGameStateException {
         enemyCard.reduceHealth(value);
         if (!enemyCard.isAlive()) {
             if (Objects.equals(enemyCard.getId(), PlayedGameProperties.guardianID)) {
@@ -1535,7 +1535,13 @@ public class PlayedGameService {
                 }
             }
         }
-        updateCardDeck(game, enemyCard);
+        if (!fieldEnemy) {
+            updateCardDeck(game, enemyCard);
+        } else {
+            Field field = player.getPositionField();
+            field.setEnemy(enemyCard);
+            updateField(game, field);
+        }
         return playedGameRepository.save(game);
     }
 
