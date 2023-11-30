@@ -7,7 +7,7 @@ import { DashboardComponent } from './dragondestiny-ui-dashboard/dashboard.compo
 import { PrepareGameComponent } from './dragondestiny-ui-prepare-game/prepare-game.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full'},
+  { path: '', redirectTo: 'login', pathMatch: 'full'},
   { path: 'login', component: LoginInComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'main', component: MainComponent },
