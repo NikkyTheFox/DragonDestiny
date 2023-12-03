@@ -92,8 +92,8 @@ export class GameScreenComponent implements OnInit, OnDestroy{
         if(data.player1Login == this.shared.getRequest().player!.login || data.player2Login == this.shared.getRequest().player!.login){
           return;
         }
-        this.showNotification = false;
-        this.notificationData = '';
+        // this.showNotification = false;
+        // this.notificationData = '';
         this.notificationData2 = '';
         if(data.updateType == UpdateEnum.PLAYER_ATTACKED &&
           data.player1Login != null && data.player2Login != null){
