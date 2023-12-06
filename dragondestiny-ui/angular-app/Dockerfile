@@ -18,6 +18,7 @@
 
 FROM nginx:alpine
 ENV API_URL http://localhost:8080/api
+ENV API_URL2 ws://localhost:8080
 ##WORKDIR /usr/src/app
 EXPOSE 80
 ADD /dist/angular-app /usr/share/nginx/html/
