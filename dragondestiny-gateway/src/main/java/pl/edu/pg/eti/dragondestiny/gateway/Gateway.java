@@ -27,7 +27,10 @@ public class Gateway {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder
-                .routes()
+                .routes() 
+                .route("websocket", r -> r
+                        .path("/playedgame/updates/**")
+                        .uri("lb:ws://played-game"))
                 .route("users", r -> r
                         .path("/api/users/**")
                         .uri("lb://game-user"))

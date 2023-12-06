@@ -10,7 +10,7 @@ export class WebsocketService {
   constructor() { }
 
   connect(playedGameId: string): void {
-    this.socket = new WebSocket(environment.wsUrl + '/' + playedGameId);
+    this.socket = new WebSocket(environment.ws + '/' + playedGameId);
 
     this.socket.onopen = () => {
       console.log('WebSocket connection established.');

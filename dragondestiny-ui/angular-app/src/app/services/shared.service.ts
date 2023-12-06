@@ -403,7 +403,7 @@ export class SharedService{
   }
 
   closeSocket(){
-    this.wsService.closeConnection();
+    this.socket.close(1000, 'Connection closed normally');
   }
 
   broadcastSocketMessage(message: NotificationMessage){
