@@ -13,7 +13,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.character.object.CharacterList;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldList;
 import pl.edu.pg.eti.dragondestiny.playedgame.initialization.DTO.GameEngineGameDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository.InitializingPlayedGameRepository;
+import pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository.InitializePlayedGameRepository;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
 
@@ -23,7 +23,7 @@ import java.util.Optional;
  * A service responsible for initializing played game based on data retrieved from game engine.
  */
 @Service
-public class InitializingPlayedGameService {
+public class InitializePlayedGameService {
 
     /**
      * MongoRepository communicating with database.
@@ -33,18 +33,18 @@ public class InitializingPlayedGameService {
     /**
      * Repository communicating with database.
      */
-    private final InitializingPlayedGameRepository initializingPlayedGameRepository;
+    private final InitializePlayedGameRepository initializePlayedGameRepository;
 
     /**
      * A constructor to initialize InitializingPlayedGameService with PlayedGameRepository and InitializingPlayedGameRepository
      *
-     * @param playedGameRepository             A repository with methods to handle played game data.
-     * @param initializingPlayedGameRepository A repository with methods to retrieve data from game engine.
+     * @param playedGameRepository           A repository with methods to handle played game data.
+     * @param initializePlayedGameRepository A repository with methods to retrieve data from game engine.
      */
     @Autowired
-    public InitializingPlayedGameService(PlayedGameRepository playedGameRepository, InitializingPlayedGameRepository initializingPlayedGameRepository) {
+    public InitializePlayedGameService(PlayedGameRepository playedGameRepository, InitializePlayedGameRepository initializePlayedGameRepository) {
         this.playedGameRepository = playedGameRepository;
-        this.initializingPlayedGameRepository = initializingPlayedGameRepository;
+        this.initializePlayedGameRepository = initializePlayedGameRepository;
     }
 
     /**
@@ -55,7 +55,7 @@ public class InitializingPlayedGameService {
      */
     public Optional<PlayedGame> initialize(Integer gameEngineGameId) {
         // GET GAME:
-        GameEngineGameDTO playedGameResponse = initializingPlayedGameRepository.getGameById(gameEngineGameId);
+        GameEngineGameDTO playedGameResponse = initializePlayedGameRepository.getGameById(gameEngineGameId);
         if (playedGameResponse == null) {
             return Optional.empty();
         }
@@ -68,7 +68,7 @@ public class InitializingPlayedGameService {
         playedGame.setCharactersInGame(playedGameResponse.getCharactersInGame());
 
         // GET CARDS:
-        EnemyCardList enemyCardList = initializingPlayedGameRepository.getGameEnemyCards(gameEngineGameId);
+        EnemyCardList enemyCardList = initializePlayedGameRepository.getGameEnemyCards(gameEngineGameId);
         if (enemyCardList == null) {
             return Optional.empty();
         }
@@ -78,7 +78,7 @@ public class InitializingPlayedGameService {
             playedGame.addCardToDeck(c);
         }
 
-        ItemCardList itemCardList = initializingPlayedGameRepository.getGameItemCards(gameEngineGameId);
+        ItemCardList itemCardList = initializePlayedGameRepository.getGameItemCards(gameEngineGameId);
         if (itemCardList == null) {
             return Optional.empty();
         }
@@ -88,7 +88,7 @@ public class InitializingPlayedGameService {
         }
 
         // GET CHARACTERS:
-        CharacterList characterList = initializingPlayedGameRepository.getGameCharacters(gameEngineGameId);
+        CharacterList characterList = initializePlayedGameRepository.getGameCharacters(gameEngineGameId);
         if (characterList == null) {
             return Optional.empty();
         }
@@ -99,13 +99,13 @@ public class InitializingPlayedGameService {
         }
 
         // GET BOARD:
-        PlayedBoard playedBoard = initializingPlayedGameRepository.getGamePlayedBoard(gameEngineGameId);
+        PlayedBoard playedBoard = initializePlayedGameRepository.getGamePlayedBoard(gameEngineGameId);
         if (playedBoard == null) {
             return Optional.empty();
         }
 
         // GET FIELDS:
-        FieldList fieldList = initializingPlayedGameRepository.getGameFieldList(gameEngineGameId);
+        FieldList fieldList = initializePlayedGameRepository.getGameFieldList(gameEngineGameId);
         if (fieldList == null) {
             return Optional.empty();
         }
@@ -119,7 +119,7 @@ public class InitializingPlayedGameService {
         playedGame.setBoard(playedBoard);
 
         PlayedGame playedGame1 = playedGameRepository.save(playedGame);
-        initializingPlayedGameRepository.addGameToUserDatabase(playedGame1.getId());
+        initializePlayedGameRepository.addGameToUserDatabase(playedGame1.getId());
         return Optional.of(playedGame1);
     }
 

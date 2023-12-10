@@ -89,17 +89,17 @@ public class CardController {
     /**
      * Retrieve card by ID.
      *
-     * @param id An identifier of card.
+     * @param cardId An identifier of card.
      * @return A retrieved card.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{cardId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = CardDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Card not found", content = @Content)})
-    public ResponseEntity<CardDTO> getCard(@PathVariable(name = "id") Integer id) {
-        Optional<Card> card = cardService.getCard(id);
+    public ResponseEntity<CardDTO> getCard(@PathVariable(name = "cardId") Integer cardId) {
+        Optional<Card> card = cardService.getCard(cardId);
         return card.map(value -> ResponseEntity.ok().body(modelMapper.map(value, CardDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

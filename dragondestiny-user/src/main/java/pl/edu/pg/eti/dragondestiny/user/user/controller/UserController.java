@@ -116,8 +116,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = GameListDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Games not found", content = @Content)})
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity<GameListDTO> getGames() {
         GameList gameList = new GameList(gameService.getGames());
         return ResponseEntity.ok().body(gameService.convertGameListToDTO(modelMapper, gameList));
@@ -207,8 +206,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)})
     public ResponseEntity deleteGame(@PathVariable(name = "gameId") String gameId) {
         Optional<Game> game = gameService.getGame(gameId);
-        if (game.isPresent())
+        if (game.isPresent()) {
             gameService.delete(game.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.noContent().build();
     }
 

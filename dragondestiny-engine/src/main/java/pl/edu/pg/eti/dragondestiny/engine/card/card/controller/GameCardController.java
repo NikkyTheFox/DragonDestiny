@@ -4,7 +4,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import pl.edu.pg.eti.dragondestiny.engine.board.dto.BoardDTO;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.dto.CardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.card.entity.Card;
@@ -14,13 +20,6 @@ import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.dto.EnemyCardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.enemycard.entity.EnemyCardList;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.dto.ItemCardListDTO;
 import pl.edu.pg.eti.dragondestiny.engine.card.itemcard.entity.ItemCardList;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
@@ -80,7 +79,7 @@ public class GameCardController {
      * @param cardId An identifier of a card.
      * @return A retrieved card.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{cardId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = CardDTO.class))}),

@@ -74,7 +74,7 @@ public class GameCharacterController {
      * @param characterId An identifier of a character to be retrieved.
      * @return Retrieved character.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{characterId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = CharacterDTO.class))}),

@@ -43,6 +43,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.round.object.RoundState;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static pl.edu.pg.eti.dragondestiny.playedgame.PlayedGameProperties.numberOfPlayerMax;
 import static pl.edu.pg.eti.dragondestiny.playedgame.round.object.IllegalGameStateException.*;
 
 /**
@@ -622,8 +623,6 @@ public class PlayedGameService {
         nextRound.setId(activeRound.getId() + 1);
         nextRound.setPlayerList(activeRound.getPlayerList());
 
-        playedGame.getRounds().add(playedGame.getActiveRound());
-
         Optional<Player> optionalPlayer = nextRound.getPlayerList().stream().filter(player ->
                 player.getLogin().equals(activePlayer.getLogin())
         ).findFirst();
@@ -691,7 +690,7 @@ public class PlayedGameService {
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
                 activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_RESULT);
             }
-            case FIGHT_WITH_ENEMY_ON_FIELD, BOSS_FIELD -> {
+            case BOSS_FIELD -> {
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMIES_TO_FIGHT);
                 activeRound.addRoundState(RoundState.WAITING_FOR_FIGHT_ROLL);
                 activeRound.addRoundState(RoundState.WAITING_FOR_ENEMY_ROLL);
@@ -731,6 +730,9 @@ public class PlayedGameService {
         }
         if (playedGame.get().getPlayers().stream().filter(p -> p.getLogin().equals(playerLogin)).findAny().isPresent()) {
             throw new IllegalGameStateException(PlayerAlreadyAddedMessage);
+        }
+        if (playedGame.get().getPlayers().size() >= numberOfPlayerMax) {
+            throw new IllegalGameStateException(TooManyPlayersInGameMessage);
         }
         playedGame.get().addPlayerToGame(player.get());
         playerService.addGame(playerLogin, playedGameId);
@@ -1067,10 +1069,10 @@ public class PlayedGameService {
             fieldOption.enemyPlayer = enemyPlayer;
             list.getPossibleOptions().add(fieldOption);
         }
-        Optional<EnemyCardList> enemyCardList = findEnemyCardsOnField(playedGameId, field.getId());
-        if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty() && field.getType() != FieldType.BOSS_FIELD && field.getType() != FieldType.BRIDGE_FIELD) {
-            list.getPossibleOptions().add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
-        }
+//        Optional<EnemyCardList> enemyCardList = findEnemyCardsOnField(playedGameId, field.getId());
+//        if (enemyCardList.isPresent() && !enemyCardList.get().getEnemyCardList().isEmpty() && field.getType() != FieldType.BOSS_FIELD && field.getType() != FieldType.BRIDGE_FIELD) {
+//            list.getPossibleOptions().add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+//        }
         activeRound.nextRoundState();
         activeRound.setFieldOptionList(list);
         playedGame.setActiveRound(activeRound);
@@ -1585,7 +1587,7 @@ public class PlayedGameService {
                 return false;
             }
         }
-        return true;
+        return game.getPlayers().size() > 1;
     }
 
     /**

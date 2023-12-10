@@ -48,9 +48,9 @@ public class GameFieldService {
      * @param gameId An identifier of a game.
      * @return A structure containing list of fields.
      */
-    public Optional<FieldList> getGameFields(Integer gameId){
+    public Optional<FieldList> getGameFields(Integer gameId) {
         Optional<Board> board = gameService.getGameBoard(gameId);
-        if(board.isEmpty()){
+        if (board.isEmpty()) {
             return Optional.empty();
         }
         List<Field> fieldList = fieldService.getFieldsByBoard(board.get());
@@ -60,13 +60,13 @@ public class GameFieldService {
     /**
      * Retrieves a field specified by ID.
      *
-     * @param gameId An identifier of a game.
+     * @param gameId  An identifier of a game.
      * @param fieldId An identifier of a field to be retrieved.
      * @return A retrieved field.
      */
-    public Optional<Field> getGameField(Integer gameId, Integer fieldId){
+    public Optional<Field> getGameField(Integer gameId, Integer fieldId) {
         Optional<Board> board = gameService.getGameBoard(gameId);
-        if(board.isEmpty()){
+        if (board.isEmpty()) {
             return Optional.empty();
         }
         return fieldService.getField(board.get(), fieldId);
@@ -75,13 +75,13 @@ public class GameFieldService {
     /**
      * Retrieves enemy card from the specified field.
      *
-     * @param gameId An identifier of a game.
+     * @param gameId  An identifier of a game.
      * @param fieldId An identifier of a field to be checked.
      * @return A retrieved enemy card.
      */
-    public Optional<EnemyCard> getGameFieldEnemy(Integer gameId, Integer fieldId){
+    public Optional<EnemyCard> getGameFieldEnemy(Integer gameId, Integer fieldId) {
         Optional<Field> field = getGameField(gameId, fieldId);
-        if(field.isEmpty() || field.get().getEnemy() == null){
+        if (field.isEmpty() || field.get().getEnemy() == null) {
             return Optional.empty();
         }
         return Optional.of(field.get().getEnemy());
@@ -91,10 +91,10 @@ public class GameFieldService {
      * Converts FieldList into FieldListDTO.
      *
      * @param modelMapper Mapper allowing conversion.
-     * @param fieldList A structure containing list of fields.
+     * @param fieldList   A structure containing list of fields.
      * @return A DTO.
      */
-    public FieldListDTO convertFieldListToDTO(ModelMapper modelMapper, FieldList fieldList)           {
+    public FieldListDTO convertFieldListToDTO(ModelMapper modelMapper, FieldList fieldList) {
         return fieldService.convertFieldListToDTO(modelMapper, fieldList);
     }
 

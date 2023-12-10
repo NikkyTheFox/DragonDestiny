@@ -1,17 +1,12 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object;
 
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import pl.edu.pg.eti.dragondestiny.playedgame.character.object.Character;
 import pl.edu.pg.eti.dragondestiny.playedgame.player.object.Player;
-import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.mongodb.core.mapping.Document;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.AccessLevel;
-import org.springframework.data.annotation.Id;
 import pl.edu.pg.eti.dragondestiny.playedgame.round.object.Round;
 
 import java.util.ArrayList;
@@ -70,12 +65,6 @@ public class PlayedGame {
      * Characters available to play in the game - not those chosen by users!
      */
     private List<Character> charactersInGame = new ArrayList<>();
-
-    /**
-     * Rounds in the game already performed.
-     */
-    @JsonIgnore
-    private List<Round> rounds = new ArrayList<>();
 
     /**
      * Adds player to play in the game.

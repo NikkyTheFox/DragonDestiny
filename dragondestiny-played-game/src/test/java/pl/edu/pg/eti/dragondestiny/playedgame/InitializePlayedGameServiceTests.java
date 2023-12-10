@@ -6,9 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.edu.pg.eti.dragondestiny.playedgame.board.object.PlayedBoard;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.Card;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.card.object.CardType;
-import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.DTO.EnemyCardDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCard;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.enemycard.object.EnemyCardList;
 import pl.edu.pg.eti.dragondestiny.playedgame.cards.itemcard.object.ItemCard;
@@ -18,20 +16,19 @@ import pl.edu.pg.eti.dragondestiny.playedgame.character.object.CharacterList;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.Field;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldList;
 import pl.edu.pg.eti.dragondestiny.playedgame.initialization.DTO.GameEngineGameDTO;
-import pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository.InitializingPlayedGameRepository;
-import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializingPlayedGameService;
+import pl.edu.pg.eti.dragondestiny.playedgame.initialization.repository.InitializePlayedGameRepository;
+import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializePlayedGameService;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.PlayedGame;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.repository.PlayedGameRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class InitializePlayedGameServiceTests {
 
@@ -39,7 +36,7 @@ public class InitializePlayedGameServiceTests {
      * InitializingPlayedGameService is object being tested. All mocks will be automatically injected as dependencies.
      */
     @InjectMocks
-    private InitializingPlayedGameService initializeService;
+    private InitializePlayedGameService initializeService;
 
     /**
      * PlayedGameRepository mock for InitializingPlayedGameService.
@@ -51,21 +48,21 @@ public class InitializePlayedGameServiceTests {
      * InitializingPlayedGameRepository mock for InitializingPlayedGameService.
      */
     @Mock
-    private InitializingPlayedGameRepository initializingPlayedGameRepository;
+    private InitializePlayedGameRepository initializePlayedGameRepository;
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
 
-        when(initializingPlayedGameRepository.getGameById(anyInt())).thenAnswer(invocation -> {
+        when(initializePlayedGameRepository.getGameById(anyInt())).thenAnswer(invocation -> {
             int gameId = invocation.getArgument(0);
             return createMockGameEngineGameDTO(gameId);
         });
-        when(initializingPlayedGameRepository.getGameEnemyCards(anyInt())).thenReturn(createMockEnemyCardList());
-        when(initializingPlayedGameRepository.getGameItemCards(anyInt())).thenReturn(createMockItemCardList());
-        when(initializingPlayedGameRepository.getGameCharacters(anyInt())).thenReturn(createMockCharacterList());
-        when(initializingPlayedGameRepository.getGamePlayedBoard(anyInt())).thenReturn(createMockPlayedBoard());
-        when(initializingPlayedGameRepository.getGameFieldList(anyInt())).thenReturn(createMockFieldList());
+        when(initializePlayedGameRepository.getGameEnemyCards(anyInt())).thenReturn(createMockEnemyCardList());
+        when(initializePlayedGameRepository.getGameItemCards(anyInt())).thenReturn(createMockItemCardList());
+        when(initializePlayedGameRepository.getGameCharacters(anyInt())).thenReturn(createMockCharacterList());
+        when(initializePlayedGameRepository.getGamePlayedBoard(anyInt())).thenReturn(createMockPlayedBoard());
+        when(initializePlayedGameRepository.getGameFieldList(anyInt())).thenReturn(createMockFieldList());
 
         when(playedGameRepository.save(any(PlayedGame.class))).thenAnswer(invocation -> {
             PlayedGame playedGame = invocation.getArgument(0);
@@ -84,14 +81,14 @@ public class InitializePlayedGameServiceTests {
         // Assert
         assertTrue(result.isPresent());
 
-        EnemyCardList enemyCardFound = new EnemyCardList (result.get().getCardDeck().stream()
+        EnemyCardList enemyCardFound = new EnemyCardList(result.get().getCardDeck().stream()
                 .filter(card -> card.getCardType().equals(CardType.ENEMY_CARD)).map(card -> (EnemyCard) card).collect(Collectors.toList()));
         assertEquals(createMockEnemyCardList().getEnemyCardList().size(), enemyCardFound.getEnemyCardList().size());
         for (int d = 0; d < enemyCardFound.getEnemyCardList().size(); d++) {
             assertEquals(createMockEnemyCardList().getEnemyCardList().get(d).getId(), enemyCardFound.getEnemyCardList().get(d).getId());
         }
 
-        ItemCardList itemCardListFound = new ItemCardList (result.get().getCardDeck().stream()
+        ItemCardList itemCardListFound = new ItemCardList(result.get().getCardDeck().stream()
                 .filter(card -> card.getCardType().equals(CardType.ITEM_CARD)).map(card -> (ItemCard) card).collect(Collectors.toList()));
         assertEquals(createMockItemCardList().getItemCardList().size(), itemCardListFound.getItemCardList().size());
         for (int d = 0; d < itemCardListFound.getItemCardList().size(); d++) {
@@ -125,8 +122,7 @@ public class InitializePlayedGameServiceTests {
     }
 
     private GameEngineGameDTO createMockGameEngineGameDTO(int gameId) {
-        if (gameId == 123)
-        {
+        if (gameId == 123) {
             GameEngineGameDTO gameEngineGameDTO = new GameEngineGameDTO();
             gameEngineGameDTO.setId(123);
 

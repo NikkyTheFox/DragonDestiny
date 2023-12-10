@@ -16,7 +16,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.initialization.DTO.GameEngineGameD
  * This repository class interacts with a remote game engine API to retrieve game data.
  */
 @Repository
-public class InitializingPlayedGameRepository {
+public class InitializePlayedGameRepository {
 
     private final WebClient client;
 
@@ -26,7 +26,7 @@ public class InitializingPlayedGameRepository {
      * @param webClientBuilder The builder used to create the WebClient instance.
      */
     @Autowired
-    public InitializingPlayedGameRepository(WebClient.Builder webClientBuilder) {
+    public InitializePlayedGameRepository(WebClient.Builder webClientBuilder) {
         this.client = webClientBuilder.build();
     }
 
