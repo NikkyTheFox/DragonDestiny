@@ -1,5 +1,5 @@
 upstream websocket {
-    server ${API_URL2};
+    server ${API_URL_WS};
 }
 server {
     listen       80;
