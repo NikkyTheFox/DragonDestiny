@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.dragondestiny.playedgame.field.DTO;
+package pl.edu.pg.eti.dragondestiny.playedgame.field.object;
 
 public enum FieldOptionEnum {
     TAKE_ONE_CARD,
@@ -8,6 +8,5 @@ public enum FieldOptionEnum {
     BRIDGE_FIELD,
     BOSS_FIELD,
     FIGHT_WITH_PLAYER,
-    FIGHT_WITH_ENEMY_ON_FIELD
 }
 

@@ -7,6 +7,7 @@ public class IllegalGameStateException extends Exception {
     public static String GameCannotBeStartedCharactersMessage = "All players must have a character assigned to start.";
     public static String GameNotFoundMessage = "The game with given ID was not found.";
     public static String PlayerNotFoundMessage = "The player with given Login was not found in given game.";
+    public static String TooManyPlayersInGameMessage = "There is maximum number of players in game already.";
     public static String CardNotFoundMessage = "The card with given ID was not found in given game.";
     public static String CharacterNotFoundMessage = "The character with given ID was not found in given game.";
     public static String CharactersNotFoundMessage = "No characters found in played game.";

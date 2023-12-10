@@ -36,7 +36,7 @@ import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOption;
 import pl.edu.pg.eti.dragondestiny.playedgame.field.object.FieldOptionList;
 import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.DTO.FightResultDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.fightresult.object.FightResult;
-import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializingPlayedGameService;
+import pl.edu.pg.eti.dragondestiny.playedgame.initialization.service.InitializePlayedGameService;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.DTO.PlayedGameListDTO;
 import pl.edu.pg.eti.dragondestiny.playedgame.playedgame.object.NotificationEnum;
@@ -76,7 +76,7 @@ public class PlayedGameController {
     /**
      * Service to initialize game from Game Engine.
      */
-    private final InitializingPlayedGameService initializingPlayedGameService;
+    private final InitializePlayedGameService initializePlayedGameService;
 
     /**
      * Game Web Socket Handler to communicate with players.
@@ -86,15 +86,15 @@ public class PlayedGameController {
     /**
      * A constructor for PlayedGameController with PlayedGameService, PlayerService and ModelMapper instances.
      *
-     * @param playedGameService             A service to handle played game data.
-     * @param initializingPlayedGameService A service to initialize a game.
-     * @param modelMapper                   A mapper used to transform objects to DTOs.
+     * @param playedGameService           A service to handle played game data.
+     * @param initializePlayedGameService A service to initialize a game.
+     * @param modelMapper                 A mapper used to transform objects to DTOs.
      */
     @Autowired
-    public PlayedGameController(PlayedGameService playedGameService, InitializingPlayedGameService initializingPlayedGameService,
+    public PlayedGameController(PlayedGameService playedGameService, InitializePlayedGameService initializePlayedGameService,
                                 ModelMapper modelMapper, GameWebSocketHandler gameWebSocketHandler) {
         this.playedGameService = playedGameService;
-        this.initializingPlayedGameService = initializingPlayedGameService;
+        this.initializePlayedGameService = initializePlayedGameService;
         this.modelMapper = modelMapper;
         this.gameWebSocketHandler = gameWebSocketHandler;
     }
@@ -150,7 +150,7 @@ public class PlayedGameController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Game scenario not found", content = @Content)})
     public ResponseEntity<PlayedGameDTO> initializeGame(@PathVariable(name = "gameId") Integer gameId) {
-        Optional<PlayedGame> playedGame = initializingPlayedGameService.initialize(gameId);
+        Optional<PlayedGame> playedGame = initializePlayedGameService.initialize(gameId);
         return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -268,10 +268,10 @@ public class PlayedGameController {
     /**
      * Selects a round option for the current round for the active player.
      *
-     * @param playedGameId
-     * @param playerLogin
-     * @param fieldOption
-     * @return
+     * @param playedGameId An identifier of a game.
+     * @param playerLogin  An identifier of a player.
+     * @param fieldOption  An option chosen by the player.
+     * @return A updated game.
      */
     @PutMapping("{playedGameId}/players/{playerLogin}/action/{fieldOption}")
     @Tag(name = "Played Game - round")
@@ -533,13 +533,13 @@ public class PlayedGameController {
                                                      @PathVariable(name = "cardId") Integer cardId, @PathVariable(name = "playerToLogin") String playerToLogin) {
         try {
             Optional<PlayedGame> playedGame = playedGameService.moveCardFromPlayerToPlayer(playedGameId, playerFromLogin, playerToLogin, cardId);
-            if(playedGame.isPresent()){
-                try{
+            if (playedGame.isPresent()) {
+                try {
                     gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.CARD_STOLEN));
                 } catch (Exception ex) {
                     return ResponseEntity.internalServerError().body(ex.getMessage());
                 }
-            }            
+            }
             return playedGame.map(game -> ResponseEntity.ok().body(modelMapper.map(game, PlayedGameDTO.class)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (NoSuchElementException ex) {
@@ -976,7 +976,7 @@ public class PlayedGameController {
     @Tag(name = "Played Game - players")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PlayedGameDTO.class))}),
+                    schema = @Schema(implementation = FieldListDTO.class))}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Player in played game not found", content = @Content)})
     public ResponseEntity checkPossibleNewPositions(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
@@ -1202,17 +1202,16 @@ public class PlayedGameController {
     public ResponseEntity rollDice(@PathVariable(name = "playedGameId") String playedGameId, @PathVariable(name = "playerLogin") String playerLogin) {
         try {
             Optional<Integer> roll = playedGameService.rollDice(playedGameId, playerLogin);
-            if(roll.isPresent()){
-                try{
+            if (roll.isPresent()) {
+                try {
                     // Message players that a dice is rolled => 
                     // 1. Notify DEFENDER player that current roundState = WAITING_FOR_ENEMY_PLAYER_ROLL -> it is time for him to rollDice()
                     // 2. Notify ATTACKER player that current roundState = WAITING_FOR_FIGHT_RESULT -> it is time to call handelFightWithPlayer()
                     gameWebSocketHandler.broadcastMessage(playedGameId, new NotificationMessage(NotificationEnum.DICE_ROLLED));
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     return ResponseEntity.internalServerError().body(ex.getMessage());
                 }
-            }            
+            }
             return roll.map(integer -> ResponseEntity.ok().body(integer))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (IllegalGameStateException ex) {

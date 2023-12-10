@@ -6,6 +6,11 @@ package pl.edu.pg.eti.dragondestiny.playedgame;
 public class PlayedGameProperties {
 
     /**
+     * Maximum number of player in game.
+     */
+    public static Integer numberOfPlayerMax = 6;
+
+    /**
      * Number of trophies needed to get strength points increase.
      */
     public static Integer numberOfTrophiesToGetPoint = 5;

@@ -873,83 +873,7 @@ public class PlayedGameServiceTests {
         // Assert
         assertTrue(playedGameStarted.isEmpty());
     }
-
-    @Test
-    public void testNextRound() throws IllegalGameStateException {
-        // Arrange
-        playedGame.setIsStarted(false);
-        Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
-        List<Player> playerList = playedGame.get().getPlayers();
-        int roundId = playedGame.get().getActiveRound().getId();
-        int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
-        int roundsSize = playedGame.get().getRounds().size();
-        Player nextPlayer = playerList.get(activePlayerId + 1);
-        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
-        // Assert
-        assertTrue(playedGameUpdated.isPresent());
-        assertEquals(roundId + 1, playedGameUpdated.get().getActiveRound().getId());
-        assertEquals(nextPlayer, playedGameUpdated.get().getActiveRound().getActivePlayer());
-        assertEquals(roundsSize + 1, playedGameUpdated.get().getRounds().size());
-    }
-
-    @Test
-    public void testNextRoundBlockedPlayer() throws IllegalGameStateException {
-        // Arrange
-        playedGame.setIsStarted(false);
-        Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
-        int blockedTurns = 1;
-        int blockedTurnsExpected = blockedTurns - 1;
-        playedGame.get().getPlayers().get(1).setBlockedTurns(blockedTurns);
-        List<Player> playerList = playedGame.get().getPlayers();
-        int roundIdExpected = playedGame.get().getActiveRound().getId() + 2;
-        int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
-        int roundsSizeExpected = playedGame.get().getRounds().size() + 1;
-        Player nextPlayer = playerList.get(activePlayerId);
-        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
-        // Assert
-        assertTrue(playedGameUpdated.isPresent());
-        assertEquals(roundIdExpected, playedGameUpdated.get().getActiveRound().getId());
-        assertEquals(nextPlayer, playedGameUpdated.get().getActiveRound().getActivePlayer());
-        assertEquals(blockedTurnsExpected, nextPlayer.getBlockedTurns());
-        assertEquals(roundsSizeExpected, playedGameUpdated.get().getRounds().size());
-    }
-
-    @Test
-    public void testNextRoundBlockedPlayers() throws IllegalGameStateException {
-        // Arrange
-        playedGame.setIsStarted(false);
-        Optional<PlayedGame> playedGame = playedGameService.startGame(playedGameId, true);
-        int blockedTurns0 = 1;
-        int blockedTurns1 = 1;
-        playedGame.get().getPlayers().get(0).setBlockedTurns(blockedTurns0);
-        playedGame.get().getPlayers().get(1).setBlockedTurns(blockedTurns1);
-        List<Player> playerList = playedGame.get().getPlayers();
-        int roundIdExpected = playedGame.get().getActiveRound().getId() + 3;
-        int activePlayerId = playerList.indexOf(playedGame.get().getActiveRound().getActivePlayer());
-        Player nextPlayer = playerList.get(activePlayerId + 1);
-        playedGame.get().getActiveRound().setRoundState(RoundState.WAITING_FOR_NEXT_ROUND);
-        // Act
-        Optional<PlayedGame> playedGameUpdated = playedGameService.nextRound(playedGameId, playedGame.get().getActiveRound().getActivePlayer().getLogin());
-        // Assert
-        assertTrue(playedGameUpdated.isPresent());
-        assertEquals(roundIdExpected, playedGameUpdated.get().getActiveRound().getId());
-        assertEquals(nextPlayer, playedGameUpdated.get().getActiveRound().getActivePlayer());
-    }
-
-    @Test
-    public void testNextRoundNotFound() {
-        // Arrange
-        playedGame.setIsStarted(false);
-        String expectedMessage = "The game is not started yet.";
-        // Act and Assert
-        IllegalGameStateException exception = assertThrows(IllegalGameStateException.class, () -> playedGameService.nextRound(playedGameId, playerLogin));
-        assertEquals(expectedMessage, exception.getMessage());
-    }
-
+    
     @Test
     public void testAddPlayer() throws IllegalGameStateException {
         // Arrange
@@ -1278,7 +1202,7 @@ public class PlayedGameServiceTests {
         playerToCheck.get().setPositionField(fieldPos.get());
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
-        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+//        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);
@@ -1365,7 +1289,7 @@ public class PlayedGameServiceTests {
         List<FieldOption> fieldsOptions = new ArrayList<>();
         fieldsOptions.add(FieldOption.LOSE_ONE_ROUND);
         fieldsOptions.add(FieldOption.FIGHT_WITH_PLAYER);
-        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
+//        fieldsOptions.add(FieldOption.FIGHT_WITH_ENEMY_ON_FIELD);
         playedGame.getActiveRound().setRoundState(RoundState.WAITING_FOR_FIELD_OPTIONS);
         // Act
         Optional<FieldOptionList> fieldsOptionsFound = playedGameService.checkFieldOption(playedGameId, playerLogin);

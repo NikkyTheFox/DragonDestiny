@@ -1,6 +1,5 @@
 package pl.edu.pg.eti.dragondestiny.playedgame.player.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,7 +18,6 @@ public class PlayerRepository {
      *
      * @param webClientBuilder The builder used to create the WebClient instance.
      */
-    @Autowired
     public PlayerRepository(WebClient.Builder webClientBuilder) {
         this.client = webClientBuilder.baseUrl("http://GAME-USER/api/users").build();
     }

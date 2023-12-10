@@ -77,7 +77,7 @@ public class BoardFieldController {
      * @param fieldId An identifier of field.
      * @return A retrieved field.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{fieldId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = FieldDTO.class))}),
