@@ -1,6 +1,4 @@
-
 FROM openjdk:17 as builder
-#RUN apt update
 EXPOSE 8083
 COPY target/dragondestiny-user-0.0.1-SNAPSHOT.jar dragondestiny-user.jar
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /usr/wait-for-it.sh
